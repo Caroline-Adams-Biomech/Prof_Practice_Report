@@ -20,7 +20,7 @@ st.write(
 def load_sprint_data():
     root = Path(__file__).resolve().parents[1]
     return pd.read_excel(
-        root / "data" / "MW_60m_spatial_temporal.xlsx",
+        root / "data" / "60m_spatial_temporal.xlsx",
         sheet_name=0
     )
 
