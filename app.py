@@ -8,26 +8,43 @@ Created on Tue Apr 21 18:35:20 2026
 from pathlib import Path
 import streamlit as st
 
-logo_path = Path(__file__).resolve().parent / "images" / "Logo.png"
-
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 st.set_page_config(
     page_title="Wheelchair Racing Testing Report",
-    layout="wide"
+    layout="centered"   # better for mobile readability
 )
 
-# --- Logo centred at top
+# =========================================================
+# LOGO (MOBILE-SAFE + CENTRED)
+# =========================================================
+logo_path = Path(__file__).resolve().parent / "images" / "Logo.png"
+
 if logo_path.exists():
-    st.image(str(logo_path), width=400)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image(
+            str(logo_path),
+            width=260   # safe width for mobile + desktop
+        )
 else:
     st.error(f"Logo not found at: {logo_path}")
 
-# --- Title and subtitle
+# =========================================================
+# TITLE AND SUBTITLE
+# =========================================================
 st.title("Wheelchair Racing Performance Testing Reports")
 st.subheader("Athlete Feedback")
 
-# --- Divider
+# =========================================================
+# DIVIDER
+# =========================================================
 st.markdown("---")
 
+# =========================================================
+# INTRO TEXT
+# =========================================================
 st.write(
     "This report provides feedback and highlights performance opportunities "
     "for wheelchair racing athletes based on track and laboratory testing."
