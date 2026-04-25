@@ -24,7 +24,7 @@ logo_path = Path(__file__).resolve().parent / "images" / "Logo.png"
 if logo_path.exists():
     st.image(
         str(logo_path),
-        width=260
+        width=400
     )
 else:
     st.error(f"Logo not found at: {logo_path}")

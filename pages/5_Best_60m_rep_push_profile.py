@@ -12,7 +12,7 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
+from decimal import Decimal, ROUND_HALF_UP
 st.set_page_config(layout="wide")
 
 # =========================================================
@@ -63,10 +63,18 @@ df = load_data()
 DISTANCE_BANDS = ["0-10", "35-45"]
 
 # =========================================================
-# SECTION 1 — Cycle Metrics Table (both bands together)
+# SECTION 1 — Cycle Metrics Table 
 # =========================================================
+
 st.subheader("Cycle Metrics Table")
 
+def round_half_up(value, decimals):
+    if pd.isna(value):
+        return value
+    quant = Decimal("1") if decimals == 0 else Decimal(f"1.{'0' * decimals}")
+    return float(Decimal(value).quantize(quant, rounding=ROUND_HALF_UP))
+
+# build table
 table_df = (
     df[df["distance_band"].isin(DISTANCE_BANDS)]
     .pivot_table(
@@ -76,10 +84,11 @@ table_df = (
     )
 )
 
+# flatten column names
 table_df.columns = [f"{p}_{v}".lower() for p, v in table_df.columns]
-table_df = table_df.reset_index()
+table_df = table_df.reset_index(drop=True)
 
-# exact column order requested
+# enforce exact column order (Average Cycle Speed LAST)
 table_df = table_df[
     [
         "cycle_no",
@@ -90,9 +99,11 @@ table_df = table_df[
         "push_time",
         "rolling_time",
         "push_angle",
+        "cycle_av_speed",
     ]
 ]
 
+# rename for athlete display
 table_df = table_df.rename(
     columns={
         "cycle_no": "Cycle Number",
@@ -103,36 +114,59 @@ table_df = table_df.rename(
         "push_time": "Push Time (s)",
         "rolling_time": "Rolling Time (s)",
         "push_angle": "Push Angle (°)",
+        "cycle_av_speed": "Average Cycle Speed (m/s)",
     }
 )
 
-# round push angle to 2 decimal places for display
-table_df["Push Angle (°)"] = table_df["Push Angle (°)"].round(2)
+# formatting rules
+table_df["Cycle Number"] = table_df["Cycle Number"].astype(int)
 
-st.dataframe(table_df, use_container_width=True)
+table_df["Push Angle (°)"] = table_df["Push Angle (°)"].apply(
+    lambda x: round_half_up(x, 0)
+)
+
+cols_2dp = [
+    "Cycle Length (m)",
+    "Push Length (m)",
+    "Rolling Length (m)",
+    "Cycle Frequency (Hz)",
+    "Push Time (s)",
+    "Rolling Time (s)",
+    "Average Cycle Speed (m/s)",
+]
+
+for col in cols_2dp:
+    table_df[col] = table_df[col].apply(lambda x: round_half_up(x, 2))
+
+# display (no index, narrower)
+st.dataframe(
+    table_df,
+    hide_index=True,
+    use_container_width=False
+)
 
 # =========================================================
-# SECTION 2 — Average Cycle Speed
+# SECTION — Average Cycle Speed
 # =========================================================
 st.markdown(
     "**Average Cycle Speed**  \n"
-    "This shows how quickly the chair is moving during each push cycle. "
+    "This shows how fast the chair is moving during each cycle. "
     "Comparing the two distances highlights how speed builds during acceleration "
     "and how well it is maintained at top speed."
 )
 
 speed_max = df[
-    (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
+    (df["variable"] == "cycle_av_speed")
 ]["value"].max()
 
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
-    band_label = band
+
     band_df = df[
-        (df["distance_band"] == band_label)
+        (df["distance_band"] == band)
         & (df["phase"] == "Cycle")
-        & (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
+        & (df["variable"] == "cycle_av_speed")
     ]
 
     with col:
@@ -141,11 +175,18 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             x="cycle_no",
             y="value",
             markers=True,
-            title=f"Average Cycle Speed ({band_label} m)",
-            labels={"cycle_no": "Cycle", "value": "Speed (m/s)"}
+            title=f"Average Cycle Speed ({band} m)",
+            labels={
+                "cycle_no": "Cycle",
+                "value": "Speed (m/s)"
+            }
         )
 
-        fig.update_layout(height=350, yaxis_range=[0, speed_max * 1.1])
+        fig.update_layout(
+            height=350,
+            yaxis_range=[0, speed_max * 1.1]
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
