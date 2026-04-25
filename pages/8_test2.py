@@ -150,7 +150,11 @@ for band in DISTANCE_BANDS:
         height=500,
         yaxis=dict(title="Distance (m)", range=[0, Y_MAX]),
         xaxis=dict(title="Cycle", tickmode="array", tickvals=cycles),
-        legend=dict(frameon=False, font=dict(size=10)),
+        legend=dict(
+    bgcolor="rgba(0,0,0,0)",
+    borderwidth=0,
+    font=dict(size=10),
+),
     )
 
     st.plotly_chart(fig, use_container_width=True)
