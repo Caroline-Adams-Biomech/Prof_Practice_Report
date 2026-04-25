@@ -8,11 +8,34 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import matplotlib.pyplot as plt
+import numpy as np
 
 # =========================================================
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(layout="wide")
+
+# =========================================================
+# COLOURS
+# =========================================================
+# Rep colours (used in line plots)
+REP_COLOURS = {
+    "60m_1": "#2ca02c",   # green
+    "60m_3": "#46A9D6",   # light blue
+}
+
+# Cycle length colours (push / rolling per rep)
+CYCLE_COLOURS = {
+    "60m_1": {
+        "push_length": "#1f8f3a",      # dark green
+        "rolling_length": "#8fd19e",   # light green
+    },
+    "60m_3": {
+        "push_length": "#1f6fae",      # darker blue
+        "rolling_length": "#9ccfe8",   # lighter blue
+    },
+}
 
 # =========================================================
 # LOGO
@@ -22,7 +45,7 @@ if logo_path.exists():
     st.image(str(logo_path), width=400)
 
 # =========================================================
-# TITLE / INTRO
+# TITLE
 # =========================================================
 st.title("Best 60m Push Profile – Rep Comparison")
 st.write(
@@ -35,34 +58,25 @@ st.write(
 # =========================================================
 @st.cache_data(show_spinner=False)
 def load_data():
-
     project_root = Path(__file__).resolve().parents[1]
     data_path = project_root / "data" / "60m_push_breakdown.xlsx"
 
     df = pd.read_excel(data_path)
 
-    # --- Normalise identifiers ---
     df["trial_id"] = df["trial_id"].astype(str).str.strip()
     df["metric_key"] = df["metric_key"].astype(str).str.strip()
-
-    # --- CRITICAL: normalise unicode dashes in distance band ---
     df["distance_band"] = (
         df["distance_band"]
         .astype(str)
-        .str.replace("–", "-", regex=False)   # en-dash
-        .str.replace("−", "-", regex=False)   # minus
+        .str.replace("–", "-", regex=False)
+        .str.replace("−", "-", regex=False)
         .str.strip()
     )
-
-    # --- Ensure values are numeric ---
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return df
 
-
-# ✅ REQUIRED: call the loader
 df = load_data()
-
 
 # =========================================================
 # CONSTANTS
@@ -75,23 +89,19 @@ REP_LABELS = {
     "60m_3": "60m_3",
 }
 
-LINE_STYLES = {
-    "60m_1": dict(dash="solid"),
-    "60m_3": dict(dash="dash"),
-}
-
-BAR_COLOURS = {
-    "60m_1": {"push_length": "#1f77b4", "rolling_length": "#aec7e8"},
-    "60m_3": {"push_length": "#ff7f0e", "rolling_length": "#ffbb78"},
-}
-
 # =========================================================
-# HELPER — RELATIVE CYCLE INDEX
+# SHARED PLOTLY STYLE
 # =========================================================
-def reindex_cycles(frame):
-    frame = frame.sort_values("cycle_no").copy()
-    frame["cycle_idx"] = range(1, len(frame) + 1)
-    return frame
+def apply_plotly_style(fig):
+    fig.update_layout(
+        template="simple_white",
+        font=dict(color="#444"),
+        title_font=dict(size=14),
+        legend=dict(frameon=False, font=dict(size=10)),
+        xaxis=dict(showgrid=False, zeroline=False),
+        yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.05)", zeroline=False),
+    )
+    return fig
 
 # =========================================================
 # SECTION 1 — AVERAGE CYCLE SPEED
@@ -106,51 +116,59 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 
         for rep in REPS:
             rep_df = df[
-                (df["trial_id"] == rep)
-                & (df["distance_band"] == band)
-                & (df["metric_key"] == "cycle_av_speed")
+                (df["trial_id"] == rep) &
+                (df["distance_band"] == band) &
+                (df["metric_key"] == "cycle_av_speed")
             ]
 
             if rep_df.empty:
                 continue
 
-            rep_df = reindex_cycles(rep_df)
+            rep_df = rep_df.sort_values("cycle_no")
+            rep_df["cycle_idx"] = range(1, len(rep_df) + 1)
 
             fig.add_scatter(
                 x=rep_df["cycle_idx"],
                 y=rep_df["value"],
                 mode="lines+markers",
                 name=REP_LABELS[rep],
-                line=LINE_STYLES[rep],
-                marker=dict(size=7),
+                line=dict(
+                    color=REP_COLOURS[rep],
+                    dash="solid" if rep == "60m_1" else "dash",
+                    width=2,
+                ),
+                marker=dict(size=6, color=REP_COLOURS[rep]),
             )
 
         fig.update_layout(
             title=f"Average Cycle Speed ({band} m)",
-            height=350,
             xaxis_title="Cycle",
             yaxis_title="Speed (m/s)",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(apply_plotly_style(fig), use_container_width=True)
 
 # =========================================================
-# SECTION 2 — CYCLE LENGTH BREAKDOWN
-# =========================================================
-# =========================================================
-# SECTION 2 — CYCLE LENGTH BREAKDOWN (GROUPED STACKS)
+# SECTION 2 — CYCLE LENGTH BREAKDOWN (MATPLOTLIB)
 # =========================================================
 st.subheader("Cycle Length Breakdown")
 
-import matplotlib.pyplot as plt
-import numpy as np
+plt.rcParams.update({
+    "axes.spines.top": False,
+    "axes.spines.right": False,
+    "axes.edgecolor": "none",
+    "axes.facecolor": "white",
+    "axes.labelcolor": "#444",
+    "xtick.color": "#444",
+    "ytick.color": "#444",
+    "grid.color": "#dddddd",
+    "font.size": 11,
+})
 
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
     with col:
-
-        # Filter once per panel
         df_len = df[
             (df["distance_band"] == band) &
             (df["metric_key"].isin(["push_length", "rolling_length"])) &
@@ -158,31 +176,25 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
         ]
 
         if df_len.empty:
-            st.warning("No data available for this distance band.")
             continue
 
-        reps = REPS
-        width = 0.35
-
-        # Unique cycles (use cycle_no directly)
         cycles = sorted(df_len["cycle_no"].unique())
         x = np.arange(len(cycles))
+        width = 0.35
 
         fig, ax = plt.subplots(figsize=(7, 4))
 
-        for i, rep in enumerate(reps):
+        for i, rep in enumerate(REPS):
             r = df_len[df_len["trial_id"] == rep]
 
             push = (
                 r[r["metric_key"] == "push_length"]
-                .sort_values("cycle_no")["value"]
-                .values
+                .sort_values("cycle_no")["value"].values
             )
 
             roll = (
                 r[r["metric_key"] == "rolling_length"]
-                .sort_values("cycle_no")["value"]
-                .values
+                .sort_values("cycle_no")["value"].values
             )
 
             ax.bar(
@@ -190,7 +202,7 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 push,
                 width,
                 label=f"Push – {REP_LABELS[rep]}",
-                color=BAR_COLOURS[rep]["push_length"]
+                color=CYCLE_COLOURS[rep]["push_length"],
             )
 
             ax.bar(
@@ -199,20 +211,20 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 width,
                 bottom=push,
                 label=f"Rolling – {REP_LABELS[rep]}",
-                color=BAR_COLOURS[rep]["rolling_length"]
+                color=CYCLE_COLOURS[rep]["rolling_length"],
             )
 
-        # Formatting
         ax.set_title(f"Cycle Length ({band} m)")
         ax.set_xlabel("Cycle")
         ax.set_ylabel("Distance (m)")
         ax.set_xticks(x)
         ax.set_xticklabels(cycles)
         ax.grid(axis="y", alpha=0.3)
-        ax.legend(fontsize=8)
+        ax.legend(frameon=False, fontsize=9)
 
         plt.tight_layout()
         st.pyplot(fig)
+
 # =========================================================
 # SECTION 3 — PUSH ANGLE
 # =========================================================
@@ -226,30 +238,34 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 
         for rep in REPS:
             rep_df = df[
-                (df["trial_id"] == rep)
-                & (df["distance_band"] == band)
-                & (df["metric_key"] == "push_angle")
+                (df["trial_id"] == rep) &
+                (df["distance_band"] == band) &
+                (df["metric_key"] == "push_angle")
             ]
 
             if rep_df.empty:
                 continue
 
-            rep_df = reindex_cycles(rep_df)
+            rep_df = rep_df.sort_values("cycle_no")
+            rep_df["cycle_idx"] = range(1, len(rep_df) + 1)
 
             fig.add_scatter(
                 x=rep_df["cycle_idx"],
                 y=rep_df["value"],
                 mode="lines+markers",
                 name=REP_LABELS[rep],
-                line=LINE_STYLES[rep],
-                marker=dict(size=7),
+                line=dict(
+                    color=REP_COLOURS[rep],
+                    dash="solid" if rep == "60m_1" else "dash",
+                    width=2,
+                ),
+                marker=dict(size=6, color=REP_COLOURS[rep]),
             )
 
         fig.update_layout(
             title=f"Push Angle ({band} m)",
-            height=350,
             xaxis_title="Cycle",
             yaxis_title="Angle (degrees)",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(apply_plotly_style(fig), use_container_width=True)
