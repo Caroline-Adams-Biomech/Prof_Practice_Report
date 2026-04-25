@@ -1,4 +1,30 @@
-# -*- coding: utf-8 -*-#
+"""
+Best 60 m Rep Push Profile – Rep Comparison
+Author: Caroline Adams
+"""
+
+# =========================================================
+# PAGE SETUP
+# =========================================================
+from pathlib import Path
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+st.set_page_config(layout="wide")
+
+# =========================================================
+# LOGO
+# =========================================================
+logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
+
+if logo_path.exists():
+    st.image(str(logo_path), width=400)
+else:
+    st.error(f"Logo not found at: {logo_path}")
+
+# =========================================================
+
 # =========================================================
 st.title("Best 60 m Push Profile – Rep Comparison")
 st.write(
@@ -206,30 +232,5 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
         )
 
         st.plotly_chart(fig, use_container_width=True)
-``
-"""
-Best 60 m Rep Push Profile – Rep Comparison
-Author: Caroline Adams
-"""
 
-# =========================================================
-# PAGE SETUP
-# =========================================================
-from pathlib import Path
-import streamlit as st
-import pandas as pd
-import plotly.express as px
 
-st.set_page_config(layout="wide")
-
-# =========================================================
-# LOGO
-# =========================================================
-logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
-
-if logo_path.exists():
-    st.image(str(logo_path), width=400)
-else:
-    st.error(f"Logo not found at: {logo_path}")
-
-# =========================================================
