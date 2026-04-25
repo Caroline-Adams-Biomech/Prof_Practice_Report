@@ -82,17 +82,17 @@ REPS = ["60m_1", "60m_3"]
 REP_OFFSET = {"60m_1": -0.18, "60m_3": 0.18}
 TEXT_OFFSET = {
     "0-10": {
-        "60m_1": 0.22,
-        "60m_3": 0.32,
+        "60m_1": 0.28,
+        "60m_3": 0.38,
     },
     "35-45": {
-        "60m_1": 0.32,
+        "60m_1": 0.4,
         "60m_3": 0.45,
     },
 }
 
 Y_MAX = 3.5          # ✅ fixed y axis
-TEXT_SIZE = 12       # ✅ larger annotation text
+TEXT_SIZE = 14       # ✅ larger annotation text
 
 #
 
