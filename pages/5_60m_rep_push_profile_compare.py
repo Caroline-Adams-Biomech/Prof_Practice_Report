@@ -137,7 +137,9 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN
 # =========================================================
-
+# =========================================================
+# SECTION 2 — CYCLE LENGTH BREAKDOWN (GROUPED STACKS)
+# =========================================================
 st.subheader("Cycle Length Breakdown")
 
 import plotly.graph_objects as go
@@ -158,16 +160,17 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             if rep_df.empty:
                 continue
 
+            # Relative cycle index
             rep_df = reindex_cycles(rep_df)
 
-            # Pivot so we get one row per cycle
+            # One row per cycle
             wide = (
                 rep_df
                 .pivot(index="cycle_idx", columns="metric_key", values="value")
                 .reset_index()
             )
 
-            # Push bar (base = 0)
+            # Push (bottom of stack)
             fig.add_bar(
                 x=wide["cycle_idx"],
                 y=wide["push_length"],
@@ -177,7 +180,7 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 legendgroup=rep,
             )
 
-            # Rolling bar stacked on top of push
+            # Rolling (stacked on push)
             fig.add_bar(
                 x=wide["cycle_idx"],
                 y=wide["rolling_length"],
