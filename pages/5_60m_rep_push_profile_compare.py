@@ -86,9 +86,9 @@ st.write(
 )
 st.write("DEBUG: metric_key per trial_id")
 st.write(
-    df.groupby("trial_id")["metric_key"].unique()
+    "DEBUG: metric_key per trial_id:",
+    df.groupby("trial_id")["metric_key"].apply(list).to_dict()
 )
-
 # =========================================================
 # CONSTANTS
 # =========================================================
