@@ -28,7 +28,7 @@ st.markdown("---")
 # paths for images
 base_path = Path(__file__).resolve().parents[1]
 trackstart_path = base_path / "images" / "track_start.png"
-test_path = base_path / "images" / "Test_session.png"
+test_path = base_path / "images" / "Test_session.jpg"
 wcerg_path = base_path / "images" / "WC_ergometer.png"
 
  # =========================================================

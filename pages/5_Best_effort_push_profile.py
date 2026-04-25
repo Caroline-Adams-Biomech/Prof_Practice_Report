@@ -29,15 +29,18 @@ st.write(
 
 
 # -------------------------------------------------
-# Load data from disk
+# Load data from disk (FIXED PATH)
 # -------------------------------------------------
 @st.cache_data
 def load_data():
-    root = Path(__file__).parent
-    data_path = root / "data" / "60m_push_breakdown.xlsx"
-    return pd.read_excel(data_path)
+    project_root = Path(__file__).resolve().parents[1]
+    data_path = project_root / "data" / "60m_push_breakdown.xlsx"
 
-df = load_data()
+    if not data_path.exists():
+        st.error(f"Data file not found at: {data_path}")
+        st.stop()
+
+    return pd.read_excel(data_path)
 
 # -------------------------------------------------
 # Sidebar filters
