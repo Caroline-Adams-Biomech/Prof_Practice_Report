@@ -16,6 +16,28 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+# =========================================================
+# PAGE SETUP
+# =========================================================
+
+logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
+
+# --- Logo centred at top
+if logo_path.exists():
+    st.image(str(logo_path), width=400)
+else:
+    st.error(f"Logo not found at: {logo_path}")
+
+# =========================================================
+
+# paths for images
+base_path = Path(__file__).resolve().parents[1]
+profile_path = base_path / "images" / "athlete profile.png"
+
+st.set_page_config(
+    page_title="Athlete Profile",
+    layout="wide"
+)
 
 # =========================================================
 # PAGE CONFIG
@@ -71,15 +93,6 @@ def load_data():
 
 df = load_data()
 
-# =========================================================
-# REP SELECTION
-# =========================================================
-st.subheader("Rep Selection")
-show_rep_3 = st.checkbox("To include Rep 3 for a comparison click here", value=True)
-
-REPS = ["60m_1"]
-if show_rep_3:
-    REPS.append("60m_3")
 
 # =========================================================
 # CONSTANTS
@@ -90,6 +103,24 @@ REP_OFFSET = {"60m_1": -0.18, "60m_3": 0.18}
 TEXT_SIZE = 14
 TEXT_PAD = 0.22
 
+
+# =========================================================
+# TITLE
+# =========================================================
+st.title("60m Push Profile – Rep Comparison")
+st.write(
+    "This page shows push metrics from your best repetition. Results are shown "
+    "for early acceleration (0–10 m) and the higher speed phase (35–45 m)."
+)
+# =========================================================
+# REP SELECTION
+# =========================================================
+st.subheader("Rep Selection")
+show_rep_3 = st.checkbox("To include Rep 3 for a comparison click here", value=True)
+
+REPS = ["60m_1"]
+if show_rep_3:
+    REPS.append("60m_3")
 # =========================================================
 # PRE‑COMPUTE GLOBAL Y‑AXES (KEY CHANGE)
 # =========================================================
@@ -130,19 +161,14 @@ GLOBAL_TIME_MAX = (
 )
 
 # =========================================================
-# TITLE
-# =========================================================
-st.title("60m Push Profile – Rep Comparison")
-st.write(
-    "This page shows push metrics from your best repetition. Results are shown "
-    "for early acceleration (0–10 m) and the higher speed phase (35–45 m)."
-)
-
-# =========================================================
 # SECTION 1 — AVERAGE CYCLE SPEED
 # =========================================================
 st.subheader("Average Cycle Speed")
-
+st.write(
+    "This shows how fast you are moving during each cycle (push + rolling). "
+    "Comparing the two distances highlights how speed builds early"
+    "and how well it is maintained later in the sprint."
+)
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
@@ -274,13 +300,14 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 marker=dict(size=6),
             )
 
-        fig.update_layout(
-            title=f"Push Angle ({band} m)",
-            xaxis_title="Cycle",
-            yaxis_title="Angle (degrees)",
-            yaxis=dict(range=[0, GLOBAL_ANGLE_MAX]),
-            template="simple_white",
-        )
+            fig.update_layout(
+                title=f"Push Angle ({band} m)",
+                xaxis_title="Cycle",
+                yaxis_title="Angle (degrees)",
+                yaxis=dict(range=[135, 225]),
+                template="simple_white",
+)
+
 
         st.plotly_chart(fig, use_container_width=True)
 
