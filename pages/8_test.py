@@ -129,7 +129,7 @@ for band in DISTANCE_BANDS:
             x=cycles,
             y=push["value"],
             name="Push",
-            marker_color=CYCLE_COLOURS[rep]["push_length"],
+            marker_color=BAR_COLOURS["push_length"][rep],
             row=1,
             col=col,
             showlegend=(col == 1),
@@ -140,7 +140,7 @@ for band in DISTANCE_BANDS:
             x=cycles,
             y=roll["value"],
             name="Rolling",
-            marker_color=CYCLE_COLOURS[rep]["rolling_length"],
+            marker_color=BAR_COLOURS["rolling_length"][rep],
             row=1,
             col=col,
             showlegend=(col == 1),
@@ -174,7 +174,7 @@ for band in DISTANCE_BANDS:
         )
 
     # -----------------------------------------------------
-    # Layout polish
+    # Layout styling
     # -----------------------------------------------------
     fig.update_layout(
         barmode="stack",
@@ -191,7 +191,6 @@ for band in DISTANCE_BANDS:
         margin=dict(t=50, l=50, r=30, b=40),
     )
 
-    # Tidy facet titles
     fig.for_each_annotation(lambda a: a.update(font=dict(size=12)))
 
     st.plotly_chart(fig, use_container_width=True)
