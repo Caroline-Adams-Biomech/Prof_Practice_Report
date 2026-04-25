@@ -137,69 +137,82 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN
 # =========================================================
-
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN (GROUPED STACKS)
 # =========================================================
 st.subheader("Cycle Length Breakdown")
 
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import numpy as np
 
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
     with col:
-        fig = go.Figure()
 
-        for rep in REPS:
-            rep_df = df[
-                (df["trial_id"] == rep)
-                & (df["distance_band"] == band)
-                & (df["metric_key"].isin(["push_length", "rolling_length"]))
-            ]
+        # Filter once per panel
+        df_len = df[
+            (df["distance_band"] == band) &
+            (df["metric_key"].isin(["push_length", "rolling_length"])) &
+            (df["trial_id"].isin(REPS))
+        ]
 
-            if rep_df.empty:
-                continue
+        if df_len.empty:
+            st.warning("No data available for this distance band.")
+            continue
 
-            rep_df = reindex_cycles(rep_df)
+        reps = REPS
+        width = 0.35
 
-            wide = (
-                rep_df
-                .pivot(index="cycle_idx", columns="metric_key", values="value")
-                .reset_index()
+        # Unique cycles (use cycle_no directly)
+        cycles = sorted(df_len["cycle_no"].unique())
+        x = np.arange(len(cycles))
+
+        fig, ax = plt.subplots(figsize=(7, 4))
+
+        for i, rep in enumerate(reps):
+            r = df_len[df_len["trial_id"] == rep]
+
+            push = (
+                r[r["metric_key"] == "push_length"]
+                .sort_values("cycle_no")["value"]
+                .values
             )
 
-            # ✅ CRITICAL FIX — REQUIRED FOR STACKING
-            wide = wide.fillna(0)
-
-            fig.add_bar(
-                x=wide["cycle_idx"],
-                y=wide["push_length"],
-                name=f"Push – {REP_LABELS[rep]}",
-                marker_color=BAR_COLOURS[rep]["push_length"],
-                offsetgroup=rep,
-                legendgroup=rep,
+            roll = (
+                r[r["metric_key"] == "rolling_length"]
+                .sort_values("cycle_no")["value"]
+                .values
             )
 
-            fig.add_bar(
-                x=wide["cycle_idx"],
-                y=wide["rolling_length"],
-                base=wide["push_length"],
-                name=f"Rolling – {REP_LABELS[rep]}",
-                marker_color=BAR_COLOURS[rep]["rolling_length"],
-                offsetgroup=rep,
-                legendgroup=rep,
+            ax.bar(
+                x + (i - 0.5) * width,
+                push,
+                width,
+                label=f"Push – {REP_LABELS[rep]}",
+                color=BAR_COLOURS[rep]["push_length"]
             )
 
-        fig.update_layout(
-            title=f"Cycle Length ({band} m)",
-            barmode="stack",
-            height=350,
-            xaxis_title="Cycle",
-            yaxis_title="Distance (m)",
-        )
+            ax.bar(
+                x + (i - 0.5) * width,
+                roll,
+                width,
+                bottom=push,
+                label=f"Rolling – {REP_LABELS[rep]}",
+                color=BAR_COLOURS[rep]["rolling_length"]
+            )
 
-        st.plotly_chart(fig, use_container_width=True)
+        # Formatting
+        ax.set_title(f"Cycle Length ({band} m)")
+        ax.set_xlabel("Cycle")
+        ax.set_ylabel("Distance (m)")
+        ax.set_xticks(x)
+        ax.set_xticklabels(cycles)
+        ax.grid(axis="y", alpha=0.3)
+        ax.legend(fontsize=8)
+
+        plt.tight_layout()
+        st.pyplot(fig)
 # =========================================================
 # SECTION 3 — PUSH ANGLE
 # =========================================================
