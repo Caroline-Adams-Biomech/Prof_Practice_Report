@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 25 19:33:29 2026
-
-@author: Caroline Adams
-"""
-
 # coding: utf-8
 """
 Best 60m Rep Push Profile – Rep Comparison
@@ -69,7 +62,6 @@ def load_data():
 
     return df
 
-
 df = load_data()
 
 # =========================================================
@@ -77,29 +69,26 @@ df = load_data()
 # =========================================================
 st.title("Best 60m Push Profile – Rep Comparison")
 st.write(
-    "This section presents cycle length composition using stacked push and rolling "
-    "distances, with total cycle length overlaid for each rep."
+    "Cycle length composition showing stacked push and rolling distances "
+    "with total cycle length overlaid."
 )
 
 # =========================================================
-# CYCLE LENGTH — SINGLE PLOT, BOTH REPS
+# SHARED SETTINGS
 # =========================================================
-st.subheader("Cycle Length Breakdown")
-
 DISTANCE_BANDS = ["0-10", "35-45"]
 REPS = ["60m_1", "60m_3"]
 
-# Horizontal offsets (side-by-side bars)
-REP_OFFSET = {
-    "60m_1": -0.18,
-    "60m_3":  0.18,
-}
+REP_OFFSET = {"60m_1": -0.18, "60m_3": 0.18}
+TEXT_OFFSET = {"60m_1": 0.18, "60m_3": 0.28}  # higher text placement
 
-# Vertical offsets for text labels (avoid overlap)
-TEXT_OFFSET = {
-    "60m_1": 0.06,
-    "60m_3": 0.14,
-}
+Y_MAX = 3.0          # ✅ fixed y axis
+TEXT_SIZE = 12       # ✅ larger annotation text
+
+# =========================================================
+# VIEW A — STACKED + OVERLAY (CURRENT DESIGN, REFINED)
+# =========================================================
+st.subheader("Cycle Length Breakdown – Overlay View")
 
 for band in DISTANCE_BANDS:
 
@@ -109,36 +98,29 @@ for band in DISTANCE_BANDS:
         (df["metric_key"].isin(["push_length", "rolling_length"])) &
         (df["distance_band"] == band) &
         (df["trial_id"].isin(REPS))
-    ].copy()
-
-    if df_len.empty:
-        st.warning("No data available for this distance band.")
-        continue
+    ]
 
     fig = go.Figure()
-
     cycles = sorted(df_len["cycle_no"].unique())
 
     for rep in REPS:
         r = df_len[df_len["trial_id"] == rep].sort_values("cycle_no")
-
         push = r[r["metric_key"] == "push_length"]
         roll = r[r["metric_key"] == "rolling_length"]
 
-        x_pos = np.array(push["cycle_no"]) + REP_OFFSET[rep]
+        x = push["cycle_no"].values + REP_OFFSET[rep]
+        total = push["value"].values + roll["value"].values
 
-        # ---- Push bar ----
         fig.add_bar(
-            x=x_pos,
+            x=x,
             y=push["value"],
             width=0.32,
             name=f"Push – {REP_LABELS[rep]}",
             marker_color=BAR_COLOURS["push_length"][rep],
         )
 
-        # ---- Rolling bar (stacked) ----
         fig.add_bar(
-            x=x_pos,
+            x=x,
             y=roll["value"],
             width=0.32,
             base=push["value"],
@@ -146,45 +128,100 @@ for band in DISTANCE_BANDS:
             marker_color=BAR_COLOURS["rolling_length"][rep],
         )
 
-        # ---- Total cycle length line ----
-        total = push["value"].values + roll["value"].values
-
         fig.add_scatter(
-            x=x_pos,
-            y=total + TEXT_OFFSET[rep],  # lift text to avoid overlap
+            x=x,
+            y=total + TEXT_OFFSET[rep],
             mode="lines+markers+text",
             name=f"Cycle Length – {REP_LABELS[rep]}",
-            marker=dict(size=7, color=REP_COLOURS[rep]),
+            marker=dict(size=8, color=REP_COLOURS[rep]),
             line=dict(
                 color=REP_COLOURS[rep],
                 width=2,
                 dash="solid" if rep == "60m_1" else "dash",
             ),
             text=[f"{v:.2f}" for v in total],
+            textfont=dict(size=TEXT_SIZE, color=REP_COLOURS[rep]),
             textposition="top center",
-            textfont=dict(size=10, color=REP_COLOURS[rep]),
         )
 
-    # ---- Layout styling ----
     fig.update_layout(
         barmode="stack",
         template="simple_white",
-        height=480,
-        xaxis=dict(
-            title="Cycle",
-            tickmode="array",
-            tickvals=cycles,
-        ),
-        yaxis=dict(
-            title="Distance (m)",
-        ),
-        legend=dict(
-            bgcolor="rgba(0,0,0,0)",
-            borderwidth=0,
-            font=dict(size=10),
-        ),
-        font=dict(color="#444"),
-        margin=dict(l=50, r=30, t=40, b=40),
+        height=500,
+        yaxis=dict(title="Distance (m)", range=[0, Y_MAX]),
+        xaxis=dict(title="Cycle", tickmode="array", tickvals=cycles),
+        legend=dict(frameon=False, font=dict(size=10)),
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+# =========================================================
+# VIEW B — SIDE‑BY‑SIDE COMPARISON (ONE ROW)
+# =========================================================
+st.subheader("Cycle Length Breakdown – Side‑by‑Side View")
+
+col_left, col_right = st.columns(2)
+
+for col, band in zip([col_left, col_right], DISTANCE_BANDS):
+    with col:
+
+        df_len = df[
+            (df["metric_key"].isin(["push_length", "rolling_length"])) &
+            (df["distance_band"] == band) &
+            (df["trial_id"].isin(REPS))
+        ]
+
+        fig = go.Figure()
+        cycles = sorted(df_len["cycle_no"].unique())
+
+        for rep in REPS:
+            r = df_len[df_len["trial_id"] == rep].sort_values("cycle_no")
+            push = r[r["metric_key"] == "push_length"]
+            roll = r[r["metric_key"] == "rolling_length"]
+
+            x = push["cycle_no"].values + REP_OFFSET[rep]
+            total = push["value"].values + roll["value"].values
+
+            fig.add_bar(
+                x=x,
+                y=push["value"],
+                width=0.32,
+                marker_color=BAR_COLOURS["push_length"][rep],
+                showlegend=False,
+            )
+
+            fig.add_bar(
+                x=x,
+                y=roll["value"],
+                width=0.32,
+                base=push["value"],
+                marker_color=BAR_COLOURS["rolling_length"][rep],
+                showlegend=False,
+            )
+
+            fig.add_scatter(
+                x=x,
+                y=total + TEXT_OFFSET[rep],
+                mode="lines+markers+text",
+                marker=dict(size=7, color=REP_COLOURS[rep]),
+                line=dict(
+                    color=REP_COLOURS[rep],
+                    width=2,
+                    dash="solid" if rep == "60m_1" else "dash",
+                ),
+                text=[f"{v:.2f}" for v in total],
+                textfont=dict(size=TEXT_SIZE, color=REP_COLOURS[rep]),
+                textposition="top center",
+                showlegend=False,
+            )
+
+        fig.update_layout(
+            title=f"Cycle Length ({band} m)",
+            barmode="stack",
+            template="simple_white",
+            height=420,
+            yaxis=dict(range=[0, Y_MAX]),
+            xaxis=dict(tickmode="array", tickvals=cycles),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
