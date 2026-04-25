@@ -142,7 +142,6 @@ st.dataframe(
     hide_index=True,
     use_container_width=False
 )
-``
 
 # =========================================================
 # SECTION — Average Cycle Speed
