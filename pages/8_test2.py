@@ -80,24 +80,12 @@ DISTANCE_BANDS = ["0-10", "35-45"]
 REPS = ["60m_1", "60m_3"]
 
 REP_OFFSET = {"60m_1": -0.18, "60m_3": 0.18}
-TEXT_OFFSET = {
-    "0-10": {
-        "60m_1": 0.28,
-        "60m_3": 0.38,
-    },
-    "35-45": {
-        "60m_1": 0.4,
-        "60m_3": 0.45,
-    },
-}
 
-Y_MAX = 3.5          # ✅ fixed y axis
-TEXT_SIZE = 14       # ✅ larger annotation text
+Y_MAX = 3.5
+TEXT_SIZE = 14
 
-#
-
-# # =========================================================
-# VIEW B — SIDE‑BY‑SIDE COMPARISON (ONE ROW)
+# =========================================================
+# VIEW — SIDE‑BY‑SIDE COMPARISON
 # =========================================================
 st.subheader("Cycle Length Breakdown – Side‑by‑Side View")
 
@@ -117,12 +105,13 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
 
         for rep in REPS:
             r = df_len[df_len["trial_id"] == rep].sort_values("cycle_no")
+
             push = r[r["metric_key"] == "push_length"]
             roll = r[r["metric_key"] == "rolling_length"]
 
             x = push["cycle_no"].values + REP_OFFSET[rep]
 
-            # ✅ TOTAL STACK HEIGHT (single source of truth)
+            # ✅ SINGLE SOURCE OF TRUTH
             total = push["value"].values + roll["value"].values
 
             # --- stacked bars ---
@@ -143,10 +132,10 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 showlegend=False,
             )
 
-            # ✅ scatter sits EXACTLY on top of stack
+            # ✅ scatter aligned EXACTLY to stack top
             fig.add_scatter(
                 x=x,
-                y=total,  # <-- no offset, no inflation
+                y=total,
                 mode="lines+markers+text",
                 marker=dict(size=7, color=REP_COLOURS[rep]),
                 line=dict(
@@ -163,13 +152,13 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
         fig.update_layout(
             title=dict(
                 text=f"Cycle Length ({band} m)",
-                y=0.94,           # ✅ lift subplot caption
-                yanchor="top"
+                y=0.94,
+                yanchor="top",
             ),
+            margin=dict(t=90),
             barmode="stack",
             template="simple_white",
             height=420,
-            margin=dict(t=90),   # ✅ more headroom
             yaxis=dict(range=[0, Y_MAX]),
             xaxis=dict(
                 tickmode="array",
@@ -178,4 +167,3 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
         )
 
         st.plotly_chart(fig, use_container_width=True)
-``
