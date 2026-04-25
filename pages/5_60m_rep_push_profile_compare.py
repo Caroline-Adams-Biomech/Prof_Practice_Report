@@ -92,14 +92,30 @@ REP_LABELS = {
 # =========================================================
 # SHARED PLOTLY STYLE
 # =========================================================
+# =========================================================
+# SHARED PLOTLY STYLE (FIXED)
+# =========================================================
 def apply_plotly_style(fig):
     fig.update_layout(
         template="simple_white",
         font=dict(color="#444"),
         title_font=dict(size=14),
-        legend=dict(frameon=False, font=dict(size=10)),
-        xaxis=dict(showgrid=False, zeroline=False),
-        yaxis=dict(showgrid=True, gridcolor="rgba(0,0,0,0.05)", zeroline=False),
+        legend=dict(
+            font=dict(size=10),
+            bgcolor="rgba(0,0,0,0)",   # transparent legend background
+            borderwidth=0              # no legend box
+        ),
+        xaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor="rgba(0,0,0,0.05)",
+            zeroline=False,
+            showline=False,
+        ),
     )
     return fig
 
