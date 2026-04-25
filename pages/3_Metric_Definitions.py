@@ -58,10 +58,10 @@ st.subheader("🔂📏 Cycle Length (m)")
 st.write("The distance travelled during each cycle. The average cycle length is average distance travelled for a given segment of interest ")
 
 st.subheader("👊📏 Push Length")
-st.write("): Distance travelled during the push phase where the hands are in contact with the push rim.")
+st.write(" Distance travelled during the push phase where the hands are in contact with the push rim.")
 
 st.subheader("🌀📏 Rolling Length")
-st.write("): Distance travelled during the push phase where the hands are in contact with the push rim.")
+st.write("Distance travelled during the push phase where the hands are in contact with the push rim.")
 
 st.subheader("🔂 💨 Cycle Velocity (m/s)")
 st.write("The speed the athlete and chair are moving during a complete cycle.")

@@ -26,22 +26,18 @@ st.title("Best Rep Push Profile")
 st.write(
     "This page shows the metrics and push profile for your best rep, metrics are only provided for 0-10m and 35-45m due to the test setup and camera position."
     )
-# =========================================================
-# Load data
+
+
+# -------------------------------------------------
+# Load data from disk
 # -------------------------------------------------
 @st.cache_data
-def load_data(file):
-    return pd.read_excel(file)
+def load_data():
+    root = Path(__file__).parent
+    data_path = root / "data" / "60m_push_breakdown.xlsx"
+    return pd.read_excel(data_path)
 
-uploaded_file = st.file_uploader(
-    "Upload long-format Excel file",
-    type=["xlsx"]
-)
-
-if uploaded_file is None:
-    st.stop()
-
-df = load_data(uploaded_file)
+df = load_data()
 
 # -------------------------------------------------
 # Sidebar filters
