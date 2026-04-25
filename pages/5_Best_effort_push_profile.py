@@ -106,6 +106,9 @@ table_df = table_df.rename(
     }
 )
 
+# round push angle to 2 decimal places for display
+table_df["Push Angle (°)"] = table_df["Push Angle (°)"].round(2)
+
 st.dataframe(table_df, use_container_width=True)
 
 # =========================================================
@@ -124,8 +127,8 @@ speed_max = df[
 
 col1, col2 = st.columns(2)
 
-for col, band in zip(col1, col2):
-    band_label = DISTANCE_BANDS[col == col2]
+for col, band in zip([col1, col2], DISTANCE_BANDS):
+    band_label = band
     band_df = df[
         (df["distance_band"] == band_label)
         & (df["phase"] == "Cycle")
@@ -157,8 +160,8 @@ st.markdown(
 
 col1, col2 = st.columns(2)
 
-for col, band in zip(col1, col2):
-    band_label = DISTANCE_BANDS[col == col2]
+for col, band in zip([col1, col2], DISTANCE_BANDS):
+    band_label = band
 
     bars_df = df[
         (df["distance_band"] == band_label)
@@ -211,8 +214,8 @@ time_max = df[df["variable"] == "time"]["value"].max()
 
 col1, col2 = st.columns(2)
 
-for col, band in zip(col1, col2):
-    band_label = DISTANCE_BANDS[col == col2]
+for col, band in zip([col1, col2], DISTANCE_BANDS):
+    band_label = band
 
     band_df = df[
         (df["distance_band"] == band_label)

@@ -4,14 +4,6 @@ Created on Sat Apr 25 15:23:59 2026
 
 @author: Caroline Adams
 """
-
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 25 13:07:06 2026
-
-@author: Caroline Adams
-"""
-
 # =========================================================
 # PAGE SETUP
 # =========================================================
@@ -61,8 +53,6 @@ else:
     )
 
 st.title("Wheelchair Racing Performance Testing Report")
-st.markdown("---")
-
 # =========================================================
 # Track Session Section
 # =========================================================
@@ -81,12 +71,10 @@ st.write(
     "To establish your sprint baseline at the start of the season, you will complete four "
     "60 m maximum‑effort sprints. Completing multiple repetitions helps build a clear picture "
     "of how you push, how consistent your technique is, and whether differences between efforts "
-    "are meaningful rather than just one‑off variations.\n\n"
-    "Two cameras are used during the test. One captures the early acceleration phase over the "
+    "are meaningful rather than just one‑off variations. Two cameras are used during the test. One captures the early acceleration phase over the "
     "first 0–10 m, another focuses on your pushing pattern between 35–45 m when speed is higher."
     "Because the cameras are positioned on one side only, all movement data relates to the left "
     "side of your body. This same setup can be repeated after training blocks later in the season to see monitor changes on your sprint performance."
-
 )
 
 # =========================================================

@@ -9,25 +9,23 @@ from pathlib import Path
 import streamlit as st
 
 # =========================================================
-# PAGE CONFIG
+# PAGE CONFIG  
 # =========================================================
 st.set_page_config(
     page_title="Wheelchair Racing Testing Report",
-    layout="centered"   # better for mobile readability
+    layout="wide"   # forces left-aligned layout
 )
 
 # =========================================================
-# LOGO (MOBILE-SAFE + CENTRED)
+# LOGO (LEFT-ALIGNED)
 # =========================================================
 logo_path = Path(__file__).resolve().parent / "images" / "Logo.png"
 
 if logo_path.exists():
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image(
-            str(logo_path),
-            width=260   # safe width for mobile + desktop
-        )
+    st.image(
+        str(logo_path),
+        width=260
+    )
 else:
     st.error(f"Logo not found at: {logo_path}")
 
