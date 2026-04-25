@@ -41,21 +41,27 @@ def load_data():
 
     df = pd.read_excel(data_path)
 
-    # --- HARD NORMALISATION (matches Spyder) ---
+    # --- Normalise identifiers ---
     df["trial_id"] = df["trial_id"].astype(str).str.strip()
     df["metric_key"] = df["metric_key"].astype(str).str.strip()
 
+    # --- CRITICAL: normalise unicode dashes in distance band ---
     df["distance_band"] = (
         df["distance_band"]
         .astype(str)
-        .str.replace("–", "-", regex=False)   # EN DASH
-        .str.replace("−", "-", regex=False)   # MINUS
+        .str.replace("–", "-", regex=False)   # en-dash
+        .str.replace("−", "-", regex=False)   # minus
         .str.strip()
     )
 
+    # --- Ensure values are numeric ---
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return df
+
+
+# ✅ REQUIRED: call the loader
+df = load_data()
 
 
 # =========================================================
