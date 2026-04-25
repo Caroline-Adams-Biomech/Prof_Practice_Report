@@ -1,37 +1,33 @@
 # coding: utf-8
 """
-Best 60m Rep Push Profile - Rep Comparison (DEBUG VERSION)
+Best 60m Rep Push Profile – Rep Comparison
 Author: Caroline Adams
 """
 
-# =========================================================
-# PAGE SETUP
-# =========================================================
 from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 st.set_page_config(layout="wide")
 
 # =========================================================
 # LOGO
 # =========================================================
 logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
-
 if logo_path.exists():
     st.image(str(logo_path), width=400)
-else:
-    st.error("Logo not found")
 
 # =========================================================
 # TITLE / INTRO
 # =========================================================
 st.title("Best 60m Push Profile – Rep Comparison")
 st.write(
-    "This page compares two best 60 m sprint repetitions. "
-    "Results are shown for the acceleration phase (0–10 m) "
-    "and the maximum‑speed phase (35–45 m)."
+    "This page compares two best 60 m sprint repetitions. Results are shown for the "
+    "acceleration phase (0–10 m) and the maximum‑speed phase (35–45 m)."
 )
 
 # =========================================================
@@ -42,53 +38,18 @@ def load_data():
     project_root = Path(__file__).resolve().parents[1]
     data_path = project_root / "data" / "60m_push_breakdown.xlsx"
 
-    if not data_path.exists():
-        st.error(f"Data file not found at: {data_path}")
-        st.stop()
-
     df = pd.read_excel(data_path)
 
-    # ---- Robust normalisation ----
-    df["trial_id"] = (
-        df["trial_id"]
-        .astype(str)
-        .str.strip()
-        .str.replace(" ", "_", regex=False)
-    )
-
+    # Normalise key columns
+    df["trial_id"] = df["trial_id"].astype(str).str.strip().str.replace(" ", "_", regex=False)
     df["metric_key"] = df["metric_key"].astype(str).str.strip()
-
-    df["distance_band"] = (
-        df["distance_band"]
-        .astype(str)
-        .str.replace("–", "-", regex=False)
-        .str.strip()
-    )
-
+    df["distance_band"] = df["distance_band"].astype(str).str.replace("–", "-", regex=False).str.strip()
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return df
 
 df = load_data()
 
-# =========================================================
-# GLOBAL DEBUG – WHAT DATA EXISTS?
-# =========================================================
-st.subheader("DEBUG: Data overview (temporary section)")
-
-st.write("DEBUG: trial_id counts")
-st.write(df["trial_id"].value_counts(dropna=False))
-
-st.write("DEBUG: distance_band per trial_id")
-st.write(
-    "DEBUG: distance_band per trial_id:",
-    df.groupby("trial_id")["distance_band"].apply(list).to_dict()
-)
-st.write("DEBUG: metric_key per trial_id")
-st.write(
-    "DEBUG: metric_key per trial_id:",
-    df.groupby("trial_id")["metric_key"].apply(list).to_dict()
-)
 # =========================================================
 # CONSTANTS
 # =========================================================
@@ -100,8 +61,18 @@ REP_LABELS = {
     "60m_3": "Best Rep 2",
 }
 
+LINE_STYLES = {
+    "60m_1": dict(dash="solid"),
+    "60m_3": dict(dash="dash"),
+}
+
+BAR_COLOURS = {
+    "60m_1": {"push_length": "#1f77b4", "rolling_length": "#aec7e8"},
+    "60m_3": {"push_length": "#ff7f0e", "rolling_length": "#ffbb78"},
+}
+
 # =========================================================
-# HELPER — REINDEX CYCLES
+# HELPER — RELATIVE CYCLE INDEX
 # =========================================================
 def reindex_cycles(frame):
     frame = frame.sort_values("cycle_no").copy()
@@ -126,13 +97,6 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 & (df["metric_key"] == "cycle_av_speed")
             ]
 
-            # -------- DEBUG --------
-            st.write(
-                f"DEBUG: Avg speed rows | rep={rep}, band={band}:",
-                len(rep_df)
-            )
-            # -----------------------
-
             if rep_df.empty:
                 continue
 
@@ -143,6 +107,8 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 y=rep_df["value"],
                 mode="lines+markers",
                 name=REP_LABELS[rep],
+                line=LINE_STYLES[rep],
+                marker=dict(size=7),
             )
 
         fig.update_layout(
@@ -159,11 +125,6 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 st.subheader("Cycle Length Breakdown")
 
-rep_colours = {
-    "60m_1": {"push_length": "#1f77b4", "rolling_length": "#aec7e8"},
-    "60m_3": {"push_length": "#ff7f0e", "rolling_length": "#ffbb78"},
-}
-
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
@@ -177,13 +138,6 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 & (df["metric_key"].isin(["push_length", "rolling_length"]))
             ]
 
-            # -------- DEBUG --------
-            st.write(
-                f"DEBUG: Length rows | rep={rep}, band={band}:",
-                len(rep_df)
-            )
-            # -----------------------
-
             if rep_df.empty:
                 continue
 
@@ -194,8 +148,10 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 fig.add_bar(
                     x=sub["cycle_idx"],
                     y=sub["value"],
-                    name=f"{key.replace('_',' ').title()} - {REP_LABELS[rep]}",
-                    marker_color=rep_colours[rep][key],
+                    name=f"{key.replace('_',' ').title()} – {REP_LABELS[rep]}",
+                    marker_color=BAR_COLOURS[rep][key],
+                    offsetgroup=rep,
+                    legendgroup=rep,
                 )
 
         fig.update_layout(
@@ -226,13 +182,6 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 & (df["metric_key"] == "push_angle")
             ]
 
-            # -------- DEBUG --------
-            st.write(
-                f"DEBUG: Push angle rows | rep={rep}, band={band}:",
-                len(rep_df)
-            )
-            # -----------------------
-
             if rep_df.empty:
                 continue
 
@@ -243,13 +192,15 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 y=rep_df["value"],
                 mode="lines+markers",
                 name=REP_LABELS[rep],
+                line=LINE_STYLES[rep],
+                marker=dict(size=7),
             )
 
         fig.update_layout(
             title=f"Push Angle ({band} m)",
             height=350,
             xaxis_title="Cycle",
-            yaxis_title="Angle (deg)",
+            yaxis_title="Angle (degrees)",
         )
 
         st.plotly_chart(fig, use_container_width=True)
