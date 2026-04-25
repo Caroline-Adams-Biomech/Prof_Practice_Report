@@ -65,8 +65,9 @@ DISTANCE_BANDS = ["0-10", "35-45"]
 # =========================================================
 # SECTION 1 — Cycle Metrics Table 
 # =========================================================
-
 st.subheader("Cycle Metrics Table")
+
+from decimal import Decimal, ROUND_HALF_UP
 
 def round_half_up(value, decimals):
     if pd.isna(value):
@@ -74,34 +75,31 @@ def round_half_up(value, decimals):
     quant = Decimal("1") if decimals == 0 else Decimal(f"1.{'0' * decimals}")
     return float(Decimal(value).quantize(quant, rounding=ROUND_HALF_UP))
 
-# build table
+# build table using metric_key (matches Excel)
 table_df = (
     df[df["distance_band"].isin(DISTANCE_BANDS)]
     .pivot_table(
         index=["distance_band", "cycle_no"],
-        columns=["phase", "variable"],
+        columns="metric_key",
         values="value"
     )
+    .reset_index(drop=True)
 )
 
-# flatten column names
-table_df.columns = [f"{p}_{v}".lower() for p, v in table_df.columns]
-table_df = table_df.reset_index(drop=True)
-
-# enforce exact column order (Average Cycle Speed LAST)
-table_df = table_df[
-    [
-        "cycle_no",
-        "cycle_length",
-        "push_length",
-        "rolling_length",
-        "cycle_frequency",
-        "push_time",
-        "rolling_time",
-        "push_angle",
-        "cycle_av_speed",
-    ]
+# enforce exact column order (as requested)
+desired_cols = [
+    "cycle_no",
+    "cycle_length",
+    "push_length",
+    "rolling_length",
+    "cycle_freq",
+    "push_time",
+    "rolling_time",
+    "push_angle",
+    "cycle_av_speed",
 ]
+
+table_df = table_df[[c for c in desired_cols if c in table_df.columns]]
 
 # rename for athlete display
 table_df = table_df.rename(
@@ -110,7 +108,7 @@ table_df = table_df.rename(
         "cycle_length": "Cycle Length (m)",
         "push_length": "Push Length (m)",
         "rolling_length": "Rolling Length (m)",
-        "cycle_frequency": "Cycle Frequency (Hz)",
+        "cycle_freq": "Cycle Frequency (Hz)",
         "push_time": "Push Time (s)",
         "rolling_time": "Rolling Time (s)",
         "push_angle": "Push Angle (°)",
@@ -120,7 +118,6 @@ table_df = table_df.rename(
 
 # formatting rules
 table_df["Cycle Number"] = table_df["Cycle Number"].astype(int)
-
 table_df["Push Angle (°)"] = table_df["Push Angle (°)"].apply(
     lambda x: round_half_up(x, 0)
 )
@@ -136,14 +133,16 @@ cols_2dp = [
 ]
 
 for col in cols_2dp:
-    table_df[col] = table_df[col].apply(lambda x: round_half_up(x, 2))
+    if col in table_df.columns:
+        table_df[col] = table_df[col].apply(lambda x: round_half_up(x, 2))
 
-# display (no index, narrower)
+# display table
 st.dataframe(
     table_df,
     hide_index=True,
     use_container_width=False
 )
+``
 
 # =========================================================
 # SECTION — Average Cycle Speed
