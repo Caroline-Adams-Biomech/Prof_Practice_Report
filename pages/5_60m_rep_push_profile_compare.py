@@ -33,22 +33,30 @@ st.write(
 # =========================================================
 # LOAD DATA
 # =========================================================
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def load_data():
+
     project_root = Path(__file__).resolve().parents[1]
     data_path = project_root / "data" / "60m_push_breakdown.xlsx"
 
     df = pd.read_excel(data_path)
 
-    # Normalise key columns
-    df["trial_id"] = df["trial_id"].astype(str).str.strip().str.replace(" ", "_", regex=False)
+    # --- HARD NORMALISATION (matches Spyder) ---
+    df["trial_id"] = df["trial_id"].astype(str).str.strip()
     df["metric_key"] = df["metric_key"].astype(str).str.strip()
-    df["distance_band"] = df["distance_band"].astype(str).str.replace("–", "-", regex=False).str.strip()
+
+    df["distance_band"] = (
+        df["distance_band"]
+        .astype(str)
+        .str.replace("–", "-", regex=False)   # EN DASH
+        .str.replace("−", "-", regex=False)   # MINUS
+        .str.strip()
+    )
+
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return df
 
-df = load_data()
 
 # =========================================================
 # CONSTANTS
@@ -57,8 +65,8 @@ DISTANCE_BANDS = ["0-10", "35-45"]
 REPS = ["60m_1", "60m_3"]
 
 REP_LABELS = {
-    "60m_1": "Best Rep 1",
-    "60m_3": "Best Rep 2",
+    "60m_1": "Best Rep",
+    "60m_3": "60m_3",
 }
 
 LINE_STYLES = {
@@ -123,13 +131,16 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN
 # =========================================================
+
 st.subheader("Cycle Length Breakdown")
+
+import plotly.graph_objects as go
 
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
     with col:
-        fig = px.bar()
+        fig = go.Figure()
 
         for rep in REPS:
             rep_df = df[
@@ -143,16 +154,33 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 
             rep_df = reindex_cycles(rep_df)
 
-            for key in ["push_length", "rolling_length"]:
-                sub = rep_df[rep_df["metric_key"] == key]
-                fig.add_bar(
-                    x=sub["cycle_idx"],
-                    y=sub["value"],
-                    name=f"{key.replace('_',' ').title()} – {REP_LABELS[rep]}",
-                    marker_color=BAR_COLOURS[rep][key],
-                    offsetgroup=rep,
-                    legendgroup=rep,
-                )
+            # Pivot so we get one row per cycle
+            wide = (
+                rep_df
+                .pivot(index="cycle_idx", columns="metric_key", values="value")
+                .reset_index()
+            )
+
+            # Push bar (base = 0)
+            fig.add_bar(
+                x=wide["cycle_idx"],
+                y=wide["push_length"],
+                name=f"Push – {REP_LABELS[rep]}",
+                marker_color=BAR_COLOURS[rep]["push_length"],
+                offsetgroup=rep,
+                legendgroup=rep,
+            )
+
+            # Rolling bar stacked on top of push
+            fig.add_bar(
+                x=wide["cycle_idx"],
+                y=wide["rolling_length"],
+                base=wide["push_length"],
+                name=f"Rolling – {REP_LABELS[rep]}",
+                marker_color=BAR_COLOURS[rep]["rolling_length"],
+                offsetgroup=rep,
+                legendgroup=rep,
+            )
 
         fig.update_layout(
             title=f"Cycle Length ({band} m)",
@@ -163,7 +191,6 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
         )
 
         st.plotly_chart(fig, use_container_width=True)
-
 # =========================================================
 # SECTION 3 — PUSH ANGLE
 # =========================================================
