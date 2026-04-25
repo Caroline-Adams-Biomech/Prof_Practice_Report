@@ -254,19 +254,20 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                     & (df["distance_band"] == band)
                     & (df["metric_key"] == metric)
                 ].sort_values("cycle_no")
-
+                
                 fig.add_scatter(
                     x=d["cycle_no"],
                     y=d["value"],
                     mode="lines+markers",
                     name=f"{metric.replace('_', ' ').title()} – {REP_LABELS[rep]}",
                     line=dict(
-                        color=BAR_COLOURS[colour_key][rep],
+                        color=REP_COLOURS[rep],                     # ✅ rep colour
                         width=2.5 if metric == "rolling_time" else 2,
                         dash="dash" if metric == "rolling_time" else "solid",
                     ),
                     marker=dict(size=6),
                 )
+
 
         fig.update_layout(
             title=f"Push & Rolling Time ({band} m)",
