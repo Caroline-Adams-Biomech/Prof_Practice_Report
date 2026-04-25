@@ -18,8 +18,8 @@ st.set_page_config(layout="wide")
 # COLOURS
 # =========================================================
 REP_COLOURS = {
-    "60m_1": "#2ca02c",
-    "60m_3": "#46A9D6",
+    "60m_1": "#2ca02c",   # Best rep (green)
+    "60m_3": "#46A9D6",   # Rep 3 (blue)
 }
 
 BAR_COLOURS = {
@@ -64,7 +64,7 @@ def load_data():
 df = load_data()
 
 # =========================================================
-# REP SELECTION (NEW)
+# REP SELECTION
 # =========================================================
 st.subheader("Rep Selection")
 show_rep_3 = st.checkbox("Include Rep 3", value=True)
@@ -88,8 +88,8 @@ TEXT_PAD = 0.22
 # =========================================================
 st.title("Best 60m Push Profile – Rep Comparison")
 st.write(
-    "This page compares best 60 m sprint repetitions across the "
-    "acceleration (0–10 m) and maximum‑speed (35–45 m) phases."
+    "Comparison of best 60 m sprint repetitions across the acceleration "
+    "(0–10 m) and maximum‑speed (35–45 m) phases."
 )
 
 # =========================================================
@@ -115,11 +115,7 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 y=d["value"],
                 mode="lines+markers",
                 name=REP_LABELS[rep],
-                line=dict(
-                    color=REP_COLOURS[rep],
-                    dash="solid" if rep == "60m_1" else "dash",
-                    width=2,
-                ),
+                line=dict(color=REP_COLOURS[rep], width=2),
                 marker=dict(size=6),
             )
 
@@ -172,18 +168,16 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
             )
 
             fig.add_scatter(
-                x=x, y=total, mode="lines+markers",
-                line=dict(
-                    color=REP_COLOURS[rep],
-                    dash="solid" if rep == "60m_1" else "dash",
-                    width=2,
-                ),
+                x=x, y=total,
+                mode="lines+markers",
+                line=dict(color=REP_COLOURS[rep], width=2),
                 marker=dict(size=7),
                 showlegend=False,
             )
 
             fig.add_scatter(
-                x=x, y=total + TEXT_PAD, mode="text",
+                x=x, y=total + TEXT_PAD,
+                mode="text",
                 text=[f"{v:.2f}" for v in total],
                 textfont=dict(size=TEXT_SIZE, color=REP_COLOURS[rep]),
                 showlegend=False,
@@ -223,11 +217,7 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 y=d["value"],
                 mode="lines+markers",
                 name=REP_LABELS[rep],
-                line=dict(
-                    color=REP_COLOURS[rep],
-                    dash="solid" if rep == "60m_1" else "dash",
-                    width=2,
-                ),
+                line=dict(color=REP_COLOURS[rep], width=2),
                 marker=dict(size=6),
             )
 
@@ -241,12 +231,10 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
         st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
-# SECTION 4 — PUSH AND ROLLING TIME (UPDATED)
+# SECTION 4 — PUSH & ROLLING TIME
 # =========================================================
 st.subheader("Push and Rolling Time")
-st.write(
-    "This shows how time is split between pushing and rolling in each cycle."
-)
+st.write("Time spent pushing versus rolling within each cycle.")
 
 time_max = df[df["metric_key"].isin(["push_time", "rolling_time"])]["value"].max()
 
@@ -274,8 +262,8 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                     name=f"{metric.replace('_', ' ').title()} – {REP_LABELS[rep]}",
                     line=dict(
                         color=BAR_COLOURS[colour_key][rep],
-                        dash="solid" if rep == "60m_1" else "dash",
-                        width=2,
+                        width=2.5 if metric == "rolling_time" else 2,
+                        dash="dash" if metric == "rolling_time" else "solid",
                     ),
                     marker=dict(size=6),
                 )
