@@ -214,3 +214,24 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
         )
 
         st.plotly_chart(fig, use_container_width=True)
+        
+st.subheader("DEBUG: trial_id values exactly as read")
+st.write([repr(x) for x in df["trial_id"].unique()])
+
+st.subheader("DEBUG: row count per trial_id")
+st.write(df["trial_id"].value_counts(dropna=False))
+
+st.subheader("DEBUG: distance bands for 60m_3")
+st.write(
+    [repr(x) for x in df[df["trial_id"].astype(str).str.contains("60m")]["distance_band"].unique()]
+)
+st.subheader("DEBUG: metric_key values for 60m_3")
+st.write(
+    sorted(
+        df[df["trial_id"].astype(str).str.contains("60m")]["metric_key"].unique().tolist()
+    )
+)
+
+st.subheader("DEBUG: value dtype and sample")
+st.write(df["value"].dtype)
+st.write(df[df["trial_id"].astype(str).str.contains("60m")][["trial_id", "metric_key", "value"]].head())
