@@ -30,13 +30,12 @@ else:
 # =========================================================
 st.title("Best Rep Push Profile")
 st.write(
-    "This page shows the metrics and push profile for your best repetition. "
-    "Metrics are provided for the acceleration phase (0–10 m) and maximum‑velocity "
-    "phase (35–45 m) due to the test setup and camera positioning."
+    "This page shows the push metrics from your best repetition. Results are shown for both "
+    "the acceleration phase (0–10 m) and the maximum‑speed phase (35–45 m) of the sprint."
 )
 
 # =========================================================
-# Load data from disk
+# Load data
 # =========================================================
 @st.cache_data
 def load_data():
@@ -47,7 +46,17 @@ def load_data():
         st.error(f"Data file not found at: {data_path}")
         st.stop()
 
-    return pd.read_excel(data_path)
+    df = pd.read_excel(data_path)
+
+    # --- NORMALISE distance labels (dash vs en dash)
+    df["distance_band"] = (
+        df["distance_band"]
+        .astype(str)
+        .str.replace("–", "-", regex=False)
+        .str.strip()
+    )
+
+    return df
 
 df = load_data()
 
@@ -56,58 +65,34 @@ if df.empty:
     st.stop()
 
 # =========================================================
-# Sidebar filters (trial & effort only)
+# Distance bands (fixed, both shown everywhere)
 # =========================================================
-st.sidebar.header("Filters")
-
-trial = st.sidebar.selectbox(
-    "Trial",
-    sorted(df["trial_id"].dropna().unique())
-)
-
-effort = st.sidebar.selectbox(
-    "Effort type",
-    sorted(df["effort_type"].dropna().unique())
-)
-
-# distance bands are FIXED for this page
-DISTANCE_BANDS = ["0–10", "35–45"]
+DISTANCE_BANDS = ["0-10", "35-45"]
 
 # =========================================================
-# SECTION 1 — Cycle metrics table (wide, per distance band)
+# SECTION 1 — Cycle metrics table (BOTH distance bands)
 # =========================================================
 st.subheader("Cycle Metrics Table")
 
-band_for_table = st.radio(
-    "Select distance band",
-    DISTANCE_BANDS,
-    horizontal=True
-)
-
-filtered = df[
-    (df["trial_id"] == trial)
-    & (df["effort_type"] == effort)
-    & (df["distance_band"] == band_for_table)
-]
-
 table_df = (
-    filtered
+    df[df["distance_band"].isin(DISTANCE_BANDS)]
     .pivot_table(
-        index="cycle_no",
+        index=["distance_band", "cycle_no"],
         columns=["phase", "variable"],
         values="value"
     )
     .sort_index()
 )
 
-# Flatten column names for clean display
+# Flatten column names
 table_df.columns = [
     f"{phase} {var}".title()
     for phase, var in table_df.columns
 ]
 
+# Remove index so no line-number column appears
 st.dataframe(
-    table_df.reset_index(),
+    table_df.reset_index(drop=True),
     use_container_width=True
 )
 
@@ -116,13 +101,18 @@ st.dataframe(
 # =========================================================
 st.subheader("Average Cycle Velocity")
 
+# find shared y-axis range
+vel_max = df[
+    (df["distance_band"].isin(DISTANCE_BANDS))
+    & (df["phase"] == "Cycle")
+    & (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
+]["value"].max()
+
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
     band_df = df[
-        (df["trial_id"] == trial)
-        & (df["effort_type"] == effort)
-        & (df["distance_band"] == band)
+        (df["distance_band"] == band)
         & (df["phase"] == "Cycle")
         & (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
     ]
@@ -134,48 +124,85 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             y="value",
             markers=True,
             labels={
-                "cycle_no": "Cycle No.",
-                "value": "Cycle Velocity (m/s)"
+                "cycle_no": "Cycle",
+                "value": "Speed (m/s)"
             },
             title=f"Average Cycle Velocity ({band} m)"
         )
 
-        fig.update_traces(line_dash="dash")
-        fig.update_layout(height=350)
+        fig.update_layout(
+            height=350,
+            yaxis_range=[0, vel_max * 1.1]
+        )
 
         st.plotly_chart(fig, use_container_width=True)
-
 # =========================================================
-# SECTION 3 — Cycle Length Breakdown (Push + Rolling)
+# SECTION 3 — Cycle Length Breakdown
 # =========================================================
 st.subheader("Cycle Length Breakdown")
+
+# shared y-axis range
+length_max = (
+    df[
+        (df["distance_band"].isin(DISTANCE_BANDS))
+        & (df["variable"] == "length")
+    ]
+    .groupby(["distance_band", "cycle_no"])["value"]
+    .sum()
+    .max()
+)
 
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
-    band_df = df[
-        (df["trial_id"] == trial)
-        & (df["effort_type"] == effort)
-        & (df["distance_band"] == band)
+
+    # push + rolling bars
+    bars_df = df[
+        (df["distance_band"] == band)
         & (df["variable"] == "length")
         & (df["phase"].isin(["Push", "Rolling"]))
     ]
 
+    # total cycle length line
+    total_df = (
+        bars_df
+        .groupby("cycle_no", as_index=False)["value"]
+        .sum()
+        .rename(columns={"value": "cycle_length"})
+    )
+
     with col:
         fig = px.bar(
-            band_df,
+            bars_df,
             x="cycle_no",
             y="value",
             color="phase",
             barmode="stack",
             labels={
-                "cycle_no": "Cycle No.",
+                "cycle_no": "Cycle",
                 "value": "Distance (m)"
             },
             title=f"Cycle Length ({band} m)"
         )
 
-        fig.update_layout(height=350)
+        # dashed total cycle length line
+        fig.add_scatter(
+            x=total_df["cycle_no"],
+            y=total_df["cycle_length"],
+            mode="lines+markers+text",
+            name="Cycle Length",
+            line=dict(color="black", dash="dash"),
+            marker=dict(symbol="diamond", size=8),
+            text=total_df["cycle_length"].round(2),
+            textposition="top center"
+        )
+
+        fig.update_layout(
+            height=350,
+            yaxis_range=[0, length_max * 1.15],
+            legend_title_text=""
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
@@ -183,13 +210,16 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 st.subheader("Push and Rolling Times")
 
+time_max = df[
+    (df["distance_band"].isin(DISTANCE_BANDS))
+    & (df["variable"] == "time")
+]["value"].max()
+
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
     band_df = df[
-        (df["trial_id"] == trial)
-        & (df["effort_type"] == effort)
-        & (df["distance_band"] == band)
+        (df["distance_band"] == band)
         & (df["variable"] == "time")
         & (df["phase"].isin(["Push", "Rolling"]))
     ]
@@ -202,11 +232,16 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             color="phase",
             markers=True,
             labels={
-                "cycle_no": "Cycle No.",
+                "cycle_no": "Cycle",
                 "value": "Time (s)"
             },
-            title=f"Push & Rolling Times ({band} m)"
+            title=f"Push & Rolling Time ({band} m)"
         )
 
-        fig.update_layout(height=350)
+        fig.update_layout(
+            height=350,
+            yaxis_range=[0, time_max * 1.1],
+            legend_title_text=""
+        )
+
         st.plotly_chart(fig, use_container_width=True)

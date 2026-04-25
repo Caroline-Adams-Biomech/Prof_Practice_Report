@@ -69,7 +69,7 @@ st.markdown("---")
 st.subheader("Track Session")
 
 if trackstart_path:
-    st.image(str(trackstart_path), width=800)
+    st.image(str(trackstart_path), width=400)
 else:
     st.warning(
         "Track start image not found.\n"
@@ -95,7 +95,7 @@ st.write(
 st.subheader("Lab Session")
 
 if wcerg_path:
-    st.image(str(wcerg_path), width=800)
+    st.image(str(wcerg_path), width=400)
 else:
     st.warning(
         "Wheelchair ergometer image not found.\n"
