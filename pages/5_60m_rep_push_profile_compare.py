@@ -137,6 +137,7 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN
 # =========================================================
+
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN (GROUPED STACKS)
 # =========================================================
@@ -160,17 +161,17 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             if rep_df.empty:
                 continue
 
-            # Relative cycle index
             rep_df = reindex_cycles(rep_df)
 
-            # One row per cycle
             wide = (
                 rep_df
                 .pivot(index="cycle_idx", columns="metric_key", values="value")
                 .reset_index()
             )
 
-            # Push (bottom of stack)
+            # ✅ CRITICAL FIX — REQUIRED FOR STACKING
+            wide = wide.fillna(0)
+
             fig.add_bar(
                 x=wide["cycle_idx"],
                 y=wide["push_length"],
@@ -180,7 +181,6 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 legendgroup=rep,
             )
 
-            # Rolling (stacked on push)
             fig.add_bar(
                 x=wide["cycle_idx"],
                 y=wide["rolling_length"],
