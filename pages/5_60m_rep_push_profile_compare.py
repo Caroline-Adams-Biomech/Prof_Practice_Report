@@ -81,9 +81,9 @@ st.write(df["trial_id"].value_counts(dropna=False))
 
 st.write("DEBUG: distance_band per trial_id")
 st.write(
-    df.groupby("trial_id")["distance_band"].unique()
+    "DEBUG: distance_band per trial_id:",
+    df.groupby("trial_id")["distance_band"].apply(list).to_dict()
 )
-
 st.write("DEBUG: metric_key per trial_id")
 st.write(
     df.groupby("trial_id")["metric_key"].unique()
