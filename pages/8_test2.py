@@ -82,7 +82,7 @@ REPS = ["60m_1", "60m_3"]
 REP_OFFSET = {"60m_1": -0.18, "60m_3": 0.18}
 TEXT_OFFSET = {"60m_1": 0.18, "60m_3": 0.28}  # higher text placement
 
-Y_MAX = 3.0          # ✅ fixed y axis
+Y_MAX = 3.5          # ✅ fixed y axis
 TEXT_SIZE = 12       # ✅ larger annotation text
 
 # =========================================================
