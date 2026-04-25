@@ -77,6 +77,12 @@ st.write(
 # =========================================================
 # CYCLE LENGTH — FACETED PLOTLY VERSION
 # =========================================================
+# =========================================================
+# SECTION — CYCLE LENGTH BREAKDOWN (PLOTLY, FACETED BY REP)
+# =========================================================
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 st.subheader("Cycle Length Breakdown")
 
 DISTANCE_BANDS = ["0-10", "35-45"]
@@ -96,72 +102,96 @@ for band in DISTANCE_BANDS:
         st.warning("No data available for this distance band.")
         continue
 
-    # ---- Compute total cycle length ----
-    total = (
-        df_len
-        .groupby(["trial_id", "cycle_no"])["value"]
-        .sum()
-        .reset_index(name="cycle_length")
+    # -----------------------------------------------------
+    # Create subplot layout (one column per rep)
+    # -----------------------------------------------------
+    fig = make_subplots(
+        rows=1,
+        cols=2,
+        shared_yaxes=True,
+        subplot_titles=[REP_LABELS[r] for r in REPS],
     )
 
-    # ---- Base stacked bars using Plotly Express ----
-    fig = px.bar(
-        df_len,
-        x="cycle_no",
-        y="value",
-        color="metric_key",
-        facet_col="trial_id",
-        color_discrete_map={
-            "push_length": BAR_COLOURS["push_length"]["60m_1"],
-            "rolling_length": BAR_COLOURS["rolling_length"]["60m_1"],
-        },
-    )
+    # -----------------------------------------------------
+    # Add traces per rep
+    # -----------------------------------------------------
+    for col, rep in enumerate(REPS, start=1):
 
-    # ---- Fix colours per facet (rep‑specific) ----
-    for trace in fig.data:
-        if trace.name == "push_length":
-            trace.marker.color = [
-                BAR_COLOURS["push_length"][rep] for rep in REPS
-            ][trace.subplot[1] == "2"]
-        elif trace.name == "rolling_length":
-            trace.marker.color = [
-                BAR_COLOURS["rolling_length"][rep] for rep in REPS
-            ][trace.subplot[1] == "2"]
+        r = df_len[df_len["trial_id"] == rep].sort_values("cycle_no")
 
-    # ---- Overlay total cycle length lines ----
-    for i, rep in enumerate(REPS):
-        t = total[total["trial_id"] == rep]
+        push = r[r["metric_key"] == "push_length"]
+        roll = r[r["metric_key"] == "rolling_length"]
 
-        fig.add_trace(
-            go.Scatter(
-                x=t["cycle_no"],
-                y=t["cycle_length"],
-                mode="lines+markers+text",
-                text=[f"{v:.2f}" for v in t["cycle_length"]],
-                textposition="top center",
-                marker=dict(size=6, color=REP_COLOURS[rep]),
-                line=dict(
-                    width=2,
-                    color=REP_COLOURS[rep],
-                    dash="solid" if rep == "60m_1" else "dash",
-                ),
-                showlegend=False,
-            ),
+        cycles = push["cycle_no"]
+
+        # ---- Push bar ----
+        fig.add_bar(
+            x=cycles,
+            y=push["value"],
+            name="Push",
+            marker_color=CYCLE_COLOURS[rep]["push_length"],
             row=1,
-            col=i + 1,
+            col=col,
+            showlegend=(col == 1),
         )
 
-    # ---- Layout polish ----
+        # ---- Rolling bar (stacked) ----
+        fig.add_bar(
+            x=cycles,
+            y=roll["value"],
+            name="Rolling",
+            marker_color=CYCLE_COLOURS[rep]["rolling_length"],
+            row=1,
+            col=col,
+            showlegend=(col == 1),
+        )
+
+        # ---- Total cycle length line ----
+        total = (
+            push.set_index("cycle_no")["value"]
+            + roll.set_index("cycle_no")["value"]
+        )
+
+        fig.add_scatter(
+            x=total.index,
+            y=total.values,
+            mode="lines+markers+text",
+            text=[f"{v:.2f}" for v in total.values],
+            textposition="top center",
+            marker=dict(
+                size=7,
+                color=REP_COLOURS[rep],
+            ),
+            line=dict(
+                width=2,
+                color=REP_COLOURS[rep],
+                dash="solid" if rep == "60m_1" else "dash",
+            ),
+            name="Cycle Length",
+            showlegend=(col == 1),
+            row=1,
+            col=col,
+        )
+
+    # -----------------------------------------------------
+    # Layout polish
+    # -----------------------------------------------------
     fig.update_layout(
         barmode="stack",
         template="simple_white",
-        height=420,
+        height=440,
         font=dict(color="#444"),
-        xaxis_title="Cycle",
         yaxis_title="Distance (m)",
-        legend_title_text="",
+        xaxis_title="Cycle",
+        legend=dict(
+            bgcolor="rgba(0,0,0,0)",
+            borderwidth=0,
+            font=dict(size=10),
+        ),
+        margin=dict(t=50, l=50, r=30, b=40),
     )
 
-    fig.for_each_annotation(lambda a: a.update(text=REP_LABELS[a.text]))
+    # Tidy facet titles
+    fig.for_each_annotation(lambda a: a.update(font=dict(size=12)))
 
     st.plotly_chart(fig, use_container_width=True)
