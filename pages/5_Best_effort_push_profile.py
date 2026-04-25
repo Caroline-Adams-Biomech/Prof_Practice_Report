@@ -30,8 +30,8 @@ else:
 # =========================================================
 st.title("Best Rep Push Profile")
 st.write(
-    "This page shows the push metrics from your best repetition. Results are shown for both "
-    "the acceleration phase (0–10 m) and the maximum‑speed phase (35–45 m) of the sprint."
+    "This page shows push metrics from your best repetition. Results are shown for both the "
+    "acceleration phase (0–10 m) and the maximum‑speed phase (35–45 m) of the sprint."
 )
 
 # =========================================================
@@ -48,7 +48,7 @@ def load_data():
 
     df = pd.read_excel(data_path)
 
-    # --- NORMALISE distance labels (dash vs en dash)
+    # --- normalise distance labels
     df["distance_band"] = (
         df["distance_band"]
         .astype(str)
@@ -60,17 +60,10 @@ def load_data():
 
 df = load_data()
 
-if df.empty:
-    st.error("Loaded dataset is empty.")
-    st.stop()
-
-# =========================================================
-# Distance bands (fixed, both shown everywhere)
-# =========================================================
 DISTANCE_BANDS = ["0-10", "35-45"]
 
 # =========================================================
-# SECTION 1 — Cycle metrics table (BOTH distance bands)
+# SECTION 1 — Cycle Metrics Table (both bands together)
 # =========================================================
 st.subheader("Cycle Metrics Table")
 
@@ -81,38 +74,60 @@ table_df = (
         columns=["phase", "variable"],
         values="value"
     )
-    .sort_index()
 )
 
-# Flatten column names
-table_df.columns = [
-    f"{phase} {var}".title()
-    for phase, var in table_df.columns
+table_df.columns = [f"{p}_{v}".lower() for p, v in table_df.columns]
+table_df = table_df.reset_index()
+
+# exact column order requested
+table_df = table_df[
+    [
+        "cycle_no",
+        "cycle_length",
+        "push_length",
+        "rolling_length",
+        "cycle_frequency",
+        "push_time",
+        "rolling_time",
+        "push_angle",
+    ]
 ]
 
-# Remove index so no line-number column appears
-st.dataframe(
-    table_df.reset_index(drop=True),
-    use_container_width=True
+table_df = table_df.rename(
+    columns={
+        "cycle_no": "Cycle Number",
+        "cycle_length": "Cycle Length (m)",
+        "push_length": "Push Length (m)",
+        "rolling_length": "Rolling Length (m)",
+        "cycle_frequency": "Cycle Frequency (Hz)",
+        "push_time": "Push Time (s)",
+        "rolling_time": "Rolling Time (s)",
+        "push_angle": "Push Angle (°)",
+    }
 )
 
-# =========================================================
-# SECTION 2 — Average Cycle Velocity (side‑by‑side)
-# =========================================================
-st.subheader("Average Cycle Velocity")
+st.dataframe(table_df, use_container_width=True)
 
-# find shared y-axis range
-vel_max = df[
-    (df["distance_band"].isin(DISTANCE_BANDS))
-    & (df["phase"] == "Cycle")
-    & (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
+# =========================================================
+# SECTION 2 — Average Cycle Speed
+# =========================================================
+st.markdown(
+    "**Average Cycle Speed**  \n"
+    "This shows how quickly the chair is moving during each push cycle. "
+    "Comparing the two distances highlights how speed builds during acceleration "
+    "and how well it is maintained at top speed."
+)
+
+speed_max = df[
+    (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
 ]["value"].max()
 
 col1, col2 = st.columns(2)
 
-for col, band in zip([col1, col2], DISTANCE_BANDS):
+for col, band in zip(col1, col2):
+    band_label = DISTANCE_BANDS[col == col2]
     band_df = df[
-        (df["distance_band"] == band)
+        (df["distance_band"] == band_label)
         & (df["phase"] == "Cycle")
         & (df["variable"].isin(["avg_speed", "Average Speed", "average_speed"]))
     ]
@@ -123,47 +138,34 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             x="cycle_no",
             y="value",
             markers=True,
-            labels={
-                "cycle_no": "Cycle",
-                "value": "Speed (m/s)"
-            },
-            title=f"Average Cycle Velocity ({band} m)"
+            title=f"Average Cycle Speed ({band_label} m)",
+            labels={"cycle_no": "Cycle", "value": "Speed (m/s)"}
         )
 
-        fig.update_layout(
-            height=350,
-            yaxis_range=[0, vel_max * 1.1]
-        )
-
+        fig.update_layout(height=350, yaxis_range=[0, speed_max * 1.1])
         st.plotly_chart(fig, use_container_width=True)
+
 # =========================================================
 # SECTION 3 — Cycle Length Breakdown
 # =========================================================
-st.subheader("Cycle Length Breakdown")
-
-# shared y-axis range
-length_max = (
-    df[
-        (df["distance_band"].isin(DISTANCE_BANDS))
-        & (df["variable"] == "length")
-    ]
-    .groupby(["distance_band", "cycle_no"])["value"]
-    .sum()
-    .max()
+st.markdown(
+    "**Cycle Length**  \n"
+    "Each bar shows how cycle length is made up of push distance and rolling distance. "
+    "The dashed line shows total cycle length. In acceleration, longer cycle lengths usually "
+    "come from a stronger or more effective push rather than longer rolling."
 )
 
 col1, col2 = st.columns(2)
 
-for col, band in zip([col1, col2], DISTANCE_BANDS):
+for col, band in zip(col1, col2):
+    band_label = DISTANCE_BANDS[col == col2]
 
-    # push + rolling bars
     bars_df = df[
-        (df["distance_band"] == band)
+        (df["distance_band"] == band_label)
         & (df["variable"] == "length")
         & (df["phase"].isin(["Push", "Rolling"]))
     ]
 
-    # total cycle length line
     total_df = (
         bars_df
         .groupby("cycle_no", as_index=False)["value"]
@@ -178,14 +180,10 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             y="value",
             color="phase",
             barmode="stack",
-            labels={
-                "cycle_no": "Cycle",
-                "value": "Distance (m)"
-            },
-            title=f"Cycle Length ({band} m)"
+            title=f"Cycle Length ({band_label} m)",
+            labels={"cycle_no": "Cycle", "value": "Distance (m)"}
         )
 
-        # dashed total cycle length line
         fig.add_scatter(
             x=total_df["cycle_no"],
             y=total_df["cycle_length"],
@@ -197,29 +195,27 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             textposition="top center"
         )
 
-        fig.update_layout(
-            height=350,
-            yaxis_range=[0, length_max * 1.15],
-            legend_title_text=""
-        )
-
+        fig.update_layout(height=350, yaxis_range=[0, 3])
         st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
-# SECTION 4 — Push vs Rolling Time
+# SECTION 4 — Push and Rolling Times
 # =========================================================
-st.subheader("Push and Rolling Times")
+st.markdown(
+    "**Push and Rolling Time**  \n"
+    "This shows how time is split between pushing and rolling in each cycle. "
+    "Changes across cycles can help highlight fatigue, rhythm, or changes in strategy."
+)
 
-time_max = df[
-    (df["distance_band"].isin(DISTANCE_BANDS))
-    & (df["variable"] == "time")
-]["value"].max()
+time_max = df[df["variable"] == "time"]["value"].max()
 
 col1, col2 = st.columns(2)
 
-for col, band in zip([col1, col2], DISTANCE_BANDS):
+for col, band in zip(col1, col2):
+    band_label = DISTANCE_BANDS[col == col2]
+
     band_df = df[
-        (df["distance_band"] == band)
+        (df["distance_band"] == band_label)
         & (df["variable"] == "time")
         & (df["phase"].isin(["Push", "Rolling"]))
     ]
@@ -231,17 +227,9 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             y="value",
             color="phase",
             markers=True,
-            labels={
-                "cycle_no": "Cycle",
-                "value": "Time (s)"
-            },
-            title=f"Push & Rolling Time ({band} m)"
+            title=f"Push & Rolling Time ({band_label} m)",
+            labels={"cycle_no": "Cycle", "value": "Time (s)"}
         )
 
-        fig.update_layout(
-            height=350,
-            yaxis_range=[0, time_max * 1.1],
-            legend_title_text=""
-        )
-
+        fig.update_layout(height=350, yaxis_range=[0, time_max * 1.1])
         st.plotly_chart(fig, use_container_width=True)
