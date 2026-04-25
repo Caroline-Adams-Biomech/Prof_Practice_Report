@@ -27,7 +27,6 @@ st.title("Wheelchair Racing Performance Testing Report")
 # paths for images
 base_path = Path(__file__).resolve().parents[1]
 profile_path = base_path / "images" / "athlete profile.png"
-test_path = base_path / "images" / "Test_session.png"
 
 st.set_page_config(
     page_title="Athlete Profile",
@@ -42,12 +41,5 @@ if profile_path.exists():
 else:
     st.warning(f"Athlete profile image not found at: {profile_path}")
     
-# --- Title
-st.subheader("Test Session")
-# --- Test Session image
-if profile_path.exists():
-    st.image(str(test_path), width=800,)
-else:
-    st.warning(f"Test Session image not found at: {profile_path}")
+
     
-st.markdown("test")
