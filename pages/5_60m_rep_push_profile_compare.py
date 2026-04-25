@@ -11,7 +11,6 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from decimal import Decimal, ROUND_HALF_UP
 
 st.set_page_config(layout="wide")
 
@@ -30,9 +29,8 @@ else:
 # =========================================================
 st.title("Best 60 m Push Profile – Rep Comparison")
 st.write(
-    "This page compares two best 60 m sprint repetitions. "
-    "Results are shown for the early acceleration phase (0–10 m) "
-    "and the maximum‑speed phase (35–45 m)."
+    "This page compares two best 60 m sprint repetitions. Results are shown for the "
+    "early acceleration phase (0–10 m) and the maximum‑speed phase (35–45 m)."
 )
 
 # =========================================================
@@ -47,9 +45,20 @@ def load_data():
         st.error(f"Data file not found at: {data_path}")
         st.stop()
 
-    df = pd.read_excel(data_path)
+    df = pd.read_excel(data_path, sheet_name=0)
 
-    # normalise distance labels
+    # ---- IMPORTANT NORMALISATION FIXES ----
+    # These resolve why 60m_3 was not appearing
+
+    df["trial_id"] = (
+        df["trial_id"]
+        .astype(str)
+        .str.strip()              # remove hidden spaces
+        .str.replace(" ", "_", regex=False)
+    )
+
+    df["metric_key"] = df["metric_key"].astype(str).str.strip()
+
     df["distance_band"] = (
         df["distance_band"]
         .astype(str)
@@ -77,9 +86,8 @@ REP_LABELS = {
 # =========================================================
 st.subheader("Average Cycle Speed")
 st.write(
-    "This shows speed per push cycle across the sprint. "
-    "Both reps are shown to highlight how speed builds during acceleration "
-    "and how it is maintained at higher speed."
+    "This shows speed per push cycle across the sprint. Both reps are shown to highlight "
+    "how speed builds during acceleration and how it is maintained at higher speed."
 )
 
 speed_max = df[df["metric_key"] == "cycle_av_speed"]["value"].max()
@@ -121,10 +129,9 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 st.subheader("Cycle Length Breakdown")
 st.write(
     "Each chart shows how cycle length is made up of push distance and rolling distance. "
-    "The two reps are shown in similar colours with different shades for comparison."
+    "Similar colours represent the same phase, with different shades used to compare reps."
 )
 
-# colour scheme: same phase = same colour family
 rep_colours = {
     "60m_1": {"push_length": "#1f77b4", "rolling_length": "#aec7e8"},
     "60m_3": {"push_length": "#ff7f0e", "rolling_length": "#ffbb78"},
@@ -144,11 +151,11 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             ]
 
             for key in ["push_length", "rolling_length"]:
-                phase_df = rep_df[rep_df["metric_key"] == key]
+                sub_df = rep_df[rep_df["metric_key"] == key]
 
                 fig.add_bar(
-                    x=phase_df["cycle_no"],
-                    y=phase_df["value"],
+                    x=sub_df["cycle_no"],
+                    y=sub_df["value"],
                     name=f"{key.replace('_', ' ').title()} – {REP_LABELS[rep]}",
                     marker_color=rep_colours[rep][key],
                 )
@@ -170,9 +177,9 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 st.subheader("Push Angle")
 st.write(
-    "This shows how push angle changes across cycles in each rep. "
-    "The focus here is on consistency and how angle changes as speed increases, "
-    "rather than targeting a specific value."
+    "This shows how push angle changes across cycles for each rep. The goal here is "
+    "to look at consistency and how angle changes as speed increases, rather than "
+    "targeting a specific value."
 )
 
 angle_max = df[df["metric_key"] == "push_angle"]["value"].max()
