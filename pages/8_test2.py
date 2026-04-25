@@ -96,7 +96,7 @@ TEXT_SIZE = 14       # ✅ larger annotation text
 
 #
 
-# =========================================================
+# # =========================================================
 # VIEW B — SIDE‑BY‑SIDE COMPARISON (ONE ROW)
 # =========================================================
 st.subheader("Cycle Length Breakdown – Side‑by‑Side View")
@@ -121,8 +121,11 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
             roll = r[r["metric_key"] == "rolling_length"]
 
             x = push["cycle_no"].values + REP_OFFSET[rep]
+
+            # ✅ TOTAL STACK HEIGHT (single source of truth)
             total = push["value"].values + roll["value"].values
 
+            # --- stacked bars ---
             fig.add_bar(
                 x=x,
                 y=push["value"],
@@ -140,9 +143,10 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 showlegend=False,
             )
 
+            # ✅ scatter sits EXACTLY on top of stack
             fig.add_scatter(
                 x=x,
-                y=total + TEXT_OFFSET[band][rep],
+                y=total,  # <-- no offset, no inflation
                 mode="lines+markers+text",
                 marker=dict(size=7, color=REP_COLOURS[rep]),
                 line=dict(
@@ -157,12 +161,21 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
             )
 
         fig.update_layout(
-            title=f"Cycle Length ({band} m)",
+            title=dict(
+                text=f"Cycle Length ({band} m)",
+                y=0.94,           # ✅ lift subplot caption
+                yanchor="top"
+            ),
             barmode="stack",
             template="simple_white",
             height=420,
+            margin=dict(t=90),   # ✅ more headroom
             yaxis=dict(range=[0, Y_MAX]),
-            xaxis=dict(tickmode="array", tickvals=cycles),
+            xaxis=dict(
+                tickmode="array",
+                tickvals=cycles
+            ),
         )
 
         st.plotly_chart(fig, use_container_width=True)
+``
