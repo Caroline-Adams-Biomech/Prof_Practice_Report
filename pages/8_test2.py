@@ -19,8 +19,8 @@ st.set_page_config(layout="wide")
 # COLOURS
 # =========================================================
 REP_COLOURS = {
-    "60m_1": "#2ca02c",   # green
-    "60m_3": "#46A9D6",   # light blue
+    "60m_1": "#2ca02c",
+    "60m_3": "#46A9D6",
 }
 
 BAR_COLOURS = {
@@ -32,11 +32,6 @@ BAR_COLOURS = {
         "60m_1": "#8fd19e",
         "60m_3": "#9ccfe8",
     },
-}
-
-REP_LABELS = {
-    "60m_1": "Best Rep",
-    "60m_3": "60m_3",
 }
 
 # =========================================================
@@ -83,6 +78,7 @@ REP_OFFSET = {"60m_1": -0.18, "60m_3": 0.18}
 
 Y_MAX = 3.5
 TEXT_SIZE = 14
+TEXT_PAD = 0.22   # ✅ generous, safe breathing room for labels
 
 # =========================================================
 # VIEW — SIDE‑BY‑SIDE COMPARISON
@@ -111,7 +107,7 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
 
             x = push["cycle_no"].values + REP_OFFSET[rep]
 
-            # ✅ SINGLE SOURCE OF TRUTH
+            # ✅ single source of truth
             total = push["value"].values + roll["value"].values
 
             # --- stacked bars ---
@@ -132,17 +128,25 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 showlegend=False,
             )
 
-            # ✅ scatter aligned EXACTLY to stack top
+            # ✅ line + markers (exactly on stack)
             fig.add_scatter(
                 x=x,
                 y=total,
-                mode="lines+markers+text",
+                mode="lines+markers",
                 marker=dict(size=7, color=REP_COLOURS[rep]),
                 line=dict(
                     color=REP_COLOURS[rep],
                     width=2,
                     dash="solid" if rep == "60m_1" else "dash",
                 ),
+                showlegend=False,
+            )
+
+            # ✅ text only — safely lifted above everything
+            fig.add_scatter(
+                x=x,
+                y=total + TEXT_PAD,
+                mode="text",
                 text=[f"{v:.2f}" for v in total],
                 textfont=dict(size=TEXT_SIZE, color=REP_COLOURS[rep]),
                 textposition="top center",
@@ -152,7 +156,7 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
         fig.update_layout(
             title=dict(
                 text=f"Cycle Length ({band} m)",
-                y=0.94,
+                y=0.95,
                 yanchor="top",
             ),
             margin=dict(t=90),
