@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sat Apr 25 15:23:59 2026
+
+@author: Caroline Adams
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Sat Apr 25 13:07:06 2026
 
 @author: Caroline Adams
@@ -19,7 +26,7 @@ st.set_page_config(layout="wide")
 def load_image(image_dir: Path, stem: str):
     """
     Attempt to load an image using common extensions.
-    Returns Path if found, otherwise None.
+    Returns the Path if found, otherwise None.
     """
     for ext in [".png", ".jpg", ".jpeg"]:
         candidate = image_dir / f"{stem}{ext}"
@@ -71,16 +78,15 @@ else:
     )
 
 st.write(
-    "To establish your baseline sprint profile at the start of the season you will complete four "
-    "60 m maximal efforts. By completing multiple repetitions we can develop a clear picture of your "
-    "push profile, explore variation between reps, and have confidence that observed characteristics "
-    "are not due to a single random event.\n\n"
-    "Three cameras are used: one positioned in the sagittal plane to capture the acceleration phase "
-    "over the first 0–10 m, a second positioned in the sagittal plane between 35–45 m, and a third "
-    "panning camera capturing the full 60 m.\n\n"
-    "Due to cameras being positioned on one side of the athlete, all kinematic data are reported "
-    "relative to the left side only. This testing setup can be repeated after training interventions "
-    "to evaluate changes in push mechanics over time."
+    "To establish your sprint baseline at the start of the season, you will complete four "
+    "60 m maximum‑effort sprints. Completing multiple repetitions helps build a clear picture "
+    "of how you push, how consistent your technique is, and whether differences between efforts "
+    "are meaningful rather than just one‑off variations.\n\n"
+    "Two cameras are used during the test. One captures the early acceleration phase over the "
+    "first 0–10 m, another focuses on your pushing pattern between 35–45 m when speed is higher."
+    "Because the cameras are positioned on one side only, all movement data relates to the left "
+    "side of your body. This same setup can be repeated after training blocks later in the season to see monitor changes on your sprint performance."
+
 )
 
 # =========================================================
@@ -92,18 +98,18 @@ if wcerg_path:
     st.image(str(wcerg_path), width=800)
 else:
     st.warning(
-        "WC Ergometer image not found.\n"
+        "Wheelchair ergometer image not found.\n"
         "Checked for: WC_ergometer.png / WC_ergometer.jpg / WC_ergometer.jpeg\n"
         f"in {IMAGES_DIR}"
     )
 
 st.write(
-    "Testing using the Lode Esseda instrumented ergometer allows independent assessment of left and "
-    "right push mechanics by directly measuring the torque applied during propulsion.\n\n"
-    "Following a standardised warm‑up and familiarisation period, the testing protocol involves two "
-    "separate 30‑second maximal pushing efforts. The first effort is performed at a resistance typical "
-    "of an outdoor athletics track surface, while the second is completed at an increased resistance.\n\n"
-    "This approach allows us to: (1) establish a baseline push profile for longitudinal monitoring, "
-    "(2) identify potential left‑right asymmetries in torque production, and (3) examine how push "
-    "mechanics adapt when external demands are increased."
+    "Testing on the Lode Esseda ergometer allows us to look at how each side contributes to the push "
+    "independently. It measures how much turning force you apply through the wheels during each push.\n\n"
+    "After a warm‑up and time to get comfortable on the ergometer, you will complete two separate "
+    "30‑second pushing efforts. The first uses a resistance similar to what you experience on the "
+    "track, and the second uses a higher resistance.\n\n"
+    "This helps us: (1) build a clear baseline profile that we can track over time, "
+    "(2) identify potential left‑right asymmetries, and "
+    "(3) understand how your pushing changes when the external demands are increased"
 )
