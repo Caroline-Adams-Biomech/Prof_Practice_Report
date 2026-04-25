@@ -92,9 +92,7 @@ REP_LABELS = {
 # =========================================================
 # SHARED PLOTLY STYLE
 # =========================================================
-# =========================================================
-# SHARED PLOTLY STYLE (FIXED)
-# =========================================================
+
 def apply_plotly_style(fig):
     fig.update_layout(
         template="simple_white",
@@ -167,17 +165,22 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN (MATPLOTLIB)
 # =========================================================
+# =========================================================
+# SECTION 2 — CYCLE LENGTH BREAKDOWN (REFINED VISUAL)
+# =========================================================
 st.subheader("Cycle Length Breakdown")
 
+
+# Matplotlib visual style (clean, no boxes)
 plt.rcParams.update({
     "axes.spines.top": False,
     "axes.spines.right": False,
-    "axes.edgecolor": "none",
+    "axes.spines.left": False,
+    "axes.spines.bottom": False,
     "axes.facecolor": "white",
     "axes.labelcolor": "#444",
     "xtick.color": "#444",
     "ytick.color": "#444",
-    "grid.color": "#dddddd",
     "font.size": 11,
 })
 
@@ -185,6 +188,7 @@ col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
     with col:
+
         df_len = df[
             (df["distance_band"] == band) &
             (df["metric_key"].isin(["push_length", "rolling_length"])) &
@@ -213,30 +217,66 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
                 .sort_values("cycle_no")["value"].values
             )
 
+            total = push + roll
+            bar_x = x + (i - 0.5) * width
+
+            # --- Bars ---
             ax.bar(
-                x + (i - 0.5) * width,
+                bar_x,
                 push,
                 width,
-                label=f"Push – {REP_LABELS[rep]}",
                 color=CYCLE_COLOURS[rep]["push_length"],
+                label=f"Push – {REP_LABELS[rep]}",
             )
 
             ax.bar(
-                x + (i - 0.5) * width,
+                bar_x,
                 roll,
                 width,
                 bottom=push,
-                label=f"Rolling – {REP_LABELS[rep]}",
                 color=CYCLE_COLOURS[rep]["rolling_length"],
+                label=f"Rolling – {REP_LABELS[rep]}",
             )
 
-        ax.set_title(f"Cycle Length ({band} m)")
+            # --- Total cycle length line ---
+            ax.plot(
+                bar_x,
+                total,
+                color=REP_COLOURS[rep],
+                linewidth=2,
+                marker="o",
+                markersize=5,
+                linestyle="-" if rep == "60m_1" else "--",
+                label=f"Cycle Length – {REP_LABELS[rep]}",
+            )
+
+            # --- Callouts (offset to avoid overlap) ---
+            for j, val in enumerate(total):
+                ax.text(
+                    bar_x[j],
+                    val + 0.06,           # vertical offset
+                    f"{val:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=9,
+                    color=REP_COLOURS[rep],
+                )
+
+        # --- Axes + title styling ---
+        ax.set_title(f"Cycle Length ({band} m)", fontsize=13, weight="normal")
         ax.set_xlabel("Cycle")
         ax.set_ylabel("Distance (m)")
         ax.set_xticks(x)
         ax.set_xticklabels(cycles)
-        ax.grid(axis="y", alpha=0.3)
-        ax.legend(frameon=False, fontsize=9)
+        ax.set_ylim(0, max(total) * 1.15)
+
+        # --- Legend (compact, old‑style feel) ---
+        ax.legend(
+            loc="upper left",
+            frameon=False,
+            fontsize=9,
+            ncol=1,
+        )
 
         plt.tight_layout()
         st.pyplot(fig)
