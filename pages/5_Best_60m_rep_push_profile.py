@@ -259,15 +259,23 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 textfont=dict(size=TEXT_SIZE, color=REP_COLOURS[rep]),
                 showlegend=False,
             )
+            fig.update_layout(
+                title=f"Cycle Length ({band} m)",
+                barmode="stack",
+                yaxis=dict(
+                    range=[0, 3.2],                 # ✅ hard cap at 3.2
+                    tickvals=[0, 1, 2, 3],           # ✅ labels only up to 3.0
+                    ticktext=["0", "1", "2", "3"]
+                ),
+                xaxis=dict(
+                    tickmode="array",
+                    tickvals=cycles
+                ),
+                height=420,
+                template="simple_white",
+)
 
-        fig.update_layout(
-            title=f"Cycle Length ({band} m)",
-            barmode="stack",
-            yaxis=dict(range=[0, GLOBAL_CYCLE_MAX]),
-            xaxis=dict(tickmode="array", tickvals=cycles),
-            height=420,
-            template="simple_white",
-        )
+
 
         st.plotly_chart(fig, use_container_width=True)
 
