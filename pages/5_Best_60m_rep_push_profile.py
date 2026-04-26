@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 25 21:16:13 2026
-
-@author: Caroline Adams
-"""
 
 
 # coding: utf-8
@@ -107,7 +101,7 @@ TEXT_PAD = 0.22
 # =========================================================
 # TITLE
 # =========================================================
-st.title("60m Push Profile – Rep Comparison")
+st.title("60m Push Profile")
 st.write(
     "This page shows push metrics from your best repetition. Results are shown "
     "for early acceleration (0–10 m) and the higher speed phase (35–45 m)."

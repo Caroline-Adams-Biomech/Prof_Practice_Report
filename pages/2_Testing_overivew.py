@@ -76,7 +76,12 @@ st.write(
     "Because the cameras are positioned on one side only, all movement data relates to the left "
     "side of your body. This same setup can be repeated after training blocks later in the season to see monitor changes on your sprint performance."
 )
-
+if test_path:
+    st.image(str(test_path), width=400)
+else:
+    st.warning(
+        "Track session test overview image not found}"
+    )
 # =========================================================
 # Lab Session Section
 # =========================================================
