@@ -11,6 +11,8 @@ st.title("Track Testing 60m reps")
 st.write(
     "This page compares the four 60 m wheelchair racing sprints you did  "
     "looking at some key performance metrics and how they differ across 10 m splits."
+    "We are mostly interested in the shape of the curves, these are your push signature."
+
 )
 
 # =========================================================
@@ -37,26 +39,7 @@ colour_map = {
     "60m_4": "#9D32BE",  # purple
 }
 
-# =========================================================
-# SECTION 1: ALL TRIALS OVERVIEW
-# =========================================================
-st.subheader("All trials overview")
 
-for trial in trial_names:
-    with st.expander(trial, expanded=False):
-        tdf = df[df["Trial"] == trial]
-
-        table = tdf.pivot(
-            index="Metric",
-            columns="Distance (m)",
-            values="Value"
-        )
-
-        # remove 0–10 split
-        table = table.loc[:, table.columns > 10]
-        table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
-
-        st.dataframe(table.round(2), use_container_width=True)
 
 # =========================================================
 # SECTION 2: 60 m REP PROFILES
@@ -262,3 +245,23 @@ st.markdown(
 
 st.plotly_chart(fig, use_container_width=True)
 
+# =========================================================
+# SECTION 1: ALL TRIALS OVERVIEW
+# =========================================================
+st.subheader("All trials overview")
+
+for trial in trial_names:
+    with st.expander(trial, expanded=False):
+        tdf = df[df["Trial"] == trial]
+
+        table = tdf.pivot(
+            index="Metric",
+            columns="Distance (m)",
+            values="Value"
+        )
+
+        # remove 0–10 split
+        table = table.loc[:, table.columns > 10]
+        table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
+
+        st.dataframe(table.round(2), use_container_width=True)
