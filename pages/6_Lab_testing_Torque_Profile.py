@@ -53,7 +53,7 @@ else:
         f"in {IMAGES_DIR}"
     )
 
-st.title("Wheelchair Racing Performance Testing Report")
+st.title("Lab testing Torque Profile")
 st.markdown(
     """
     This view shows **mean ± SD torque–time profiles** for wheelchair propulsion.
@@ -191,7 +191,7 @@ col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown(
-        "<h2 style='margin-bottom:6px;'>Torque vs Time (15–25 s)</h2>",
+        "Torque vs Time profile",
         unsafe_allow_html=True
     )
 
