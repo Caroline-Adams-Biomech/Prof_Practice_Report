@@ -252,3 +252,11 @@ ax.legend(fontsize=12, frameon=False, loc="upper right")
 
 st.pyplot(fig)
 
+#Discussion
+st.markdown(
+    """
+    At normal resistance you favour your left side is more dominant, we can see an assymetry between 
+    your left and right side with a 25% difference between sides.When the load goes up, your technique
+    actually gets more symmetrical — longer pushes, and balance between arms <1% assymetry.
+    """
+)
