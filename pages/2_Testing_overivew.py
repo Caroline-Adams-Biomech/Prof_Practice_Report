@@ -88,7 +88,7 @@ else:
 st.subheader("Lab Session")
 
 if wcerg_path:
-    st.image(str(wcerg_path), width=400)
+    st.image(str(wcerg_path), width=800)
 else:
     st.warning(
         "Wheelchair ergometer image not found.\n"

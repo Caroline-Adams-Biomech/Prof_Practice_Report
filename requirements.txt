@@ -6,3 +6,4 @@ numpy
 matplotlib
 altair
 openpyxl
+scipy
