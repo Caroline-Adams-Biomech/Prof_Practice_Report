@@ -1,8 +1,12 @@
-# -*- coding: utf-8 -*-# Caroline Adams
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Apr 25 15:23:59 2026
 
-# ======================================================
-# IMPORTS
-# ======================================================
+@author: Caroline Adams
+"""
+# =========================================================
+# PAGE SETUP
+# =========================================================
 from pathlib import Path
 import streamlit as st
 import numpy as np
@@ -10,14 +14,46 @@ import pandas as pd
 from scipy.signal import butter, filtfilt
 import matplotlib.pyplot as plt
 
-# ======================================================
-# PAGE CONFIG (MUST BE FIRST STREAMLIT CALL)
-# ======================================================
-st.set_page_config(
-    page_title="Lab Testing - Torque Profile",
-    layout="wide"
-)
+st.set_page_config(layout="wide")
 
+# =========================================================
+# Helper: robust image loader (png / jpg / jpeg)
+# =========================================================
+def load_image(image_dir: Path, stem: str):
+    """
+    Attempt to load an image using common extensions.
+    Returns the Path if found, otherwise None.
+    """
+    for ext in [".png", ".jpg", ".jpeg"]:
+        candidate = image_dir / f"{stem}{ext}"
+        if candidate.exists():
+            return candidate
+    return None
+
+# =========================================================
+# Base paths (multipage-safe)
+# =========================================================
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+IMAGES_DIR = PROJECT_ROOT / "images"
+
+# =========================================================
+# Load images safely
+# =========================================================
+logo_path = load_image(IMAGES_DIR, "Logo")
+
+# =========================================================
+# Header / Logo
+# =========================================================
+if logo_path:
+    st.image(str(logo_path), width=400)
+else:
+    st.error(
+        "Logo image not found. Expected one of:\n"
+        "Logo.png / Logo.jpg / Logo.jpeg\n"
+        f"in {IMAGES_DIR}"
+    )
+
+st.title("Wheelchair Racing Performance Testing Report")
 st.markdown(
     """
     This view shows **mean ± SD torque–time profiles** for wheelchair propulsion.
@@ -28,20 +64,13 @@ st.markdown(
 )
 
 # ======================================================
-# PAGE SETUP
-# ======================================================
-logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
-if logo_path.exists():
-    st.image(str(logo_path), width=400)
-
-# ======================================================
 # PARAMETERS
 # ======================================================
 wheel_radius = 0.34
 cutoff = 10.0
 order = 4
 push_threshold = 3.0
-t0, t1 = 15, 25
+t0, t1 = 15, 25  # analysis window (s)
 
 # ======================================================
 # FUNCTIONS
@@ -50,11 +79,9 @@ def butter_lowpass(x, fs):
     b, a = butter(order, cutoff / (fs / 2), btype="low")
     return filtfilt(b, a, x)
 
-
 def detect_pushes(time, torque, threshold):
     above = torque >= threshold
     d = np.diff(above.astype(int))
-
     starts = np.where(d == 1)[0] + 1
     ends   = np.where(d == -1)[0] + 1
 
@@ -71,7 +98,6 @@ def detect_pushes(time, torque, threshold):
 
     return pushes
 
-
 def extract_waves(df, pushes, t0, t1):
     waves = []
     for p in pushes:
@@ -84,26 +110,22 @@ def extract_waves(df, pushes, t0, t1):
                 waves.append({"t": t - t[0], "y": y})
     return waves
 
-
 def mean_sd_time(waves, n=200):
     if not waves:
         return None, None, None
     tmax = max(w["t"][-1] for w in waves)
-    tc = np.linspace(0, tmax, n)
-    Y = np.array([np.interp(tc, w["t"], w["y"]) for w in waves])
-    return tc, Y.mean(axis=0), Y.std(axis=0)
-
+    t_common = np.linspace(0, tmax, n)
+    Y = np.array([np.interp(t_common, w["t"], w["y"]) for w in waves])
+    return t_common, Y.mean(axis=0), Y.std(axis=0)
 
 def compute_push_impulse(wave):
     return np.trapezoid(wave["y"], wave["t"])
 
-
 def impulse_stats(waves):
     if len(waves) < 2:
         return np.nan, np.nan
-    impulses = [compute_push_impulse(w) for w in waves]
-    return np.mean(impulses), np.std(impulses, ddof=1)
-
+    vals = [compute_push_impulse(w) for w in waves]
+    return np.mean(vals), np.std(vals, ddof=1)
 
 def asymmetry_index(L, R):
     if np.isnan(L) or np.isnan(R) or (L + R) == 0:
@@ -135,7 +157,6 @@ def load_trial(filepath):
 
     return L, R, L_pushes, R_pushes
 
-
 data_path = Path(__file__).resolve().parents[1] / "data"
 
 baseline_L, baseline_R, BLp, BRp = load_trial(data_path / "30Sec_baseline.xlsx")
@@ -148,11 +169,10 @@ st.markdown("### Display options")
 show_resisted = st.checkbox("Show resisted trial", value=False)
 
 # ======================================================
-# BUILD TORQUE COMPARISON PLOT
+# DATA EXTRACTION
 # ======================================================
 BL_T = extract_waves(baseline_L, BLp, t0, t1)
 BR_T = extract_waves(baseline_R, BRp, t0, t1)
-
 RL_T = extract_waves(resisted_L, RLp, t0, t1)
 RR_T = extract_waves(resisted_R, RRp, t0, t1)
 
@@ -164,7 +184,44 @@ RL_imp, _ = impulse_stats(RL_T)
 RR_imp, _ = impulse_stats(RR_T)
 resisted_asym = asymmetry_index(RL_imp, RR_imp)
 
-fig, ax = plt.subplots(figsize=(10, 5))
+# ======================================================
+# TITLE + ASYMMETRY HEADER (STREAMLIT LAYOUT)
+# ======================================================
+col1, col2 = st.columns([3, 2])
+
+with col1:
+    st.markdown(
+        "<h2 style='margin-bottom:6px;'>Torque vs Time (15–25 s)</h2>",
+        unsafe_allow_html=True
+    )
+
+with col2:
+    st.markdown(
+        f"""
+        <div style="
+            text-align:right;
+            font-size:18px;
+            line-height:1.5;
+            padding-top:8px;">
+            <strong>Baseline asymmetry:</strong> {baseline_asym:+.1f}%<br>
+            {"<strong>Resisted asymmetry:</strong> " + f"{resisted_asym:+.1f}%" if show_resisted else ""}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ======================================================
+# PLOT (CLEAN, DASHBOARD STYLE)
+# ======================================================
+fig, ax = plt.subplots(figsize=(11, 5))
+
+# Axis styling
+ax.tick_params(axis="both", labelsize=13)
+ax.set_xlabel("Time from push start (s)", fontsize=14)
+ax.set_ylabel("Torque (Nm)", fontsize=14)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.grid(True, alpha=0.25)
 
 # Baseline
 t, m, sd = mean_sd_time(BL_T)
@@ -181,33 +238,17 @@ if t is not None:
 if show_resisted:
     t, m, sd = mean_sd_time(RL_T)
     if t is not None:
-        ax.plot(t, m, color="black", linestyle="--", linewidth=2, label="Resisted Left")
+        ax.plot(t, m, color="black", linestyle="--",
+                linewidth=2, label="Resisted Left")
         ax.fill_between(t, m - sd, m + sd, color="#d9d9d9", alpha=0.35)
 
     t, m, sd = mean_sd_time(RR_T)
     if t is not None:
-        ax.plot(t, m, color="green", linestyle="--", linewidth=2, label="Resisted Right")
+        ax.plot(t, m, color="green", linestyle="--",
+                linewidth=2, label="Resisted Right")
         ax.fill_between(t, m - sd, m + sd, color="#a8e6a3", alpha=0.35)
 
-# Annotation
-text = f"Baseline asymmetry: {baseline_asym:+.1f}%"
-if show_resisted:
-    text += f"\nResisted asymmetry: {resisted_asym:+.1f}%"
-
-ax.text(
-    0.02, 0.95,
-    text,
-    transform=ax.transAxes,
-    va="top",
-    fontsize=10,
-    bbox=dict(boxstyle="round", facecolor="white", alpha=0.85)
-)
-
-ax.set_title("Torque vs Time (15–25 s)")
-ax.set_xlabel("Time from push start (s)")
-ax.set_ylabel("Torque (Nm)")
-ax.legend()
-ax.grid(alpha=0.3)
+ax.legend(fontsize=12, frameon=False, loc="upper right")
 
 st.pyplot(fig)
 

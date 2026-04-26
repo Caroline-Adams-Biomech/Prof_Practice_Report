@@ -77,7 +77,7 @@ st.write(
     "side of your body. This same setup can be repeated after training blocks later in the season to see monitor changes on your sprint performance."
 )
 if test_path:
-    st.image(str(test_path), width=400)
+    st.image(str(test_path), width=800)
 else:
     st.warning(
         "Track session test overview image not found}"
@@ -88,7 +88,7 @@ else:
 st.subheader("Lab Session")
 
 if wcerg_path:
-    st.image(str(wcerg_path), width=800)
+    st.image(str(wcerg_path), width=400)
 else:
     st.warning(
         "Wheelchair ergometer image not found.\n"
