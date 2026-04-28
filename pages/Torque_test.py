@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Apr 28 16:29:08 2026
-
-@author: Caroline Adams
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Torque Profile – Plotly Version (Style‑Matched)
+Torque vs Time Profile – Style‑aligned Plotly version
 Author: Caroline Adams
 """
 
@@ -19,23 +12,45 @@ from scipy.signal import butter, filtfilt
 import plotly.graph_objects as go
 
 # =========================================================
-# PAGE CONFIG
+# PAGE CONFIG (must be first)
 # =========================================================
-st.set_page_config(layout="wide", page_title="Lab testing Torque Profile")
+st.set_page_config(
+    page_title="Lab testing Torque Profile",
+    layout="wide"
+)
+
+# =========================================================
+# GLOBAL TEXT & UI STYLE (match other pages)
+# =========================================================
+st.markdown(
+    """
+    <style>
+    .stApp {
+        font-size: 18px;
+        line-height: 1.55;
+    }
+    h1 { font-size: 40px; }
+    h2 { font-size: 28px; margin-top: 1.2em; }
+    h3 { font-size: 24px; margin-top: 1em; }
+    .stCaption { font-size: 16px; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================================================
 # PATHS
 # =========================================================
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-IMAGES_DIR = PROJECT_ROOT / "images"
-DATA_DIR = PROJECT_ROOT / "data"
+ROOT = Path(__file__).resolve().parents[1]
+IMAGES = ROOT / "images"
+DATA = ROOT / "data"
 
 # =========================================================
 # HEADER
 # =========================================================
-logo_path = IMAGES_DIR / "Logo.png"
-if logo_path.exists():
-    st.image(str(logo_path), width=400)
+logo = IMAGES / "Logo.png"
+if logo.exists():
+    st.image(str(logo), width=400)
 
 st.title("Lab testing Torque Profile")
 
@@ -43,8 +58,7 @@ st.markdown(
     """
     This view shows **mean ± SD torque–time profiles** for wheelchair propulsion.
 
-    - Baseline condition is shown by default  
-    - Toggle the resisted condition to explore how symmetry changes under load
+    Use the toggle to explore how **symmetry and technique change under load**.
     """
 )
 
@@ -58,7 +72,7 @@ push_threshold = 3.0
 t0, t1 = 15, 25
 
 # =========================================================
-# FUNCTIONS
+# SIGNAL PROCESSING FUNCTIONS
 # =========================================================
 def butter_lowpass(x, fs):
     b, a = butter(order, cutoff / (fs / 2), btype="low")
@@ -66,47 +80,46 @@ def butter_lowpass(x, fs):
 
 def detect_pushes(time, torque, threshold):
     above = torque >= threshold
-    d = np.diff(above.astype(int))
-    starts = np.where(d == 1)[0] + 1
-    ends   = np.where(d == -1)[0] + 1
+    edges = np.diff(above.astype(int))
+    starts = np.where(edges == 1)[0] + 1
+    ends = np.where(edges == -1)[0] + 1
     pushes = []
-    e_ptr = 0
+    e = 0
     for s in starts:
-        while e_ptr < len(ends) and ends[e_ptr] <= s:
-            e_ptr += 1
-        if e_ptr >= len(ends):
+        while e < len(ends) and ends[e] <= s:
+            e += 1
+        if e >= len(ends):
             break
-        e = ends[e_ptr]
-        pushes.append({"start": s, "end": e, "start_time": time[s]})
-        e_ptr += 1
+        pushes.append({"start": s, "end": ends[e], "t0": time[s]})
+        e += 1
     return pushes
 
-def extract_waves(df, pushes, t0, t1):
+def extract_waves(df, pushes):
     waves = []
     for p in pushes:
-        if t0 <= p["start_time"] <= t1:
+        if t0 <= p["t0"] <= t1:
             s, e = p["start"], p["end"] + 1
             t = df["time"].values[s:e]
             y = df["torque"].values[s:e]
-            if len(y) >= 3:
+            if len(y) > 3:
                 waves.append({"t": t - t[0], "y": y})
     return waves
 
-def mean_sd_time(waves, n=200):
+def mean_sd(waves, n=200):
     if not waves:
         return None, None, None
     tmax = max(w["t"][-1] for w in waves)
-    t_common = np.linspace(0, tmax, n)
-    Y = np.array([np.interp(t_common, w["t"], w["y"]) for w in waves])
-    return t_common, Y.mean(axis=0), Y.std(axis=0)
+    tc = np.linspace(0, tmax, n)
+    Y = np.array([np.interp(tc, w["t"], w["y"]) for w in waves])
+    return tc, Y.mean(axis=0), Y.std(axis=0)
 
-def impulse_stats(waves):
+def impulse(waves):
     if len(waves) < 2:
         return np.nan
-    return np.trapz([np.trapz(w["y"], w["t"]) for w in waves])
+    return np.mean([np.trapz(w["y"], w["t"]) for w in waves])
 
-def asymmetry_index(L, R):
-    if np.isnan(L) or np.isnan(R) or (L + R) == 0:
+def asym(L, R):
+    if np.isnan(L) or np.isnan(R):
         return np.nan
     return (L - R) / (0.5 * (L + R)) * 100
 
@@ -114,124 +127,109 @@ def asymmetry_index(L, R):
 # LOAD DATA
 # =========================================================
 @st.cache_data
-def load_trial(fp):
-    L = pd.read_excel(fp, sheet_name="Ergo_Left")
-    R = pd.read_excel(fp, sheet_name="Ergo_Right")
+def load_trial(file):
+    L = pd.read_excel(file, sheet_name="Ergo_Left")
+    R = pd.read_excel(file, sheet_name="Ergo_Right")
     for df in (L, R):
-        df["time"] = pd.to_numeric(df["time"], errors="coerce")
-        df["force"] = pd.to_numeric(df["force"], errors="coerce")
         df.dropna(inplace=True)
         df.reset_index(drop=True, inplace=True)
     fs = 1 / np.mean(np.diff(L["time"]))
     for df in (L, R):
-        df["force_filt"] = butter_lowpass(df["force"].values, fs)
-        df["torque"] = df["force_filt"] * wheel_radius
+        df["torque"] = butter_lowpass(df["force"], fs) * wheel_radius
     return (
         L, R,
         detect_pushes(L["time"], L["torque"], push_threshold),
-        detect_pushes(R["time"], R["torque"], push_threshold)
+        detect_pushes(R["time"], R["torque"], push_threshold),
     )
 
-baseline_L, baseline_R, BLp, BRp = load_trial(DATA_DIR / "30Sec_baseline.xlsx")
-resisted_L, resisted_R, RLp, RRp = load_trial(DATA_DIR / "30Sec_resisted.xlsx")
+BL, BR, BLp, BRp = load_trial(DATA / "30Sec_baseline.xlsx")
+RL, RR, RLp, RRp = load_trial(DATA / "30Sec_resisted.xlsx")
 
 # =========================================================
-# USER CONTROLS
+# DISPLAY OPTIONS (matches other pages)
 # =========================================================
 st.markdown("### Display options")
-show_resisted = st.checkbox("Show resisted trial", value=False)
+show_resisted = st.toggle("Show resisted trial", value=True)
 
 # =========================================================
-# EXTRACT DATA
+# DATA EXTRACTION
 # =========================================================
-BL = extract_waves(baseline_L, BLp, t0, t1)
-BR = extract_waves(baseline_R, BRp, t0, t1)
-RL = extract_waves(resisted_L, RLp, t0, t1)
-RR = extract_waves(resisted_R, RRp, t0, t1)
+BLw, BRw = extract_waves(BL, BLp), extract_waves(BR, BRp)
+RLw, RRw = extract_waves(RL, RLp), extract_waves(RR, RRp)
 
-baseline_asym = asymmetry_index(impulse_stats(BL), impulse_stats(BR))
-resisted_asym = asymmetry_index(impulse_stats(RL), impulse_stats(RR))
+base_asym = asym(impulse(BLw), impulse(BRw))
+res_asym = asym(impulse(RLw), impulse(RRw))
 
 # =========================================================
-# ASYMMETRY HEADER
+# SECTION HEADER + ASYMMETRY
 # =========================================================
-col1, col2 = st.columns([3, 2])
+col_l, col_r = st.columns([3, 2])
+with col_l:
+    st.subheader("Torque vs Time profile")
+    with st.popover("What is torque?"):
+        st.write(
+            "Torque represents the turning force applied to the wheel — a combined "
+            "reflection of strength, technique, and timing."
+        )
 
-with col1:
-    st.markdown("## Torque vs Time profile")
-
-with col2:
+with col_r:
     st.markdown(
         f"""
-        <div style="text-align:right; font-size:18px;">
-        <strong>Baseline asymmetry:</strong> {baseline_asym:+.1f}%<br>
-        {"<strong>Resisted asymmetry:</strong> " + f"{resisted_asym:+.1f}%" if show_resisted else ""}
+        <div style="text-align:right; padding-top:8px;">
+        <strong>Baseline asymmetry:</strong> {base_asym:+.1f}%<br>
+        {"<strong>Resisted asymmetry:</strong> " + f"{res_asym:+.1f}%" if show_resisted else ""}
         </div>
         """,
         unsafe_allow_html=True
     )
 
 # =========================================================
-# PLOTLY FIGURE (STYLE‑MATCHED)
+# PLOT (STYLE‑MATCHED)
 # =========================================================
 fig = go.Figure()
 
-def add_mean_sd(t, m, sd, line_col, fill_col, label, dash=None):
-    fig.add_trace(go.Scatter(
+def add_profile(t, m, sd, col, fill, name, dash=None):
+    fig.add_scatter(
         x=t, y=m,
         mode="lines",
-        line=dict(color=line_col, width=2, dash=dash),
-        name=label
-    ))
-    fig.add_trace(go.Scatter(
-        x=np.concatenate([t, t[::-1]]),
-        y=np.concatenate([m - sd, (m + sd)[::-1]]),
+        line=dict(color=col, width=2.5, dash=dash),
+        name=name
+    )
+    fig.add_scatter(
+        x=np.r_[t, t[::-1]],
+        y=np.r_[m - sd, (m + sd)[::-1]],
         fill="toself",
-        fillcolor=fill_col,
-        line=dict(color="rgba(0,0,0,0)"),
+        fillcolor=fill,
+        line=dict(width=0),
         hoverinfo="skip",
         showlegend=False
-    ))
+    )
 
-t, m, sd = mean_sd_time(BL)
-add_mean_sd(t, m, sd, "firebrick", "rgba(211,160,160,0.35)", "Baseline Left")
-
-t, m, sd = mean_sd_time(BR)
-add_mean_sd(t, m, sd, "royalblue", "rgba(158,197,255,0.35)", "Baseline Right")
+t, m, sd = mean_sd(BLw); add_profile(t, m, sd, "red", "rgba(211,160,160,0.35)", "Baseline Left")
+t, m, sd = mean_sd(BRw); add_profile(t, m, sd, "blue","rgba(158,197,255,0.35)", "Baseline Right")
 
 if show_resisted:
-    t, m, sd = mean_sd_time(RL)
-    add_mean_sd(t, m, sd, "black", "rgba(217,217,217,0.35)", "Resisted Left", dash="dash")
-
-    t, m, sd = mean_sd_time(RR)
-    add_mean_sd(t, m, sd, "seagreen", "rgba(168,230,163,0.35)", "Resisted Right", dash="dash")
+    t, m, sd = mean_sd(RLw); add_profile(t, m, sd, "black","rgba(217,217,217,0.35)", "Resisted Left","dash")
+    t, m, sd = mean_sd(RRw); add_profile(t, m, sd, "green","rgba(168,230,163,0.35)", "Resisted Right","dash")
 
 fig.update_layout(
     template="simple_white",
-    height=480,
+    height=500,
     hovermode="x unified",
-    legend=dict(font=dict(size=14), frameon=False),
-    xaxis=dict(
-        title="Time from push start (s)",
-        showgrid=True,
-        gridcolor="rgba(0,0,0,0.25)"
-    ),
-    yaxis=dict(
-        title="Torque (Nm)",
-        showgrid=True,
-        gridcolor="rgba(0,0,0,0.25)"
-    )
+    legend=dict(font=dict(size=16)),
+    xaxis=dict(title="Time from push start (s)", gridcolor="rgba(0,0,0,0.25)"),
+    yaxis=dict(title="Torque (Nm)", gridcolor="rgba(0,0,0,0.25)")
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
-# DISCUSSION
+# INTERPRETATION
 # =========================================================
 st.markdown(
     """
-    At normal resistance, you favour your **left side**, with ~25% asymmetry.
-    Under increased load, your propulsion becomes more symmetrical —
-    longer pushes and improved left–right balance (<1% asymmetry).
+    At baseline, propulsion shows **clear left‑dominance** and asymmetry.
+    Under resisted conditions, symmetry improves substantially, suggesting
+    modified technique and more balanced force application.
     """
 )
