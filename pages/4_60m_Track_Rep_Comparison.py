@@ -124,30 +124,95 @@ colour_map = {
 # =========================================================
 st.subheader("60 m Rep profiles")
 
-selected_trials = st.multiselect(
-    "Select trials",
-    trial_names,
-    default=trial_names[:1]
-)
-
+# --- Metric selection
 selected_metric = st.selectbox(
     "Metric to plot",
     list(METRIC_MAP.keys())
 )
 
-show_minmax = st.toggle("Show min–max range across all reps")
-compare_to_best = st.toggle("Compare to best rep")
+# --- Metric → data key
+metric_key = METRIC_MAP[selected_metric]
+
+# --- Compute best rep early (needed for compare UI)
+metric_all_df = df[df["Metric"] == metric_key]
+
+if metric_all_df.empty:
+    st.error(f"No data found for metric '{selected_metric}'.")
+    st.stop()
+
+means = metric_all_df.groupby("Trial")["Value"].mean()
+
+if selected_metric == "Interval Time (s)":
+    best_trial = means.idxmin()
+    best_desc = "lowest average interval time"
+else:
+    best_trial = means.idxmax()
+    best_desc = "highest average value"
+
+st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
+
+# --- Compare‑to‑best toggle
+compare_to_best = st.toggle("Compare a rep to your best rep")
 
 if compare_to_best:
-    show_minmax = False
-    st.caption(
-        "Compares one rep against your best rep. "
-        "Only two lines are shown with arrows indicating differences."
+    # Explicit comparison selector
+    comparison_trial = st.selectbox(
+        "Select a rep to compare against your best",
+        [t for t in trial_names if t != best_trial]
     )
 
-if not selected_trials:
-    st.warning("Please select at least one trial.")
-    st.stop()
+    display_trials = [best_trial, comparison_trial]
+    show_minmax = False  # disabled in compare mode
+
+    st.info(
+        f"🔍 Comparing **{comparison_trial}** against "
+        f"**{best_trial} (best rep)**"
+    )
+
+else:
+    # Normal multi‑rep view
+    selected_trials = st.multiselect(
+        "Select trials",
+        trial_names,
+        default=trial_names[:1]
+    )
+
+    if not selected_trials:
+        st.warning("Please select at least one trial.")
+        st.stop()
+
+    display_trials = selected_trials
+    show_minmax = st.toggle("Show min–max range across all reps")
+
+# # =========================================================
+# # SECTION: REP PROFILES
+# # =========================================================
+# st.subheader("60 m Rep profiles")
+
+# selected_trials = st.multiselect(
+#     "Select trials",
+#     trial_names,
+#     default=trial_names[:1]
+# )
+
+# selected_metric = st.selectbox(
+#     "Metric to plot",
+#     list(METRIC_MAP.keys())
+# )
+
+# show_minmax = st.toggle("Show min–max range across all reps")
+# compare_to_best = st.toggle("Compare a rep to your best rep")
+
+# if compare_to_best:
+#     show_minmax = False
+#     st.caption(
+#         "Compares one rep against your best rep. "
+#         "Only two lines are shown with arrows indicating differences."
+#     )
+
+# if not selected_trials:
+#     st.warning("Please select at least one trial.")
+#     st.stop()
 
 # =========================================================
 # FILTER DATA
