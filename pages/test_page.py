@@ -23,6 +23,8 @@ st.set_page_config(
 # =========================================================
 base_path = Path(__file__).resolve().parents[1]
 logo_path = base_path / "images" / "Logo.png"
+cycle_path = base_path / "images" / "cycle_definitions_image.png"
+
 
 # =========================================================
 # HEADER
