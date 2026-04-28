@@ -193,23 +193,24 @@ RL, RR, RLp, RRp = load_trial(DATA / "30Sec_resisted.xlsx")
 # DISPLAY OPTIONS (matches other pages)
 # =========================================================
 st.markdown("### Display options")
-show_resisted = st.toggle("Show resisted trial", value=True)
+show_resisted = st.toggle("Show resisted trial", value=False)
 
+# =========================================================
 # =========================================================
 # DATA EXTRACTION
 # =========================================================
 BLw, BRw = extract_waves(BL, BLp), extract_waves(BR, BRp)
 RLw, RRw = extract_waves(RL, RLp), extract_waves(RR, RRp)
 
-base_asym = asym(impulse(BLw), impulse(BRw))
-res_asym = asym(impulse(RLw), impulse(RRw))
-
+# Mean angular impulse asymmetry (15–25 s window)
 baseline_angular_impulse_asym = angular_impulse_asymmetry(
     angular_impulse(BLw),
     angular_impulse(BRw)
 )
+
 resisted_angular_impulse_asym = angular_impulse_asymmetry(
-    angular_impulse
+    angular_impulse(RLw),
+    angular_impulse(RRw)
 )
 # =========================================================
 # SECTION HEADER + ASYMMETRY

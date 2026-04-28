@@ -110,7 +110,7 @@ st.write(
 # REP SELECTION
 # =========================================================
 st.subheader("Rep Selection")
-show_rep_3 = st.checkbox("To include Rep 3 for a comparison click here", value=True)
+show_rep_3 = st.checkbox("To include Rep 3 for a comparison click here", value=False)
 
 REPS = ["60m_1"]
 if show_rep_3:
