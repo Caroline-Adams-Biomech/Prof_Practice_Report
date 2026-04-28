@@ -120,7 +120,7 @@ colour_map = {
 }
 
 # =========================================================
-# SECTION: REP PROFILES
+# SECTION: REP PROFILES 
 # =========================================================
 st.subheader("60 m Rep profiles")
 
@@ -130,10 +130,9 @@ selected_metric = st.selectbox(
     list(METRIC_MAP.keys())
 )
 
-# --- Metric → data key
 metric_key = METRIC_MAP[selected_metric]
 
-# --- Compute best rep early (needed for compare UI)
+# --- Compute best rep (needed for both modes)
 metric_all_df = df[df["Metric"] == metric_key]
 
 if metric_all_df.empty:
@@ -151,11 +150,13 @@ else:
 
 st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
 
-# --- Compare‑to‑best toggle
+# ---------------------------------------------------------
+# MODE TOGGLE
+# ---------------------------------------------------------
 compare_to_best = st.toggle("Compare a rep to your best rep")
 
 if compare_to_best:
-    # Explicit comparison selector
+    # ---------- COMPARE MODE ----------
     comparison_trial = st.selectbox(
         "Select a rep to compare against your best",
         [t for t in trial_names if t != best_trial]
@@ -170,7 +171,7 @@ if compare_to_best:
     )
 
 else:
-    # Normal multi‑rep view
+    # ---------- NORMAL MODE ----------
     selected_trials = st.multiselect(
         "Select trials",
         trial_names,
@@ -183,7 +184,7 @@ else:
 
     display_trials = selected_trials
     show_minmax = st.toggle("Show min–max range across all reps")
-
+``
 # # =========================================================
 # # SECTION: REP PROFILES
 # # =========================================================
@@ -241,18 +242,14 @@ st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
 # =========================================================
 # DISPLAY TRIALS
 # =========================================================
+
 if compare_to_best:
-    non_best = [t for t in selected_trials if t != best_trial]
-    if not non_best:
-        st.warning("Select a rep other than the best to compare.")
-        display_trials = selected_trials
-        comparison_trial = None
-    else:
-        comparison_trial = non_best[-1]
-        display_trials = [best_trial, comparison_trial]
+    # Compare mode: always exactly two known trials
+    display_trials = [best_trial, comparison_trial]
+
 else:
+    # Normal mode: user-selected trials
     display_trials = selected_trials
-    comparison_trial = None
 
 plot_df = df[
     (df["Trial"].isin(display_trials)) &
