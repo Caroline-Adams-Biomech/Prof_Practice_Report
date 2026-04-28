@@ -324,13 +324,11 @@ fig.update_layout(
     font=dict(
         size=16
     ),
-
     xaxis=dict(
         title="Distance (m)",
         range=[-2, 65],
         dtick=10,
-        showgrid=True,
-        gridcolor="rgba(0, 0, 0, 0.25)",
+        showgrid=False,   # ✅ remove gridlines
         showline=True,
         linecolor="black",
         linewidth=1,
@@ -339,11 +337,9 @@ fig.update_layout(
         title_font=dict(size=16),
         zeroline=False,
     ),
-
     yaxis=dict(
         title=selected_metric,
-        showgrid=True,
-        gridcolor="rgba(0, 0, 0, 0.25)",
+        showgrid=False,   # ✅ remove gridlines
         showline=True,
         linecolor="black",
         linewidth=1,
@@ -351,8 +347,7 @@ fig.update_layout(
         tickfont=dict(size=15),
         title_font=dict(size=16),
         zeroline=False,
-    ),
-
+        ),
     legend=dict(
         font=dict(size=14),
         borderwidth=0

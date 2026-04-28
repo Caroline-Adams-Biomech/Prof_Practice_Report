@@ -244,7 +244,7 @@ with col_l:
 
     with st.popover("What is torque?"):
         st.write(
-            "Torque represents the turning force applied to the wheel — a combined "
+            "🚀 Torque: represents the turning force applied to the wheel — a combined "
             "reflection of strength, technique, and timing."
         )
 
@@ -325,28 +325,28 @@ st.markdown(
     modified technique and more balanced force application.
     """
 )
-st.markdown("### 🔎 Asymmetry check (debug)")
+# st.markdown("### 🔎 Asymmetry check (debug)")
 
-st.write("**Baseline:**")
-st.write(f"- Angular impulse asymmetry: {baseline_angular_impulse_asym:+.1f}%")
-st.write(f"- Mean torque asymmetry: {baseline_mean_torque_asym:+.1f}%")
+# st.write("**Baseline:**")
+# st.write(f"- Angular impulse asymmetry: {baseline_angular_impulse_asym:+.1f}%")
+# st.write(f"- Mean torque asymmetry: {baseline_mean_torque_asym:+.1f}%")
 
-if show_resisted:
-    st.write("**Resisted:**")
-    st.write(f"- Angular impulse asymmetry: {resisted_angular_impulse_asym:+.1f}%")
-    st.write(f"- Mean torque asymmetry: {resisted_mean_torque_asym:+.1f}%")
+# if show_resisted:
+#     st.write("**Resisted:**")
+#     st.write(f"- Angular impulse asymmetry: {resisted_angular_impulse_asym:+.1f}%")
+#     st.write(f"- Mean torque asymmetry: {resisted_mean_torque_asym:+.1f}%")
     
-def debug_impulse(waves, label):
-    vals = [np.trapezoid(w["y"], w["t"]) for w in waves]
-    st.write(f"{label} pushes:", len(vals))
-    st.write(f"{label} impulse values:", np.round(vals, 2))
-    st.write(f"{label} mean impulse:", np.round(np.mean(vals), 2))
+# def debug_impulse(waves, label):
+#     vals = [np.trapezoid(w["y"], w["t"]) for w in waves]
+#     st.write(f"{label} pushes:", len(vals))
+#     st.write(f"{label} impulse values:", np.round(vals, 2))
+#     st.write(f"{label} mean impulse:", np.round(np.mean(vals), 2))
 
-st.write("### DEBUG IMPULSE VALUES")
+# st.write("### DEBUG IMPULSE VALUES")
 
-debug_impulse(BLw, "Baseline Left")
-debug_impulse(BRw, "Baseline Right")
+# debug_impulse(BLw, "Baseline Left")
+# debug_impulse(BRw, "Baseline Right")
 
-if show_resisted:
-    debug_impulse(RLw, "Resisted Left")
-    debug_impulse(RRw, "Resisted Right")
+# if show_resisted:
+#     debug_impulse(RLw, "Resisted Left")
+#     debug_impulse(RRw, "Resisted Right")
