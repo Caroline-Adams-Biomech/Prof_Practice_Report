@@ -45,13 +45,15 @@ st.write("### Key Metrics")
 with st.popover("⏱️ Interval Time (s)"):
     st.subheader("⏱️ Interval Time (seconds)")
     st.write(
-        "Time taken to travel from the start to the end of each segment, "
-        "effectively a split time (e.g. 0–10 m, 10–20 m, etc.)."
+        "Time taken to travel from the start to the end of each segment "
+        "(e.g. 0–10 m, 10–20 m)."
     )
 
 with st.popover("💨 Average Speed (m/s)"):
     st.subheader("💨 Average Speed (m/s)")
-    st.write("The average speed of the athlete and chair during each 10 m split.")
+    st.write(
+        "The average speed of the athlete and chair during each 10 m split."
+    )
 
 with st.popover("🔂📏 Average Cycle Length (m)"):
     st.subheader("🔂📏 Average Cycle Length (m)")
@@ -76,7 +78,7 @@ with st.popover("🔁 Average Cycle Frequency (CPS)"):
     st.subheader("🔁 Average Cycle Frequency (Cycles per Second)")
     st.write(
         "The average number of cycles completed per second (CPS) during each "
-        "10 m split — essentially an arm speed or cadence measure."
+        "10 m split — an indicator of cadence or arm speed."
     )
 
 st.write(
@@ -98,7 +100,7 @@ df = load_sprint_data()
 trial_names = sorted(df["Trial"].dropna().unique())
 
 # =========================================================
-# METRIC MAP  ✅ THIS FIXES YOUR ERROR
+# METRIC MAP (UI LABEL → DATA KEY)
 # =========================================================
 METRIC_MAP = {
     "Interval Time (s)": "Interval Time (s)",
@@ -108,7 +110,7 @@ METRIC_MAP = {
 }
 
 # =========================================================
-# FIXED COLOUR MAP
+# COLOUR MAP
 # =========================================================
 colour_map = {
     "60m_1": "#2ca02c",
@@ -118,7 +120,7 @@ colour_map = {
 }
 
 # =========================================================
-# SECTION 2: REP PROFILES
+# SECTION: REP PROFILES
 # =========================================================
 st.subheader("60 m Rep profiles")
 
@@ -136,12 +138,19 @@ selected_metric = st.selectbox(
 show_minmax = st.toggle("Show min–max range across all reps")
 compare_to_best = st.toggle("Compare to best rep")
 
+if compare_to_best:
+    show_minmax = False
+    st.caption(
+        "Compares one rep against your best rep. "
+        "Only two lines are shown with arrows indicating differences."
+    )
+
 if not selected_trials:
     st.warning("Please select at least one trial.")
     st.stop()
 
 # =========================================================
-# DATA FILTERING (USING METRIC MAP)
+# FILTER DATA
 # =========================================================
 metric_key = METRIC_MAP[selected_metric]
 metric_all_df = df[df["Metric"] == metric_key]
@@ -157,22 +166,61 @@ means = metric_all_df.groupby("Trial")["Value"].mean()
 
 if selected_metric == "Interval Time (s)":
     best_trial = means.idxmin()
+    best_desc = "lowest average interval time"
 else:
     best_trial = means.idxmax()
+    best_desc = "highest average value"
+
+st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
 
 # =========================================================
 # DISPLAY TRIALS
 # =========================================================
-display_trials = selected_trials
+if compare_to_best:
+    non_best = [t for t in selected_trials if t != best_trial]
+    if not non_best:
+        st.warning("Select a rep other than the best to compare.")
+        display_trials = selected_trials
+        comparison_trial = None
+    else:
+        comparison_trial = non_best[-1]
+        display_trials = [best_trial, comparison_trial]
+else:
+    display_trials = selected_trials
+    comparison_trial = None
+
 plot_df = df[
     (df["Trial"].isin(display_trials)) &
     (df["Metric"] == metric_key)
 ]
 
 # =========================================================
+# MIN–MAX RANGE (ALL REPS)
+# =========================================================
+range_df = (
+    metric_all_df
+    .groupby("Distance (m)")
+    .agg(min_val=("Value", "min"), max_val=("Value", "max"))
+    .reset_index()
+)
+
+# =========================================================
 # PLOT
 # =========================================================
 fig = go.Figure()
+
+if show_minmax:
+    fig.add_trace(
+        go.Scatter(
+            x=list(range_df["Distance (m)"]) + list(range_df["Distance (m)"][::-1]),
+            y=list(range_df["max_val"]) + list(range_df["min_val"][::-1]),
+            fill="toself",
+            fillcolor="rgba(180,180,180,0.4)",
+            line=dict(color="rgba(0,0,0,0)"),
+            hoverinfo="skip",
+            name="Min–max range (all reps)"
+        )
+    )
 
 for trial in display_trials:
     d = plot_df[plot_df["Trial"] == trial]
@@ -181,17 +229,68 @@ for trial in display_trials:
             x=d["Distance (m)"],
             y=d["Value"],
             mode="lines+markers",
-            name=trial,
+            name=("★ Best rep" if trial == best_trial else trial),
             line=dict(color=colour_map[trial], width=2),
             marker=dict(size=7),
         )
     )
 
+# =========================================================
+# COMPARE‑TO‑BEST ANNOTATIONS
+# =========================================================
+if compare_to_best and comparison_trial:
+    best_df = plot_df[plot_df["Trial"] == best_trial]
+    comp_df = plot_df[plot_df["Trial"] == comparison_trial]
+
+    for _, row in comp_df.iterrows():
+        best_val = best_df.loc[
+            best_df["Distance (m)"] == row["Distance (m)"], "Value"
+        ].values[0]
+
+        delta = row["Value"] - best_val
+
+        if selected_metric == "Interval Time (s)":
+            worse = row["Value"] > best_val
+        else:
+            worse = row["Value"] < best_val
+
+        colour = "rgb(200,60,60)" if worse else "rgb(120,120,120)"
+
+        fig.add_annotation(
+            x=row["Distance (m)"],
+            y=row["Value"],
+            text=f"{delta:+.2f}",
+            showarrow=True,
+            arrowhead=2,
+            arrowcolor=colour,
+            font=dict(color=colour, size=11),
+            ay=-30
+        )
+
+# =========================================================
+# AXES & LAYOUT
+# =========================================================
+raw_y_max = metric_all_df["Value"].max()
+y_upper = math.ceil((raw_y_max + 0.5) * 2) / 2
+
 fig.update_layout(
     height=450,
-    xaxis=dict(title="Distance (m)", dtick=10),
-    yaxis=dict(title=selected_metric),
+    xaxis=dict(title="Distance (m)", range=[-2, 65], dtick=10),
+    yaxis=dict(title=selected_metric, range=[-0.25, y_upper], dtick=0.5),
     hovermode="x unified",
+    legend_title="Legend"
+)
+
+# =========================================================
+# ZOOM / RESET INSTRUCTIONS
+# =========================================================
+st.markdown(
+    "<p style='font-size:14px;'>"
+    "<strong>Chart navigation:</strong> "
+    "Click and drag to draw a box to zoom in, "
+    "then double‑click anywhere on the plot to reset."
+    "</p>",
+    unsafe_allow_html=True
 )
 
 st.plotly_chart(fig, use_container_width=True)
@@ -204,7 +303,6 @@ st.subheader("All trials overview")
 for trial in trial_names:
     with st.expander(trial):
         tdf = df[df["Trial"] == trial]
-
         table = tdf.pivot(
             index="Metric",
             columns="Distance (m)",
