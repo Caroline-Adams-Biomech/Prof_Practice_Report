@@ -10,6 +10,14 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+
+# =========================================================
+# PAGE CONFIG
+# =========================================================
+st.set_page_config(
+    page_title="Athlete Profile",
+    layout="wide"
+)
 # =========================================================
 # PAGE SETUP
 # =========================================================
@@ -26,17 +34,8 @@ else:
 
 # paths for images
 base_path = Path(__file__).resolve().parents[1]
-profile_path = base_path / "images" / "athlete profile.png"
-
-st.set_page_config(
-    page_title="Athlete Profile",
-    layout="wide"
-)
-
-# =========================================================
-# PAGE CONFIG
-# =========================================================
-st.set_page_config(layout="wide")
+cycle_path = base_path / "images" / "cycle_definitions_image.png"
+pushangle_path = base_path / "images" / "push_angle.png"
 
 # =========================================================
 # COLOURS
@@ -103,8 +102,9 @@ TEXT_PAD = 0.22
 # =========================================================
 st.title("60m Push Profile")
 st.write(
-    "This page shows push metrics from your best repetition. Results are shown "
-    "for early acceleration (0–10 m) and the higher speed phase (35–45 m)."
+    """
+    This page shows push metrics from your fastest 60m repetition. Based on the camera setup the metrics provided are for the initial acceleration (0–10 m) and the higher speed phase (35–45 m).
+    """
 )
 # =========================================================
 # REP SELECTION
@@ -157,11 +157,12 @@ GLOBAL_TIME_MAX = (
 # =========================================================
 # SECTION 1 — AVERAGE CYCLE SPEED
 # =========================================================
-st.subheader("Average Cycle Speed")
+st.subheader("Cycle Speed")
 st.write(
-    "This shows how fast you are moving during each cycle (push + rolling). "
-    "Comparing the two distances highlights how speed builds early"
-    "and how well it is maintained later in the sprint."
+    """
+    This shows how fast you are moving during each cycle (push + rolling).Comparing the two phases (0-10m and 35-35m) highlights how you build your speed at the start
+    and then once you've built up speed, mantain this over each cycle at the later stages of the sprint.
+    """
 )
 col1, col2 = st.columns(2)
 
@@ -208,13 +209,17 @@ pushangle_path = base_path / "images" / "push_angle.png"
 st.markdown("### Cycle Length Breakdown")
 
 with st.popover("What is cycle length?"):
-    st.markdown("#### 🔂 Cycle")
+    st.markdown("#### 🔂 Cycle Length")
 
     st.write(
-        "One **cycle** consists of:"
-        "\n\n• the **push phase** (hands in contact with the push rim)"
-        "\n• the **rolling phase** (hands off the rim while the chair freewheels)"
-    )
+        """
+        The distance travelled during each cycle.
+        One **cycle** consists of:
+            - the 👊***push phase*** (hands in contact with the push rim)
+            - the🌀***rolling phase*** (hands off the rim while the chair freewheels)
+        """
+)
+      
 
     if cycle_path.exists():
         st.image(
@@ -228,20 +233,22 @@ with st.popover("What is cycle length?"):
     st.divider()
 
     st.markdown(
-        "**Why cycle length matters**\n\n"
-        "Cycle length reflects how effectively force application and recovery "
-        "are combined. Changes can indicate technique adaptations, fatigue, "
-        "or improved timing between push and roll phases."
-    )
+        """
+        **Why cycle length matters**\n\n
+        Cycle length reflects how effectively force application and rolling recovery are combined. 
+        Changes can indicate technique adaptations/timing, fatigu or equipment efficiencies.
+        """
+        )  
 # ======================================================
 # CYCLE LENGTH Plot
 # ======================================================
 
-st.subheader("Cycle Length Breakdown – Side‑by‑Side View")
 st.write(
-    "The bars show how cycle length is made up of push distance and rolling distance. "
-    "The dashed line shows total cycle length. The rolling length is pretty consistent across the whole rep "
-    "whilst your first pushes are the shortest this steadily increases, and at 35-35 has reached a plateau."
+    """
+    The bars show how cycle length is made up of push distance and rolling distance. The line across the top of the bars shows total cycle length. 
+    The rolling length is pretty consistent across the whole rep whilst your first pushes are the shortest this steadily increases, 
+    and at 35-45m has reached a plateau, indicating like cycle speed a maintanence phase has been reached.
+    """
 )
 col_left, col_right = st.columns(2)
 
@@ -315,10 +322,35 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
 # =========================================================
 # SECTION 3 — PUSH ANGLE
 # =========================================================
+# ======================================================
+# PUSH ANGLE DEFINITION POPOVER
+# ======================================================
+
+st.markdown("### Push Angle Breakdown")
+
+with st.popover("What is push angle?"):
+    st.markdown("#### 👊 📐 Push Angle (degrees)")
+
+    st.write(
+        """       
+        Total number of degrees you pushed the wheel through whilst your hands are in contact with the push rim, doesn’t describe where the push started or ended just the number of degress travelled. 
+        The push angle could be the same value for 2 very different push techniques as shown by the shaded blue area below, in both cases the wheel was pushed through 105 degrees, but where the push occurred is different.
+        """      
+)
+if pushangle_path.exists():
+         st.image(str(pushangle_path), width=800,)
+else:
+         st.warning(f"Push angle definition image not found at: {pushangle_path}") 
+
+   
 st.subheader("Push Angle")
 st.write(
-    "This shows how many degrees you keep you hand in contact with the push rim driving energey into the wheel."
-)
+    """ Your first push has the smallest push angle, in your best rep this stabilised quickly over the first 5 pushes, 
+    with a drop was seen in push 6, whereas for Rep 3 on push 4 you had a smaller push angle. When comparing your best rep and rep 
+    3 over 35-45m it is interesting to note your push angle was decreasing for your best rep which is a possible indicator of fatigue.
+    """
+    )
+
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):

@@ -21,43 +21,73 @@ st.set_page_config(
 # =========================================================
 # TEXT & UI FORMATTING (SUGGESTION 1 + 3)
 # =========================================================
+# =========================================================
+# TEXT FORMATTING (INCREASED LEGIBILITY)
+# =========================================================
 st.markdown(
     """
     <style>
-    /* Base text size */
+    /* Base application text */
     .stApp {
-        font-size: 17px;
+        font-size: 19px;
+        line-height: 1.55;
     }
 
-    /* Main section headings */
+    /* Page title (st.title) */
+    h1 {
+        font-size: 42px;
+        margin-bottom: 0.6em;
+    }
+
+    /* Section headers (st.subheader) */
     h2 {
-        font-size: 28px;
-        margin-top: 1.2em;
+        font-size: 30px;
+        margin-top: 1.4em;
+        margin-bottom: 0.4em;
     }
 
-    /* Sub-section headings */
+    /* Sub-section headers (####) */
     h4 {
-        font-size: 22px;
-        margin-top: 1em;
+        font-size: 24px;
+        margin-top: 1.2em;
+        margin-bottom: 0.3em;
     }
 
-    /* Captions */
+    /* Widget labels (selectbox, multiselect, toggles) */
+    label {
+        font-size: 18px !important;
+    }
+
+    /* Dropdown / multiselect selected values */
+    div[data-baseweb="select"] {
+        font-size: 18px;
+    }
+
+    /* Toggle labels */
+    span[data-testid="stMarkdownContainer"] {
+        font-size: 18px;
+    }
+
+    /* Captions and helper text */
     .stCaption {
-        font-size: 15px;
+        font-size: 16px;
+        line-height: 1.4;
     }
 
-    /* Tone down multiselect pills (trial chips) */
+    /* Multiselect pills – toned down but readable */
     span[data-baseweb="tag"] {
         background-color: #f2f2f2 !important;
         color: #333 !important;
-        border-radius: 6px;
-        font-size: 14px;
+        font-size: 16px;
+        border-radius: 8px;
+        padding: 4px 8px;
     }
+
     </style>
     """,
     unsafe_allow_html=True
 )
-
+``
 # =========================================================
 # PATHS & IMAGES
 # =========================================================
@@ -262,7 +292,7 @@ for trial in display_trials:
             x=d["Distance (m)"],
             y=d["Value"],
             mode="lines+markers",
-            name="★ Best rep" if trial == best_trial else trial,
+            name=f"★ Best rep ({best_trial})" if trial == best_trial else trial,
             line=dict(color=colour_map[trial], width=2),
             marker=dict(size=7)
         )
