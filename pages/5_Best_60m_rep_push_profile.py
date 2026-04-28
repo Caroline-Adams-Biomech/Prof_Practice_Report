@@ -103,7 +103,7 @@ TEXT_PAD = 0.22
 st.title("60m Push Profile")
 st.write(
     """
-    This page shows push metrics from your fastest 60m repetition. Based on the camera setup the metrics provided are for the initial acceleration (0–10 m) and the higher speed phase (35–45 m).
+    This page shows push metrics from your fastest 60m repetition and Rep 3 your 3rd fastest Rep if selected. Based on the camera setup the metrics provided are for the initial acceleration (0–10 m) and the higher speed phase (35–45 m).
     """
 )
 # =========================================================
@@ -333,16 +333,27 @@ with st.popover("What is push angle?"):
 
     st.write(
         """       
-        Total number of degrees you pushed the wheel through whilst your hands are in contact with the push rim, doesn’t describe where the push started or ended just the number of degress travelled. 
-        The push angle could be the same value for 2 very different push techniques as shown by the shaded blue area below, in both cases the wheel was pushed through 105 degrees, but where the push occurred is different.
-        """      
-)
-if pushangle_path.exists():
-         st.image(str(pushangle_path), width=800,)
-else:
-         st.warning(f"Push angle definition image not found at: {pushangle_path}") 
+        Total number of degrees you pushed the wheel through whilst your hands are in contact
+        with the push rim. This does not describe where the push started or ended, only the
+        total angular distance travelled by the hands on the rim.
 
-   
+        The push angle can be the same value for two very different push techniques, as shown
+        by the shaded blue area below. In both cases the wheel was pushed through 105 degrees,
+        but where the push occurred is different.
+        """
+    )
+
+    if pushangle_path.exists():
+        st.image(
+            str(pushangle_path),
+            use_container_width=True
+        )
+    else:
+        st.warning(
+            f"Push angle definition image not found at: {pushangle_path}"
+        )
+
+ 
 st.subheader("Push Angle")
 st.write(
     """ Your first push has the smallest push angle, in your best rep this stabilised quickly over the first 5 pushes, 
@@ -389,8 +400,12 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 st.subheader("Push and Rolling Time")
 st.write(
-    "This shows how time is split between pushing and rolling in each cycle. "
-    "Changes across cycles can help highlight rhythm or fatigue."
+    """
+    "This shows how time is split between pushing and rolling in each cycle. 
+    The Rolling time is constant acorss the entire sprint rep, whereas Push time is initially 
+    high as you build momentum and get the chair rolling, then at 25m there is a transition where 
+    Push time becomes shorter than Rolling time.
+    """
 )
 col1, col2 = st.columns(2)
 
