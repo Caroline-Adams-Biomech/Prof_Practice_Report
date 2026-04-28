@@ -38,53 +38,51 @@ st.write(
     "focusing on key performance metrics across 10 m splits."
 )
 
-# ---- Metric list with popovers
+# =========================================================
+# METRIC DEFINITIONS — SINGLE COLUMN
+# =========================================================
 st.write("### Key metrics shown")
 
-col1, col2 = st.columns(2)
+with st.popover("⏱️ Interval Time (s)"):
+    st.subheader("⏱️ Interval Time (seconds)")
+    st.write(
+        "Time taken to travel from the start to the end of each segment, "
+        "effectively a split time (e.g. 0–10 m, 10–20 m, etc.)."
+    )
 
-with col1:
-    with st.popover("⏱️ Interval Time (s)"):
-        st.subheader("⏱️ Interval Time (seconds)")
-        st.write(
-            "Time taken to travel from the start to the end of each segment, "
-            "effectively a split time (e.g. 0–10 m, 10–20 m, etc.)."
+with st.popover("💨 Average Speed (m/s)"):
+    st.subheader("💨 Average Speed (m/s)")
+    st.write(
+        "The average speed of the athlete and chair during each 10 m split."
+    )
+
+with st.popover("🔂📏 Average Cycle Length (m)"):
+    st.subheader("🔂📏 Average Cycle Length (m)")
+    st.markdown(
+        """
+        The average distance travelled during each 10 m split.
+
+        One **cycle** consists of:
+        - the ***push phase*** (hands in contact with the push rim)
+        - the ***rolling phase*** (hands off the rim while the chair freewheels)
+        """
+    )
+
+    if cycle_path.exists():
+        st.image(
+            str(cycle_path),
+            caption="Push phase + rolling phase together make one cycle",
+            use_container_width=True,
         )
+    else:
+        st.warning(f"Cycle definition image not found at: {cycle_path}")
 
-    with st.popover("💨 Average Speed (m/s)"):
-        st.subheader("💨 Average Speed (m/s)")
-        st.write(
-            "The average speed of the athlete and chair during each 10 m split."
-        )
-
-with col2:
-    with st.popover("🔂📏 Average Cycle Length (m)"):
-        st.subheader("🔂📏 Average Cycle Length (m)")
-        st.markdown(
-            """
-            The average distance travelled during each 10 m split.
-
-            One **cycle** consists of:
-            - the ***push phase*** (hands in contact with the push rim)
-            - the ***rolling phase*** (hands off the rim while the chair freewheels)
-            """
-        )
-
-        if cycle_path.exists():
-            st.image(
-                str(cycle_path),
-                caption="Push phase + rolling phase together make one cycle",
-                use_container_width=True,
-            )
-        else:
-            st.warning(f"Cycle definition image not found at: {cycle_path}")
-
-    with st.popover("🔁 Average Cycle Frequency (CPS)"):
-        st.subheader("🔁 Average Cycle Frequency")
-        st.write(
-            "The average number of cycles completed per second (CPS) during each "
-            "10 m split — essentially an arm speed or cadence measure."
-        )
+with st.popover("🔁 Average Cycle Frequency (CPS)"):
+    st.subheader("🔁 Average Cycle Frequency")
+    st.write(
+        "The average number of cycles completed per second (CPS) during each "
+        "10 m split — essentially an arm speed or cadence measure."
+    )
 
 st.write(
     """
