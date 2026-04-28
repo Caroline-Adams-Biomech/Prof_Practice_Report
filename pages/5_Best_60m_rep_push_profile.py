@@ -198,6 +198,45 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 # =========================================================
 # SECTION 2 — CYCLE LENGTH BREAKDOWN
 # =========================================================
+# ======================================================
+# CYCLE LENGTH DEFINITION POPOVER
+# ======================================================
+
+cycle_path = base_path / "images" / "cycle_definitions_image.png"
+pushangle_path = base_path / "images" / "push_angle.png"
+
+st.markdown("### Cycle Length Breakdown")
+
+with st.popover("What is cycle length?"):
+    st.markdown("#### 🔂 Cycle")
+
+    st.write(
+        "One **cycle** consists of:"
+        "\n\n• the **push phase** (hands in contact with the push rim)"
+        "\n• the **rolling phase** (hands off the rim while the chair freewheels)"
+    )
+
+    if cycle_path.exists():
+        st.image(
+            str(cycle_path),
+            caption="Push phase + rolling phase together make one cycle",
+            use_container_width=True,
+        )
+    else:
+        st.warning(f"Cycle definition image not found at: {cycle_path}")
+
+    st.divider()
+
+    st.markdown(
+        "**Why cycle length matters**\n\n"
+        "Cycle length reflects how effectively force application and recovery "
+        "are combined. Changes can indicate technique adaptations, fatigue, "
+        "or improved timing between push and roll phases."
+    )
+# ======================================================
+# CYCLE LENGTH Plot
+# ======================================================
+
 st.subheader("Cycle Length Breakdown – Side‑by‑Side View")
 st.write(
     "The bars show how cycle length is made up of push distance and rolling distance. "
