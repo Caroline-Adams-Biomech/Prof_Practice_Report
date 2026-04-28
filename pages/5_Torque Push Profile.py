@@ -212,6 +212,26 @@ resisted_angular_impulse_asym = angular_impulse_asymmetry(
     angular_impulse(RLw),
     angular_impulse(RRw)
 )
+
+# --- Mean torque asymmetry (based on mean profile) ---
+
+# Baseline
+tL, mL, _ = mean_sd(BLw)
+tR, mR, _ = mean_sd(BRw)
+
+baseline_mean_torque_asym = angular_impulse_asymmetry(
+    np.mean(mL),
+    np.mean(mR)
+) if mL is not None and mR is not None else np.nan
+
+# Resisted
+tLr, mLr, _ = mean_sd(RLw)
+tRr, mRr, _ = mean_sd(RRw)
+
+resisted_mean_torque_asym = angular_impulse_asymmetry(
+    np.mean(mLr),
+    np.mean(mRr)
+) if mLr is not None and mRr is not None else np.nan
 # =========================================================
 # SECTION HEADER + ASYMMETRY
 # =========================================================
@@ -303,3 +323,13 @@ st.markdown(
     modified technique and more balanced force application.
     """
 )
+st.markdown("### 🔎 Asymmetry check (debug)")
+
+st.write("**Baseline:**")
+st.write(f"- Angular impulse asymmetry: {baseline_angular_impulse_asym:+.1f}%")
+st.write(f"- Mean torque asymmetry: {baseline_mean_torque_asym:+.1f}%")
+
+if show_resisted:
+    st.write("**Resisted:**")
+    st.write(f"- Angular impulse asymmetry: {resisted_angular_impulse_asym:+.1f}%")
+    st.write(f"- Mean torque asymmetry: {resisted_mean_torque_asym:+.1f}%")
