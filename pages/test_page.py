@@ -11,13 +11,43 @@ import plotly.graph_objects as go
 import math
 
 # =========================================================
-# PAGE CONFIG — MUST BE FIRST
+# PAGE CONFIG — 
 # =========================================================
 st.set_page_config(
     page_title="Track Testing 60m reps",
     layout="wide"
 )
+# =========================================================
+# Text formatting
+# =========================================================
+st.markdown(
+    """
+    <style>
+    /* Main page text */
+    .stApp {
+        font-size: 17px;
+    }
 
+    /* Section headings (st.subheader) */
+    h2 {
+        font-size: 28px;
+        margin-top: 1.25em;
+    }
+
+    /* Sub-section headings (st.markdown ####) */
+    h4 {
+        font-size: 22px;
+        margin-top: 1em;
+    }
+
+    /* Captions and helper text */
+    .stCaption {
+        font-size: 15px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # =========================================================
 # PATHS & IMAGES
 # =========================================================
@@ -37,8 +67,12 @@ else:
 st.title("Track Testing 60m reps")
 
 st.write(
-    "This page compares the four 60m sprint repetitions you completed, "
-    "focusing on key performance metrics across 10 m splits."
+    """
+    This page compares the four 60m sprint repetitions you completed, focusing on key performance metrics across 10 m splits.
+    When looking at these graphs, we are interested in the **shape of the profiles** rather than specific values.The shape 
+    of these profiles is your individual push signature. Exact numerical values for each metric and 10 m split are provided in the 
+    **tables at the bottom of the page**, which can be used for detailed reference.
+    """
 )
 # =========================================================
 # METRIC DEFINITIONS
@@ -48,8 +82,7 @@ st.write("### Metric definitions")
 with st.popover("⏱️ Interval Time (s)"):
     st.subheader("⏱️ Interval Time (seconds)")
     st.write(
-        "Time taken to travel from the start to the end of each 10 m segment "
-        "(for example, 0–10 m or 20–30 m). This is effectively a split time."
+        "Time taken to travel from the start to the end of each 10 m split, effectively a split time."
     )
 
 with st.popover("💨 Average Speed (m/s)"):
@@ -62,8 +95,8 @@ with st.popover("🔂📏 Average Cycle Length (m)"):
     st.subheader("🔂📏 Average Cycle Length (m)")
     st.markdown(
         """
-        The average distance travelled during one propulsion cycle
-        within each 10 m split.
+        The average distance travelled during one cycle
+        within each 10m split.
 
         One **cycle** consists of:
         - the ***push phase*** (hands in contact with the push rim)
@@ -74,15 +107,15 @@ with st.popover("🔂📏 Average Cycle Length (m)"):
     if cycle_path.exists():
         st.image(
             str(cycle_path),
-            caption="Push phase + rolling phase together make one cycle",
+            caption="Push phase + Rolling phase together make one cycle",
             use_container_width=True,
         )
 
 with st.popover("🔁 Average Cycle Frequency (CPS)"):
     st.subheader("🔁 Average Cycle Frequency (Cycles per Second)")
     st.write(
-        "The average number of propulsion cycles completed per second (CPS) "
-        "during each 10 m split. This reflects cadence or arm turnover."
+        "The average number of cycles completed per second (CPS), basically an arm speed or cadence measure."
+        
     )
 
 # =========================================================
@@ -123,9 +156,9 @@ colour_map = {
 # =========================================================
 st.subheader("60m Rep profiles")
 
-st.write(
+st.markdown(
     "Select a **metric of interest** to plot and choose which trials you are "
-    "interested in. You can then explore variability or compare one repetition "
+    "interested in. You can explore variability between reps or compare one repetition "
     "against your **best rep**."
 )
 
@@ -179,7 +212,7 @@ show_minmax = st.toggle(
 )
 
 compare_to_best = st.toggle(
-    "Compare one other rep to your best  ⓘ",
+    "Compare one other rep to your best",
     key="compare_toggle"
 )
 
