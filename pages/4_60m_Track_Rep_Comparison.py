@@ -184,7 +184,6 @@ else:
 
     display_trials = selected_trials
     show_minmax = st.toggle("Show min–max range across all reps")
-``
 # # =========================================================
 # # SECTION: REP PROFILES
 # # =========================================================
@@ -215,15 +214,7 @@ else:
 #     st.warning("Please select at least one trial.")
 #     st.stop()
 
-# =========================================================
-# FILTER DATA
-# =========================================================
-metric_key = METRIC_MAP[selected_metric]
-metric_all_df = df[df["Metric"] == metric_key]
 
-if metric_all_df.empty:
-    st.error(f"No data found for metric '{selected_metric}'.")
-    st.stop()
 
 # =========================================================
 # BEST REP
