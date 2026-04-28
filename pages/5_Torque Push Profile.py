@@ -12,13 +12,30 @@ from scipy.signal import butter, filtfilt
 import plotly.graph_objects as go
 
 # =========================================================
-# PAGE CONFIG (must be first)
+# PAGE CONFIG 
 # =========================================================
 st.set_page_config(
     page_title="Lab testing Torque Profile",
     layout="wide"
 )
 
+# =========================================================
+#PLot width settings
+# =========================================================
+def plot_container_start(max_width_px=1150):
+    st.markdown(
+        f"""
+        <div style="
+            max-width:{max_width_px}px;
+            margin-left:auto;
+            margin-right:auto;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
+
+def plot_container_end():
+    st.markdown("</div>", unsafe_allow_html=True)
 # =========================================================
 # GLOBAL TEXT & UI STYLE (match other pages)
 # =========================================================
@@ -56,9 +73,15 @@ st.title("Lab testing Torque Profile")
 
 st.markdown(
     """
-    This view shows **mean ± SD torque–time profiles** for wheelchair propulsion.
-
-    Use the toggle to explore how **symmetry and technique change under load**.
+    This page shows the torque profiles that were measured in the lab using the instrumented ergometer. 
+    From the two different 30 second push trials you did (baseline and higher resistance) the pushes were 
+    analysed between 15-25 seconds once you had overcome the initial and were pushing consistently. The average torque 
+    profile for each side is shown by the solid line, the faint shaded line represents the standard deviation (SD) 
+    which is a metric to show how spread the data is from the average, were narrower bands show a greater consistency 
+    between pushes. Angular impulse asymmetry describes how unevenly the total rotational effort is shared between 
+    the left and right sides during each push. 
+    
+    Use the toggle to explore how your **symmetry and technique change under increased resistance.**
     """
 )
 
@@ -125,6 +148,25 @@ def asym(L, R):
         return np.nan
     return (L - R) / (0.5 * (L + R)) * 100
 
+def angular_impulse(waves):
+    """
+    Mean angular impulse per push (area under torque–time curve).
+    """
+    if len(waves) < 2:
+        return np.nan
+    return np.mean(
+        [np.trapezoid(w["y"], w["t"]) for w in waves]
+    )
+
+def angular_impulse_asymmetry(L, R):
+    """
+    Percentage angular impulse asymmetry.
+    Positive = left side contributes more total work.
+    """
+    if np.isnan(L) or np.isnan(R):
+        return np.nan
+    return (L - R) / (0.5 * (L + R)) * 100
+
 # =========================================================
 # LOAD DATA
 # =========================================================
@@ -162,24 +204,46 @@ RLw, RRw = extract_waves(RL, RLp), extract_waves(RR, RRp)
 base_asym = asym(impulse(BLw), impulse(BRw))
 res_asym = asym(impulse(RLw), impulse(RRw))
 
+baseline_angular_impulse_asym = angular_impulse_asymmetry(
+    angular_impulse(BLw),
+    angular_impulse(BRw)
+)
+resisted_angular_impulse_asym = angular_impulse_asymmetry(
+    angular_impulse
+)
 # =========================================================
 # SECTION HEADER + ASYMMETRY
 # =========================================================
 col_l, col_r = st.columns([3, 2])
+
 with col_l:
     st.subheader("Torque vs Time profile")
+
     with st.popover("What is torque?"):
         st.write(
             "Torque represents the turning force applied to the wheel — a combined "
             "reflection of strength, technique, and timing."
         )
 
+    with st.popover("What is angular impulse asymmetry?"):
+        st.write(
+            """
+            Angular impulse asymmetry shows whether one arm contributes more
+            **total work per push**.
+
+            It reflects not just how hard you push, but **how long**
+            and **when** force is applied during the push.
+            """
+        )
+
 with col_r:
     st.markdown(
         f"""
         <div style="text-align:right; padding-top:8px;">
-        <strong>Baseline asymmetry:</strong> {base_asym:+.1f}%<br>
-        {"<strong>Resisted asymmetry:</strong> " + f"{res_asym:+.1f}%" if show_resisted else ""}
+        <strong>Baseline angular impulse asymmetry:</strong>
+        {baseline_angular_impulse_asym:+.1f}%<br>
+        {"<strong>Resisted angular impulse asymmetry:</strong> "
+         + f"{resisted_angular_impulse_asym:+.1f}%" if show_resisted else ""}
         </div>
         """,
         unsafe_allow_html=True
@@ -223,15 +287,18 @@ fig.update_layout(
     yaxis=dict(title="Torque (Nm)", gridcolor="rgba(0,0,0,0.25)")
 )
 
+plot_container_start(1150)
 st.plotly_chart(fig, use_container_width=True)
+plot_container_end()
 
 # =========================================================
 # INTERPRETATION
 # =========================================================
 st.markdown(
     """
-    At baseline, propulsion shows **clear left‑dominance** and asymmetry.
-    Under resisted conditions, symmetry improves substantially, suggesting
+    At baseline, propulsion shows **clear left‑dominance** and asymmetry. There is a clear difference in the shape of the 
+    of the torque over time profile, with a higher peak torque for the left side and a shorter push time.
+    Under resisted conditions, symmetry improves substantially, with peak torque and push time very similar suggesting
     modified technique and more balanced force application.
     """
 )

@@ -44,8 +44,12 @@ st.markdown("---")
 # INTRO TEXT
 # =========================================================
 st.write(
-    "This report provides feedback and highlights performance opportunities "
-    "for wheelchair racing athletes based on track and laboratory testing."
+    """
+    This report provides feedback and highlights performance opportunities 
+    for wheelchair racing athletes based on track and laboratory testing. 
+    This report presents your baseline values and we will continue to test 
+    thorughout the sesason to monitor change.
+    """
 )
 
 st.write("Use the menu on the left to move between pages.")

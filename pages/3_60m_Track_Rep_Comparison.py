@@ -17,7 +17,24 @@ st.set_page_config(
     page_title="Track Testing 60m reps",
     layout="wide"
 )
+# =========================================================
+#PLot width settings
+# =========================================================
+def plot_container_start(max_width_px=1150):
+    st.markdown(
+        f"""
+        <div style="
+            max-width:{max_width_px}px;
+            margin-left:auto;
+            margin-right:auto;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
 
+def plot_container_end():
+    st.markdown("</div>", unsafe_allow_html=True)
+# =========================================================
 # =========================================================
 # TEXT & UI FORMATTING (SUGGESTION 1 + 3)
 # =========================================================
@@ -299,13 +316,52 @@ for trial in display_trials:
     )
 
 fig.update_layout(
-    height=470,
-    xaxis=dict(title="Distance (m)", range=[-2, 65], dtick=10),
-    yaxis=dict(title=selected_metric),
-    hovermode="x unified"
+    template="simple_white",
+    height=520,
+    hovermode="x unified",
+    margin=dict(l=60, r=40, t=40, b=60),
+
+    font=dict(
+        size=16
+    ),
+
+    xaxis=dict(
+        title="Distance (m)",
+        range=[-2, 65],
+        dtick=10,
+        showgrid=True,
+        gridcolor="rgba(0, 0, 0, 0.25)",
+        showline=True,
+        linecolor="black",
+        linewidth=1,
+        ticks="outside",
+        tickfont=dict(size=15),
+        title_font=dict(size=16),
+        zeroline=False,
+    ),
+
+    yaxis=dict(
+        title=selected_metric,
+        showgrid=True,
+        gridcolor="rgba(0, 0, 0, 0.25)",
+        showline=True,
+        linecolor="black",
+        linewidth=1,
+        ticks="outside",
+        tickfont=dict(size=15),
+        title_font=dict(size=16),
+        zeroline=False,
+    ),
+
+    legend=dict(
+        font=dict(size=14),
+        borderwidth=0
+    ),
 )
 
+plot_container_start(1150)
 st.plotly_chart(fig, use_container_width=True)
+plot_container_end()
 
 # =========================================================
 # ALL TRIALS OVERVIEW TABLES
