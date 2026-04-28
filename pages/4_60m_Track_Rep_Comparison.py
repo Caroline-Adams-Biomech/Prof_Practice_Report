@@ -27,63 +27,11 @@ if logo_path.exists():
 else:
     st.error(f"Logo not found at: {logo_path}")
 
-# =========================================================
-# METRIC TEXT
-# =========================================================
 st.title("Track Testing 60m reps")
 
 st.write(
     "This page compares the four 60m sprint repetitions you completed, "
     "focusing on key performance metrics across 10 m splits."
-)
-
-# =========================================================
-# METRIC DEFINITIONS — SINGLE COLUMN
-# =========================================================
-st.write("### Key Metrics")
-
-with st.popover("⏱️ Interval Time (s)"):
-    st.subheader("⏱️ Interval Time (seconds)")
-    st.write(
-        "Time taken to travel from the start to the end of each segment "
-        "(e.g. 0–10 m, 10–20 m)."
-    )
-
-with st.popover("💨 Average Speed (m/s)"):
-    st.subheader("💨 Average Speed (m/s)")
-    st.write(
-        "The average speed of the athlete and chair during each 10 m split."
-    )
-
-with st.popover("🔂📏 Average Cycle Length (m)"):
-    st.subheader("🔂📏 Average Cycle Length (m)")
-    st.markdown(
-        """
-        The average distance travelled during each 10 m split.
-
-        One **cycle** consists of:
-        - the ***push phase*** (hands in contact with the push rim)
-        - the ***rolling phase*** (hands off the rim while the chair freewheels)
-        """
-    )
-
-    if cycle_path.exists():
-        st.image(
-            str(cycle_path),
-            caption="Push phase + rolling phase together make one cycle",
-            use_container_width=True,
-        )
-
-with st.popover("🔁 Average Cycle Frequency (CPS)"):
-    st.subheader("🔁 Average Cycle Frequency (Cycles per Second)")
-    st.write(
-        "The average number of cycles completed per second (CPS) during each "
-        "10 m split — an indicator of cadence or arm speed."
-    )
-
-st.write(
-    "We are mostly interested in the **shape of the curves**, as these reflect "
-    "your individual push signature. Exact values are provided in the tables below."
 )
 
 # =========================================================
@@ -100,7 +48,7 @@ df = load_sprint_data()
 trial_names = sorted(df["Trial"].dropna().unique())
 
 # =========================================================
-# METRIC MAP (UI LABEL → DATA KEY)
+# METRIC MAP (UI LABEL → DATA COLUMN)
 # =========================================================
 METRIC_MAP = {
     "Interval Time (s)": "Interval Time (s)",
@@ -125,9 +73,9 @@ colour_map = {
 st.subheader("60m Rep profiles")
 
 st.write(
-    "Select a **metric of interest** and the trials you would like to view. "
-    "You can also compare a single repetition against your **best rep** to "
-    "explore differences across each 10 m split."
+    "Select a **metric of interest** to plot and choose which trials you are "
+    "interested in. You can also compare one repetition against your **best rep** "
+    "to explore differences across each 10 m split."
 )
 
 st.caption("ℹ️ Best rep is recalculated separately for each metric.")
@@ -135,13 +83,12 @@ st.caption("ℹ️ Best rep is recalculated separately for each metric.")
 st.divider()
 
 # -----------------------------
-# METRIC SELECTION
+# 1) METRIC SELECTION
 # -----------------------------
-st.markdown("#### Metric selection")
-
 selected_metric = st.selectbox(
     "Metric to plot",
-    list(METRIC_MAP.keys())
+    list(METRIC_MAP.keys()),
+    key="metric_select"
 )
 
 metric_key = METRIC_MAP[selected_metric]
@@ -151,9 +98,8 @@ if metric_all_df.empty:
     st.error(f"No data found for metric '{selected_metric}'.")
     st.stop()
 
-# --- Determine best rep for this metric
+# Determine best rep
 means = metric_all_df.groupby("Trial")["Value"].mean()
-
 if selected_metric == "Interval Time (s)":
     best_trial = means.idxmin()
     best_desc = "lowest average interval time"
@@ -163,18 +109,39 @@ else:
 
 st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
 
-st.divider()
+# -----------------------------
+# 2) TRIAL SELECTION
+# -----------------------------
+selected_trials = st.multiselect(
+    "Trials of interest",
+    trial_names,
+    default=trial_names[:1],
+    key="trial_select"
+)
+
+if not selected_trials:
+    st.warning("Please select at least one trial.")
+    st.stop()
 
 # -----------------------------
-# TRIAL SELECTION
+# 3) MIN–MAX TOGGLE
 # -----------------------------
-st.markdown("#### Trials of interest")
+show_minmax = st.toggle(
+    "Show min–max range across all reps",
+    value=False,
+    key="minmax_toggle"
+)
 
-# Compare toggle + info popover inline
-col_toggle, col_info = st.columns([1, 0.05])
+# -----------------------------
+# 4) COMPARE TO BEST
+# -----------------------------
+col_cmp, col_info = st.columns([1, 0.06])
 
-with col_toggle:
-    compare_to_best = st.toggle("Compare one rep to your best rep")
+with col_cmp:
+    compare_to_best = st.toggle(
+        "Compare one other rep to your best rep",
+        key="compare_toggle"
+    )
 
 with col_info:
     with st.popover("ℹ️"):
@@ -182,150 +149,32 @@ with col_info:
             """
             **Compare to best rep**
 
-            This mode allows you to select **one repetition** and compare it
-            directly against your **best rep** for the selected metric.
+            Select one repetition to compare directly against your
+            best rep for the selected metric.
 
-            Differences at each 10 m split are shown using arrows and values.
+            Differences at each 10 m split are shown using arrows.
             """
         )
 
-# --- Disable trial multiselect when in compare mode
-selected_trials = st.multiselect(
-    "Trials of interest",
-    trial_names,
-    default=trial_names[:1],
-    disabled=compare_to_best
-)
-
-# Visually signal why selection is disabled
-if compare_to_best:
-    st.caption(
-        "Trial selection is disabled while comparing to best rep."
-    )
-
-if not compare_to_best and not selected_trials:
-    st.warning("Please select at least one trial.")
-    st.stop()
-
-st.divider()
-
-# -----------------------------
-# DISPLAY MODE LOGIC
-# -----------------------------
 if compare_to_best:
     comparison_trial = st.selectbox(
-        "Select a rep to compare against your best",
-        [t for t in trial_names if t != best_trial]
+        "Rep to compare against best",
+        [t for t in trial_names if t != best_trial],
+        key="comparison_select"
     )
-
     display_trials = [best_trial, comparison_trial]
-    show_minmax = False  # disabled in compare mode
+    show_minmax = False
 
     st.caption(
-        f"🔍 Now comparing **{comparison_trial}** against "
+        f"🔍 Comparing **{comparison_trial}** against "
         f"**{best_trial} (best rep)** across each 10 m split."
     )
-
 else:
     display_trials = selected_trials
 
-    show_minmax = st.toggle(
-        "Show min–max range across all reps",
-        value=False
-    )
-
-# ---------------------------------------------------------
-# MODE TOGGLE
-# ---------------------------------------------------------
-compare_to_best = st.toggle("Compare a rep to your best rep")
-
-if compare_to_best:
-    # ---------- COMPARE MODE ----------
-    comparison_trial = st.selectbox(
-        "Select a rep to compare against your best",
-        [t for t in trial_names if t != best_trial]
-    )
-
-    display_trials = [best_trial, comparison_trial]
-    show_minmax = False  # disabled in compare mode
-
-    st.info(
-        f"🔍 Comparing **{comparison_trial}** against "
-        f"**{best_trial} (best rep)**"
-    )
-
-else:
-    # ---------- NORMAL MODE ----------
-    selected_trials = st.multiselect(
-        "Select trials",
-        trial_names,
-        default=trial_names[:1]
-    )
-
-    if not selected_trials:
-        st.warning("Please select at least one trial.")
-        st.stop()
-
-    display_trials = selected_trials
-    show_minmax = st.toggle("Show min–max range across all reps")
-# # =========================================================
-# # SECTION: REP PROFILES
-# # =========================================================
-# st.subheader("60 m Rep profiles")
-
-# selected_trials = st.multiselect(
-#     "Select trials",
-#     trial_names,
-#     default=trial_names[:1]
-# )
-
-# selected_metric = st.selectbox(
-#     "Metric to plot",
-#     list(METRIC_MAP.keys())
-# )
-
-# show_minmax = st.toggle("Show min–max range across all reps")
-# compare_to_best = st.toggle("Compare a rep to your best rep")
-
-# if compare_to_best:
-#     show_minmax = False
-#     st.caption(
-#         "Compares one rep against your best rep. "
-#         "Only two lines are shown with arrows indicating differences."
-#     )
-
-# if not selected_trials:
-#     st.warning("Please select at least one trial.")
-#     st.stop()
-
-
-
 # =========================================================
-# BEST REP
+# FILTER DATA FOR PLOTTING
 # =========================================================
-means = metric_all_df.groupby("Trial")["Value"].mean()
-
-if selected_metric == "Interval Time (s)":
-    best_trial = means.idxmin()
-    best_desc = "lowest average interval time"
-else:
-    best_trial = means.idxmax()
-    best_desc = "highest average value"
-
-st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
-
-# =========================================================
-# DISPLAY TRIALS
-# =========================================================
-
-if compare_to_best:
-    # Compare mode: always exactly two known trials
-    display_trials = [best_trial, comparison_trial]
-
-else:
-    # Normal mode: user-selected trials
-    display_trials = selected_trials
-
 plot_df = df[
     (df["Trial"].isin(display_trials)) &
     (df["Metric"] == metric_key)
@@ -355,7 +204,7 @@ if show_minmax:
             fillcolor="rgba(180,180,180,0.4)",
             line=dict(color="rgba(0,0,0,0)"),
             hoverinfo="skip",
-            name="Min–max range (all reps)"
+            name="Min–max range"
         )
     )
 
@@ -366,7 +215,7 @@ for trial in display_trials:
             x=d["Distance (m)"],
             y=d["Value"],
             mode="lines+markers",
-            name=("★ Best rep" if trial == best_trial else trial),
+            name="★ Best rep" if trial == best_trial else trial,
             line=dict(color=colour_map[trial], width=2),
             marker=dict(size=7),
         )
@@ -375,7 +224,7 @@ for trial in display_trials:
 # =========================================================
 # COMPARE‑TO‑BEST ANNOTATIONS
 # =========================================================
-if compare_to_best and comparison_trial:
+if compare_to_best:
     best_df = plot_df[plot_df["Trial"] == best_trial]
     comp_df = plot_df[plot_df["Trial"] == comparison_trial]
 
@@ -385,12 +234,7 @@ if compare_to_best and comparison_trial:
         ].values[0]
 
         delta = row["Value"] - best_val
-
-        if selected_metric == "Interval Time (s)":
-            worse = row["Value"] > best_val
-        else:
-            worse = row["Value"] < best_val
-
+        worse = row["Value"] > best_val if selected_metric == "Interval Time (s)" else row["Value"] < best_val
         colour = "rgb(200,60,60)" if worse else "rgb(120,120,120)"
 
         fig.add_annotation(
@@ -405,7 +249,7 @@ if compare_to_best and comparison_trial:
         )
 
 # =========================================================
-# AXES & LAYOUT
+# LAYOUT & AXES
 # =========================================================
 raw_y_max = metric_all_df["Value"].max()
 y_upper = math.ceil((raw_y_max + 0.5) * 2) / 2
@@ -415,17 +259,12 @@ fig.update_layout(
     xaxis=dict(title="Distance (m)", range=[-2, 65], dtick=10),
     yaxis=dict(title=selected_metric, range=[-0.25, y_upper], dtick=0.5),
     hovermode="x unified",
-    legend_title="Legend"
 )
 
-# =========================================================
-# ZOOM / RESET INSTRUCTIONS
-# =========================================================
 st.markdown(
     "<p style='font-size:14px;'>"
     "<strong>Chart navigation:</strong> "
-    "Click and drag to draw a box to zoom in, "
-    "then double‑click anywhere on the plot to reset."
+    "Click and drag to zoom; double‑click to reset."
     "</p>",
     unsafe_allow_html=True
 )
@@ -433,20 +272,32 @@ st.markdown(
 st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
-# OVERVIEW TABLES
+# ALL TRIALS OVERVIEW TABLES (RESTORED)
 # =========================================================
 st.subheader("All trials overview")
 
+st.write(
+    "The tables below show the numerical values for each metric at each "
+    "10 m split, for every repetition."
+)
+
 for trial in trial_names:
-    with st.expander(trial):
+    with st.expander(trial, expanded=False):
         tdf = df[df["Trial"] == trial]
+
         table = tdf.pivot(
             index="Metric",
             columns="Distance (m)",
             values="Value"
         )
 
+        # Remove the 0–10 m split
         table = table.loc[:, table.columns > 10]
+
+        # Rename columns to readable distance bands
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
-        st.dataframe(table.round(2), use_container_width=True)
+        st.dataframe(
+            table.round(2),
+            use_container_width=True
+        )
