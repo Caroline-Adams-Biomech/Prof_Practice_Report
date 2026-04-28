@@ -3,18 +3,96 @@ import pandas as pd
 from pathlib import Path
 import plotly.graph_objects as go
 import math
-
+# =========================================================
+# PAGE CONFIG
+# =========================================================
+st.set_page_config(layout="wide")
 # =========================================================
 # PAGE SETUP
 # =========================================================
-st.title("Track Testing 60m reps")
-st.write(
-    "This page compares the four 60 m wheelchair racing sprints you did  "
-    "looking at some key performance metrics and how they differ across 10 m splits."
-    "We are mostly interested in the shape of the curves, these are your push signature."
 
+logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
+
+# --- Logo centred at top
+if logo_path.exists():
+    st.image(str(logo_path), width=400)
+else:
+    st.error(f"Logo not found at: {logo_path}")
+
+# =========================================================
+
+# paths for images
+base_path = Path(__file__).resolve().parents[1]
+profile_path = base_path / "images" / "athlete profile.png"
+cycle_path = base_path / "images" / "cycle_definitions_image.png"
+
+
+
+# =========================================================
+# Metric Text
+# =========================================================
+st.title("Track Testing 60m reps")
+
+st.write(
+    "This page compares the four 60m sprint repetitions you completed, "
+    "focusing on key performance metrics across 10 m splits."
 )
 
+# ---- Metric list with popovers
+st.write("### Key metrics shown")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    with st.popover("⏱️ Interval Time (s)"):
+        st.subheader("⏱️ Interval Time (seconds)")
+        st.write(
+            "Time taken to travel from the start to the end of each segment, "
+            "effectively a split time (e.g. 0–10 m, 10–20 m, etc.)."
+        )
+
+    with st.popover("💨 Average Speed (m/s)"):
+        st.subheader("💨 Average Speed (m/s)")
+        st.write(
+            "The average speed of the athlete and chair during each 10 m split."
+        )
+
+with col2:
+    with st.popover("🔂📏 Average Cycle Length (m)"):
+        st.subheader("🔂📏 Average Cycle Length (m)")
+        st.markdown(
+            """
+            The average distance travelled during each 10 m split.
+
+            One **cycle** consists of:
+            - the ***push phase*** (hands in contact with the push rim)
+            - the ***rolling phase*** (hands off the rim while the chair freewheels)
+            """
+        )
+
+        if cycle_path.exists():
+            st.image(
+                str(cycle_path),
+                caption="Push phase + rolling phase together make one cycle",
+                use_container_width=True,
+            )
+        else:
+            st.warning(f"Cycle definition image not found at: {cycle_path}")
+
+    with st.popover("🔁 Average Cycle Frequency (CPS)"):
+        st.subheader("🔁 Average Cycle Frequency")
+        st.write(
+            "The average number of cycles completed per second (CPS) during each "
+            "10 m split — essentially an arm speed or cadence measure."
+        )
+
+st.write(
+    """
+    We are mostly interested in the **shape of the curves**, as these reflect
+    your individual push signature. Exact values are also provided in the
+    tables at the bottom of the page.
+    """
+)
 # =========================================================
 # LOAD DATA
 # =========================================================
@@ -54,9 +132,9 @@ selected_trials = st.multiselect(
 
 plot_metrics = [
     "Interval Time (s)",
-    "Average Velocity (m/s)",
+    "Average Speed (m/s)",
     "Average Cycle Length (m)",
-    "Average Cycle Frequency (Hz)"
+    "Average Cycle Frequency (CPS)"
 ]
 
 selected_metric = st.selectbox("Metric to plot", plot_metrics)
@@ -246,7 +324,7 @@ st.markdown(
 st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
-# SECTION 1: ALL TRIALS OVERVIEW
+# ALL TRIALS OVERVIEW TABLE
 # =========================================================
 st.subheader("All trials overview")
 
