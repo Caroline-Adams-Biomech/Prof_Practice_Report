@@ -116,7 +116,9 @@ def mean_sd(waves, n=200):
 def impulse(waves):
     if len(waves) < 2:
         return np.nan
-    return np.mean([np.trapz(w["y"], w["t"]) for w in waves])
+    return np.mean(
+        [np.trapezoid(w["y"], w["t"]) for w in waves]
+    )
 
 def asym(L, R):
     if np.isnan(L) or np.isnan(R):
