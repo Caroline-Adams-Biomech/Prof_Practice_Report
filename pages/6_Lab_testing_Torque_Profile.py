@@ -209,6 +209,31 @@ with col2:
         """,
         unsafe_allow_html=True
     )
+# ======================================================
+# INLINE TERM DEFINITION (POPOVER)
+# ======================================================
+
+col_text, col_pop = st.columns([0.01, 1])  # keeps text inline-looking
+
+with col_text:
+    # invisible spacer so layout aligns nicely
+    st.write("")
+
+with col_pop:
+    st.markdown("### Torque vs Time profile")
+
+    with st.popover("What is *Torque*?"):
+        st.markdown(
+            """
+            **Torque** allows us to assess your *“engine”* output.
+
+            It represents how much **turning power** your shoulder, arm,
+            and trunk are putting into the wheel or ergometer at any moment.
+
+            Torque is a helpful metric because it is not just pure strength,
+            but a **combination of strength, technique, and timing**.
+            """
+        )
 
 # ======================================================
 # PLOT (CLEAN, DASHBOARD STYLE)
