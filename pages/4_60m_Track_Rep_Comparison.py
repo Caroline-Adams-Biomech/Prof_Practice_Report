@@ -120,25 +120,38 @@ colour_map = {
 }
 
 # =========================================================
-# SECTION: REP PROFILES 
+# SECTION: REP PROFILES
 # =========================================================
-st.subheader("60 m Rep profiles")
+st.subheader("60m Rep profiles")
 
-# --- Metric selection
+st.write(
+    "Select a **metric of interest** and the trials you would like to view. "
+    "You can also compare a single repetition against your **best rep** to "
+    "explore differences across each 10 m split."
+)
+
+st.caption("ℹ️ Best rep is recalculated separately for each metric.")
+
+st.divider()
+
+# -----------------------------
+# METRIC SELECTION
+# -----------------------------
+st.markdown("#### Metric selection")
+
 selected_metric = st.selectbox(
     "Metric to plot",
     list(METRIC_MAP.keys())
 )
 
 metric_key = METRIC_MAP[selected_metric]
-
-# --- Compute best rep (needed for both modes)
 metric_all_df = df[df["Metric"] == metric_key]
 
 if metric_all_df.empty:
     st.error(f"No data found for metric '{selected_metric}'.")
     st.stop()
 
+# --- Determine best rep for this metric
 means = metric_all_df.groupby("Trial")["Value"].mean()
 
 if selected_metric == "Interval Time (s)":
@@ -149,6 +162,77 @@ else:
     best_desc = "highest average value"
 
 st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
+
+st.divider()
+
+# -----------------------------
+# TRIAL SELECTION
+# -----------------------------
+st.markdown("#### Trials of interest")
+
+# Compare toggle + info popover inline
+col_toggle, col_info = st.columns([1, 0.05])
+
+with col_toggle:
+    compare_to_best = st.toggle("Compare one rep to your best rep")
+
+with col_info:
+    with st.popover("ℹ️"):
+        st.markdown(
+            """
+            **Compare to best rep**
+
+            This mode allows you to select **one repetition** and compare it
+            directly against your **best rep** for the selected metric.
+
+            Differences at each 10 m split are shown using arrows and values.
+            """
+        )
+
+# --- Disable trial multiselect when in compare mode
+selected_trials = st.multiselect(
+    "Trials of interest",
+    trial_names,
+    default=trial_names[:1],
+    disabled=compare_to_best
+)
+
+# Visually signal why selection is disabled
+if compare_to_best:
+    st.caption(
+        "Trial selection is disabled while comparing to best rep."
+    )
+
+if not compare_to_best and not selected_trials:
+    st.warning("Please select at least one trial.")
+    st.stop()
+
+st.divider()
+
+# -----------------------------
+# DISPLAY MODE LOGIC
+# -----------------------------
+if compare_to_best:
+    comparison_trial = st.selectbox(
+        "Select a rep to compare against your best",
+        [t for t in trial_names if t != best_trial]
+    )
+
+    display_trials = [best_trial, comparison_trial]
+    show_minmax = False  # disabled in compare mode
+
+    st.caption(
+        f"🔍 Now comparing **{comparison_trial}** against "
+        f"**{best_trial} (best rep)** across each 10 m split."
+    )
+
+else:
+    display_trials = selected_trials
+
+    show_minmax = st.toggle(
+        "Show min–max range across all reps",
+        value=False
+    )
 
 # ---------------------------------------------------------
 # MODE TOGGLE
