@@ -213,25 +213,27 @@ resisted_angular_impulse_asym = angular_impulse_asymmetry(
     angular_impulse(RRw)
 )
 
-# --- Mean torque asymmetry (based on mean profile) ---
+def mean_torque(waves):
+    """
+    True mean torque across real pushes (not time-normalised).
+    """
+    if len(waves) < 2:
+        return np.nan
+    return np.mean([
+        np.mean(w["y"]) for w in waves
+    ])
 
 # Baseline
-tL, mL, _ = mean_sd(BLw)
-tR, mR, _ = mean_sd(BRw)
-
 baseline_mean_torque_asym = angular_impulse_asymmetry(
-    np.mean(mL),
-    np.mean(mR)
-) if mL is not None and mR is not None else np.nan
+    mean_torque(BLw),
+    mean_torque(BRw)
+)
 
 # Resisted
-tLr, mLr, _ = mean_sd(RLw)
-tRr, mRr, _ = mean_sd(RRw)
-
 resisted_mean_torque_asym = angular_impulse_asymmetry(
-    np.mean(mLr),
-    np.mean(mRr)
-) if mLr is not None and mRr is not None else np.nan
+    mean_torque(RLw),
+    mean_torque(RRw)
+)
 # =========================================================
 # SECTION HEADER + ASYMMETRY
 # =========================================================
@@ -333,3 +335,18 @@ if show_resisted:
     st.write("**Resisted:**")
     st.write(f"- Angular impulse asymmetry: {resisted_angular_impulse_asym:+.1f}%")
     st.write(f"- Mean torque asymmetry: {resisted_mean_torque_asym:+.1f}%")
+    
+def debug_impulse(waves, label):
+    vals = [np.trapezoid(w["y"], w["t"]) for w in waves]
+    st.write(f"{label} pushes:", len(vals))
+    st.write(f"{label} impulse values:", np.round(vals, 2))
+    st.write(f"{label} mean impulse:", np.round(np.mean(vals), 2))
+
+st.write("### DEBUG IMPULSE VALUES")
+
+debug_impulse(BLw, "Baseline Left")
+debug_impulse(BRw, "Baseline Right")
+
+if show_resisted:
+    debug_impulse(RLw, "Resisted Left")
+    debug_impulse(RRw, "Resisted Right")
