@@ -288,4 +288,3 @@ for trial in trial_names:
             table.round(2),
             use_container_width=True
         )
-``
