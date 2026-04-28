@@ -78,9 +78,6 @@ st.write(
     "to explore differences across each 10 m split."
 )
 
-st.caption("ℹ️ Best rep is recalculated separately for each metric.")
-
-st.divider()
 
 # -----------------------------
 # 1) METRIC SELECTION
@@ -107,7 +104,7 @@ else:
     best_trial = means.idxmax()
     best_desc = "highest average value"
 
-st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
+
 
 # -----------------------------
 # 2) TRIAL SELECTION
@@ -142,6 +139,7 @@ with col_cmp:
         "Compare one other rep to your best rep",
         key="compare_toggle"
     )
+st.caption("ℹ️ Best rep is recalculated separately for each metric.")
 
 with col_info:
     with st.popover("ℹ️"):
@@ -179,7 +177,7 @@ plot_df = df[
     (df["Trial"].isin(display_trials)) &
     (df["Metric"] == metric_key)
 ]
-
+st.info(f"⭐ **Best rep:** {best_trial} ({best_desc})")
 # =========================================================
 # MIN–MAX RANGE (ALL REPS)
 # =========================================================
