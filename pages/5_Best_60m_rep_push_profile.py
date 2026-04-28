@@ -401,7 +401,7 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 st.subheader("Push and Rolling Time")
 st.write(
     """
-    "This shows how time is split between pushing and rolling in each cycle. 
+    This shows how time is split between pushing and rolling in each cycle. 
     The Rolling time is constant acorss the entire sprint rep, whereas Push time is initially 
     high as you build momentum and get the chair rolling, then at 25m there is a transition where 
     Push time becomes shorter than Rolling time.
