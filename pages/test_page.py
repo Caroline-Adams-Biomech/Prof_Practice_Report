@@ -38,6 +38,50 @@ st.write(
     "This page compares the four 60m sprint repetitions you completed, "
     "focusing on key performance metrics across 10 m splits."
 )
+# =========================================================
+# METRIC DEFINITIONS
+# =========================================================
+st.write("### Metric definitions")
+
+with st.popover("⏱️ Interval Time (s)"):
+    st.subheader("⏱️ Interval Time (seconds)")
+    st.write(
+        "Time taken to travel from the start to the end of each 10 m segment "
+        "(for example, 0–10 m or 20–30 m). This is effectively a split time."
+    )
+
+with st.popover("💨 Average Speed (m/s)"):
+    st.subheader("💨 Average Speed (m/s)")
+    st.write(
+        "The average speed of the athlete and chair during each 10 m split."
+    )
+
+with st.popover("🔂📏 Average Cycle Length (m)"):
+    st.subheader("🔂📏 Average Cycle Length (m)")
+    st.markdown(
+        """
+        The average distance travelled during one propulsion cycle
+        within each 10 m split.
+
+        One **cycle** consists of:
+        - the ***push phase*** (hands in contact with the push rim)
+        - the ***rolling phase*** (hands off the rim while the chair freewheels)
+        """
+    )
+
+    if cycle_path.exists():
+        st.image(
+            str(cycle_path),
+            caption="Push phase + rolling phase together make one cycle",
+            use_container_width=True,
+        )
+
+with st.popover("🔁 Average Cycle Frequency (CPS)"):
+    st.subheader("🔁 Average Cycle Frequency (Cycles per Second)")
+    st.write(
+        "The average number of propulsion cycles completed per second (CPS) "
+        "during each 10 m split. This reflects cadence or arm turnover."
+    )
 
 # =========================================================
 # LOAD DATA
