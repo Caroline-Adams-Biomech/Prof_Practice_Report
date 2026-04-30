@@ -70,6 +70,11 @@ if logo.exists():
     st.image(str(logo), width=400)
 
 st.title("Lab testing Torque Profile")
+# =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
+
 
 st.markdown(
     """    

@@ -101,6 +101,11 @@ TEXT_PAD = 0.22
 # TITLE
 # =========================================================
 st.title("Fastest 60m Push Profile")
+# =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
+
 st.write(
     """
     This page shows push metrics from your fastest 60m rep. Based on the camera setup the metrics provided 
@@ -111,7 +116,7 @@ st.write(
 # =========================================================
 # REP SELECTION
 # =========================================================
-st.subheader("Rep Selection")
+
 show_rep_3 = st.checkbox("To include Rep 3 for a comparison click here", value=False)
 
 REPS = ["60m_1"]
@@ -212,10 +217,8 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 cycle_path = base_path / "images" / "cycle_definitions_image.png"
 pushangle_path = base_path / "images" / "push_angle.png"
 
-st.markdown("### Cycle Length Breakdown")
+st.markdown("### Cycle Length")
 
-with st.popover("What is cycle length?"):
-    st.markdown("#### 🔂 Cycle Length")
 
 with st.popover("What is cycle length?"):
     st.markdown("#### 🔂 Cycle Length")
@@ -350,7 +353,7 @@ st.caption(
 # PUSH ANGLE DEFINITION POPOVER
 # ======================================================
 
-st.markdown("### Push Angle Breakdown")
+st.markdown("### Push Angle ")
 
 with st.popover("What is push angle?"):
     st.markdown("#### 👊 📐 Push Angle (degrees)")
@@ -378,7 +381,6 @@ with st.popover("What is push angle?"):
         )
 
  
-st.subheader("Push Angle")
 st.write(
     """ Your first push has the smallest push angle, in your best rep this stabilised quickly over the first 5 pushes, 
     with a drop was seen in push 6, whereas for Rep 3 on push 4 you had a smaller push angle. When comparing your best rep and rep 

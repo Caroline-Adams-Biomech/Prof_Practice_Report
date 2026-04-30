@@ -20,6 +20,12 @@ else:
 
 # --- Page title & subtitle
 st.title("Athlete Profile")
+
+# =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
+
 #st.subheader("Athlete Feedback") Update for each page
 
 # =========================================================

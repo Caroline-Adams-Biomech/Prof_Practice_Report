@@ -9,15 +9,12 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.title("Recommendations & Opportunites")
-
-st.write(
-    "Need to update."
-)
-
-import streamlit as st
 
 st.title("🟦 Performance Monitoring Summary")
+# =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
 
 # =========================================================
 # BASELINE CONTEXT
@@ -52,24 +49,19 @@ st.markdown("---")
 # =========================================================
 st.markdown("### 🎯 Opportunities")
 
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.info("""
+st.info("""
 **1️⃣ Maximise the first 10 m**  
 Biggest opportunity to improve performance  
 *Focus: explosive, high-frequency start without losing push quality*
 """)
 
-with col2:
-    st.info("""
+
+st.info("""
 **2️⃣ Maintain full push length**  
 Avoid shortening stroke late in the cycle  
 *Stay patient — don’t rush final pushes*
 """)
-
-with col3:
-    st.info("""
+st.info("""
 **3️⃣ Investigate asymmetry**  
 Work with Physio & S&C to assess:  
 - strength  

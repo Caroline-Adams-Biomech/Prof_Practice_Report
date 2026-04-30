@@ -18,6 +18,11 @@ st.set_page_config(
     layout="wide"
 )
 # =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
+
+# =========================================================
 #PLot width settings
 # =========================================================
 def plot_container_start(max_width_px=1150):
@@ -122,35 +127,19 @@ else:
 
 st.title("Track Testing 60m reps")
 
-st.markdown("""
-<p style="font-size:18px;">
-    This page compares the four 60m sprint repetitions you completed, focusing on key
-    performance metrics across 10&nbsp;m splits.<br><br>
-    
-    When looking at these graphs, we are interested in the 
-    <span style="
-        background-color:#f0f2f6;
-        padding:2px 6px;
-        border-radius:4px;
-        font-weight:600;
-    ">
-        shape of the profiles
-    </span>
-    rather than individual values. The shape represents your individual 
-    <span style="
-        background-color:#f0f2f6;
-        padding:2px 6px;
-        border-radius:4px;
-        font-weight:600;
-    ">
-        push signature
-    </span>.
-    
-    <br><br>
-    Exact numerical values for each metric and rep are provided in the tables at the bottom of the page for detailed reference.
-</p>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+This page compares the four 60m sprint repetitions you completed, focusing on key  
+performance metrics across 10 m splits.
 
+When looking at these graphs, we are interested in the <span style="background-color:#f0f2f6; padding:2px 6px; border-radius:4px; font-weight:600;">shape of the profiles</span>  
+rather than individual values. The shape represents your individual  
+<span style="background-color:#f0f2f6; padding:2px 6px; border-radius:4px; font-weight:600;">push signature</span>.
+
+Exact numerical values for each metric and rep are provided in the tables at the bottom of the page for detailed reference.
+    """,
+    unsafe_allow_html=True
+)
 # st.markdown(
 #     """
 #     <p style="font-size:18px;">

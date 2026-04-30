@@ -32,7 +32,7 @@ else:
 # =========================================================
 # TITLE AND SUBTITLE
 # =========================================================
-st.subheader("Athlete Feedback")
+st.title("Wheelchair Racing Performance Monitoring Report")
 
 # =========================================================
 # DIVIDER

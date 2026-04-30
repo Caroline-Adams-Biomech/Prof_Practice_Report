@@ -51,6 +51,13 @@ else:
         "Logo.png / Logo.jpg / Logo.jpeg\n"
         f"in {IMAGES_DIR}"
     )
+# --- Page title & subtitle
+st.title("Performance Monitroing Protocols")
+
+# =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
 
 st.markdown("""
 This protocol combines **track sprint testing** and **lab-based ergometer testing**  
