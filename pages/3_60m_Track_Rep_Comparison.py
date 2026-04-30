@@ -454,6 +454,8 @@ st.caption(
     "Zoom : Click and drag to draw a box around the area of interest. Reset: Double click anywhere on the plot to zoom back out."
    
 )
+
+
 # =========================================================
 # ALL TRIALS OVERVIEW TABLES
 # =========================================================
@@ -469,6 +471,7 @@ desired_order = [
 
 for trial in trial_names:
     with st.expander(trial):
+
         tdf = df[df["Trial"] == trial].copy()
 
         # ✅ Rename BEFORE pivot
@@ -480,17 +483,87 @@ for trial in trial_names:
         # ✅ Pivot
         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
 
-        # ✅ Remove incorrect 0 m column (removes -10–0)
+        # ✅ Remove 0 m column (removes -10–0)
         table = table.loc[:, table.columns != 0]
 
-        # ✅ Ensure columns are ordered numerically
+        # ✅ Sort columns numerically
         table = table.sort_index(axis=1)
 
-        # ✅ Format column headers into split ranges
+        # ✅ Format columns
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
-        # ✅ Reorder rows safely
+        # ✅ Reorder rows
         table = table.reindex([m for m in desired_order if m in table.index])
 
+        # =========================================================
+        # ✅ STYLING FUNCTION (GREEN HIGHLIGHTS)
+        # =========================================================
+        def highlight_positive(data):
+
+            styled = pd.DataFrame("", index=data.index, columns=data.columns)
+
+            for metric in data.index:
+                row = data.loc[metric]
+
+                if metric == "Interval Time (s)":
+                    # ✅ Lower is better → highlight best (min)
+                    best_val = row.min()
+                    for col in data.columns:
+                        if row[col] == best_val:
+                            styled.loc[metric, col] = "background-color: #b7f7c2"
+
+                else:
+                    # ✅ Higher is better → highlight best (max)
+                    best_val = row.max()
+                    for col in data.columns:
+                        if row[col] == best_val:
+                            styled.loc[metric, col] = "background-color: #b7f7c2"
+
+            return styled
+
+        # ✅ Apply styling
+        styled_table = table.round(2).style.apply(highlight_positive, axis=None)
+
         # ✅ Display
-        st.dataframe(table.round(2), use_container_width=True)
+        st.dataframe(styled_table, use_container_width=True)
+
+# # =========================================================
+# # ALL TRIALS OVERVIEW TABLES
+# # =========================================================
+# st.subheader("All trials overview")
+
+# desired_order = [
+#     "Cumulative Time (s)",
+#     "Interval Time (s)",
+#     "Average Speed (m/s)",
+#     "Average Cycle Length (m)",
+#     "Average Cycle Frequency (CPS)",
+# ]
+
+# for trial in trial_names:
+#     with st.expander(trial):
+#         tdf = df[df["Trial"] == trial].copy()
+
+#         # ✅ Rename BEFORE pivot
+#         tdf["Metric"] = tdf["Metric"].replace({
+#             "Average Velocity (m/s)": "Average Speed (m/s)",
+#             "Average Cycle Frequency (Hz)": "Average Cycle Frequency (CPS)",
+#         })
+
+#         # ✅ Pivot
+#         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
+
+#         # ✅ Remove incorrect 0 m column (removes -10–0)
+#         table = table.loc[:, table.columns != 0]
+
+#         # ✅ Ensure columns are ordered numerically
+#         table = table.sort_index(axis=1)
+
+#         # ✅ Format column headers into split ranges
+#         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
+
+#         # ✅ Reorder rows safely
+#         table = table.reindex([m for m in desired_order if m in table.index])
+
+#         # ✅ Display
+#         st.dataframe(table.round(2), use_container_width=True)

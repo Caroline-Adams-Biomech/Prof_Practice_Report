@@ -63,27 +63,15 @@ st.markdown("---")
 # =========================================================
 st.markdown("### 📊 Test Session")
 
-col1, col2, col3 = st.columns(3)
+st.markdown("### 📊 Test Session")
 
-with col1:
-    st.markdown("**📅 Date**  \n22 March 2026")
-
-with col2:
-    st.markdown("**📍 Location**  \nLoughborough Indoor Track & PHC Lab")
-
-with col3:
-    st.markdown("**🎯 Purpose**  \nBaseline & identify improvements")
-
-st.markdown("<br>", unsafe_allow_html=True)  # spacing
-
-col4, col5 = st.columns(2)
-
-with col4:
-    st.markdown("**🏁 Track**  \n4 × 60 m max effort")
-
-with col5:
-    st.markdown("**🔎 Lab**  \n2 × 30 s efforts (baseline + high resistance)")
-
+st.markdown("""
+- 📅 **Date:** 22 March 2026  
+- 📍 **Location:** Loughborough Indoor Track & PHC Lab  
+- 🏁 **Track:** 4 × 60 m max effort  
+- 🔎 **Lab:** 2 × 30 s efforts (baseline + high resistance)  
+- 🎯 **Purpose:** Baseline & identify improvement opportunities  
+""")
 
     
     
