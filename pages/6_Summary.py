@@ -8,7 +8,7 @@ Created on Tue Apr 21 18:38:52 2026
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
+from pathlib import Path
 # =========================================================
 # PAGE CONFIG 
 # =========================================================
@@ -17,18 +17,22 @@ st.set_page_config(
     layout="wide"
 )
 # =========================================================
-# PAGE SETUP
+# PAGE CONFIG  
 # =========================================================
+st.set_page_config(
+    page_title="Wheelchair Racing Performance Monitoring Report",
+    layout="wide"
+)
 
-logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
+# =========================================================
+# LOGO
+# =========================================================
+logo_path = Path(__file__).resolve().parent / "images" / "Logo.png"
 
-# --- Logo centred at top
 if logo_path.exists():
-    st.image(str(logo_path), width=400)
+    st.image(str(logo_path), width=380)
 else:
     st.error(f"Logo not found at: {logo_path}")
-
-# =========================================================
 
 # ===============
 st.title("Performance Monitoring Summary")
