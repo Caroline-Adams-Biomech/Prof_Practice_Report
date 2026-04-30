@@ -117,16 +117,12 @@ st.write(
 st.markdown("### 🧠 Key Performance Insight")
 
 st.info(
-    """
-    Your speed is driven by how effectively you convert each push into forward movement. 
+"""
+• You generate speed through increasing push length, with frequency rising early before stabilising.  
 
-    Across your best rep, you build speed through increasing push length while maintaining a consistent rolling phase — 
-    an efficient pattern that supports speed development and maintenance.
-
-    Focus on producing strong, complete pushes early, then maintaining smooth rhythm and control as speed increases.
-    """
+• Focus: strong, complete pushes early, then maintain smooth rhythm at speed.
+"""
 )
-
 # =========================================================
 # REP SELECTION
 # =========================================================
