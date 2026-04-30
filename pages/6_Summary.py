@@ -87,7 +87,7 @@ Work with Physio, Chair Fitter and S&C to assess:
 - Strength  
 - Range of motion  
 - Technique / Setup
-'\nBased on the multi-dispplinary team assessment we can tailor next steps moving forwards.
+\nBased on the multi-dispplinary team assessment we can tailor next steps moving forwards.
 """)
 
 st.markdown("---")
