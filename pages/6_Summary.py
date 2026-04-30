@@ -27,8 +27,7 @@ st.set_page_config(
 # =========================================================
 # LOGO
 # =========================================================
-logo_path = Path(__file__).resolve().parent / "images" / "Logo.png"
-
+logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
 if logo_path.exists():
     st.image(str(logo_path), width=380)
 else:
