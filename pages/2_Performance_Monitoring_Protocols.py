@@ -61,8 +61,29 @@ st.markdown("---")
 
 st.markdown("""
 This protocol combines **track sprint testing** and **lab-based ergometer testing**  
-to establish a clear baseline of your propulsion and monitor performance across the season.
+to establish your baseline propulsion and monitor performance across the season.
 """)
+
+st.markdown("""
+This protocol combines **track sprint testing** and **lab-based ergometer testing**  
+to establish your baseline propulsion and monitor performance across the season.
+""")
+
+st.markdown("### 📊 Test Session")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Testing Date", "22 March 2026")
+    st.metric("Location", "Loughborough Indoor Track & PHC Lab")
+
+with col2:
+    st.metric("Track Testing", "4 × 60 m max effort")
+    st.metric("Lab Testing", "2 × 30 s efforts")
+
+st.info("**Purpose:** Baseline pre-season & identify improvement opportunities")
+
+
 if test_path:
     st.image(str(test_path), width=800)
 else:

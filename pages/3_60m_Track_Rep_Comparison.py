@@ -220,44 +220,17 @@ st.subheader("60m Rep Profiles")
 
 import streamlit as st
 
+
 st.markdown(
     """
     <p style="font-size:18px;">
-    Select a 
-    <span style="
-        background-color:#f0f2f6;
-        padding:2px 6px;
-        border-radius:4px;
-        font-weight:600;
-    ">
-        metric of interest
-    </span>
-    and the trials you wish to view.
+    Select a <strong>metric of interest</strong> and the trials you wish to view.
     You can explore variability between repetitions or compare one repetition
-    directly against your 
-    <span style="
-        background-color:#f0f2f6;
-        padding:2px 6px;
-        border-radius:4px;
-        font-weight:600;
-    ">
-        best rep
-    </span>.
+    directly against your <strong>best rep</strong>.
     </p>
     """,
     unsafe_allow_html=True
 )
-
-# st.markdown(
-#     """
-#     <p style="font-size:18px;">
-#     Select a <strong>metric of interest</strong> and the trials you wish to view.
-#     You can explore variability between repetitions or compare one repetition
-#     directly against your <strong>best rep</strong>.
-#     </p>
-#     """,
-#     unsafe_allow_html=True
-# )
 
 # -----------------------------
 # WHAT TO PLOT
@@ -503,15 +476,22 @@ for trial in trial_names:
             "Average Velocity (m/s)": "Average Speed (m/s)",
             "Average Cycle Frequency (Hz)": "Average Cycle Frequency (CPS)",
         })
-        
+
         # ✅ Pivot
         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
 
-      
-        # ✅ Format column headers
+        # ✅ Remove incorrect 0 m column (removes -10–0)
+        table = table.loc[:, table.columns != 0]
+
+        # ✅ Ensure columns are ordered numerically
+        table = table.sort_index(axis=1)
+
+        # ✅ Format column headers into split ranges
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
-        # ✅ Reorder rows
+        # ✅ Reorder rows safely
         table = table.reindex([m for m in desired_order if m in table.index])
 
+        # ✅ Display
         st.dataframe(table.round(2), use_container_width=True)
+``
