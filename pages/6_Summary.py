@@ -9,7 +9,15 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+# =========================================================
+# PAGE CONFIG 
+# =========================================================
+st.set_page_config(
+    page_title="Performance Monitoring Summary",
+    layout="wide"
+)
 
+# ===============
 st.title("Performance Monitoring Summary")
 
 # =========================================================
