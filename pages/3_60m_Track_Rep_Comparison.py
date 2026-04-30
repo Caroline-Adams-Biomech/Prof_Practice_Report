@@ -483,50 +483,53 @@ for trial in trial_names:
         # ✅ Pivot
         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
 
-        # ✅ Remove 0 m column (removes -10–0)
+        # ✅ Remove 0 column (-10–0)
         table = table.loc[:, table.columns != 0]
 
-        # ✅ Sort columns numerically
+        # ✅ Sort columns
         table = table.sort_index(axis=1)
 
-        # ✅ Format columns
+        # ✅ Format column labels
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
         # ✅ Reorder rows
         table = table.reindex([m for m in desired_order if m in table.index])
 
         # =========================================================
-        # ✅ STYLING FUNCTION (GREEN HIGHLIGHTS)
+        # ✅ CUSTOM HIGHLIGHTING (ONLY REP 1, ONLY 0–10m)
         # =========================================================
-        def highlight_positive(data):
+        def highlight_start(data):
 
             styled = pd.DataFrame("", index=data.index, columns=data.columns)
 
-            for metric in data.index:
-                row = data.loc[metric]
+            # ✅ Only apply to best rep (60m_1)
+            if trial == "60m_1":
+                for metric in data.index:
 
-                if metric == "Interval Time (s)":
-                    # ✅ Lower is better → highlight best (min)
-                    best_val = row.min()
-                    for col in data.columns:
-                        if row[col] == best_val:
+                    # ✅ Column must be 0–10 m
+                    if "0–10 m" in data.columns:
+
+                        col = "0–10 m"
+
+                        # ✅ Highlight key performance indicators for strong start
+                        if metric in [
+                            "Average Speed (m/s)",
+                            "Average Cycle Length (m)",
+                            "Average Cycle Frequency (CPS)"
+                        ]:
                             styled.loc[metric, col] = "background-color: #b7f7c2"
 
-                else:
-                    # ✅ Higher is better → highlight best (max)
-                    best_val = row.max()
-                    for col in data.columns:
-                        if row[col] == best_val:
+                        # ✅ Also highlight fast interval time (lower is better)
+                        if metric == "Interval Time (s)":
                             styled.loc[metric, col] = "background-color: #b7f7c2"
 
             return styled
 
-        # ✅ Apply styling
-        styled_table = table.round(2).style.apply(highlight_positive, axis=None)
+        # ✅ Apply styling + 1 dp formatting
+        styled_table = table.round(1).style.apply(highlight_start, axis=None)
 
         # ✅ Display
         st.dataframe(styled_table, use_container_width=True)
-
 # # =========================================================
 # # ALL TRIALS OVERVIEW TABLES
 # # =========================================================
