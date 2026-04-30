@@ -64,11 +64,6 @@ This protocol combines **track sprint testing** and **lab-based ergometer testin
 to establish your baseline propulsion and monitor performance across the season.
 """)
 
-st.markdown("""
-This protocol combines **track sprint testing** and **lab-based ergometer testing**  
-to establish your baseline propulsion and monitor performance across the season.
-""")
-
 st.markdown("### 📊 Test Session")
 
 col1, col2 = st.columns(2)
@@ -79,79 +74,127 @@ with col1:
 
 with col2:
     st.metric("Track Testing", "4 × 60 m max effort")
-    st.metric("Lab Testing", "2 × 30 s efforts")
+    st.metric("Lab Testing", "2 × 30 s efforts (Baseline & Increased Resistance")
 
 st.info("**Purpose:** Baseline pre-season & identify improvement opportunities")
 
-
-if test_path:
-    st.image(str(test_path), width=800)
-else:
-    st.warning(
-        "Track session test overview image not found}"
-    )
-# =========================================================
-# Track Session Section
-# =========================================================
 st.subheader("Track Session")
 
-if trackstart_path:
-    st.image(str(trackstart_path), width=400)
-else:
-    st.warning(
-        "Track start image not found.\n"
-        "Checked for: track_start.png / track_start.jpg / track_start.jpeg\n"
-        f"in {IMAGES_DIR}"
-    )
-# =========================================================
-# TRACK SESSION
-# =========================================================
+col1, col2 = st.columns([1, 2])
 
-st.markdown("""
-To establish your sprint baseline, you will complete **four 60 m maximum-effort sprints**.  
-Multiple repetitions give a clear picture of your **pushing pattern, consistency, and performance variability**.
+with col1:
+    if trackstart_path:
+        st.image(str(trackstart_path), width=400)
+    else:
+        st.warning(
+            "Track start image not found.\n"
+            "Checked for: track_start.png / track_start.jpg / track_start.jpeg\n"
+            f"in {IMAGES_DIR}"
+        )
+   
+with col2:
+    st.markdown("""
+    **4 × 60 m sprint efforts** to establish your sprint baseline.
 
-📹 **Data capture**
-- Camera 1: **0–10 m (acceleration phase)**
-- Camera 2: **35–45 m (high-speed phase)**
+    **What we assess:**
+    - Acceleration (0–10 m)
+    - High-speed phase (35–45 m)
+    - Consistency across repetitions
 
-All movement data is collected from the **left side** due to camera positioning.
+    📹 Data is captured from the left side for consistent analysis.
+    """)
 
-This same setup can be repeated after training blocks to **track changes in your sprint performance over time**.
-""")
-
-
-# =========================================================
-# Lab Session Section
-# =========================================================
 st.subheader("Lab Session")
 
-if wcerg_path:
-    st.image(str(wcerg_path), width=400)
-else:
-    st.warning(
-        "Wheelchair ergometer image not found.\n"
-        "Checked for: WC_ergometer.png / WC_ergometer.jpg / WC_ergometer.jpeg\n"
-        f"in {IMAGES_DIR}"
-    )
+col1, col2 = st.columns([1, 2])
 
-# =========================================================
-# LAB SESSION
-# =========================================================
+with col1:
+    if wcerg_path:
+        st.image(str(wcerg_path), width=400)
+    else:
+        st.warning(
+            "Wheelchair ergometer image not found.\n"
+            "Checked for: WC_ergometer.png / WC_ergometer.jpg / WC_ergometer.jpeg\n"
+            f"in {IMAGES_DIR}"
+        )
+ 
+with col2:
+    st.markdown("""
+    Testing on the **Lode Esseda ergometer** allows independent analysis of each side.
 
-st.markdown("""
-To understand how you apply force to the wheels, testing is completed using the  
-**Lode Esseda ergometer**.
+    **What we assess:**
+    - Left–right contribution
+    - Force application patterns
+    - Response to increased resistance
 
-This allows us to measure how each side contributes independently and identify  
-any **left–right differences in your pushing pattern**.
+    You complete:
+    - Baseline resistance effort
+    - Higher resistance effort
+    """)
 
-After a warm-up and familiarisation, you will complete **two 30-second efforts**:
-- Baseline resistance (similar to track)
-- Higher resistance (increased demand)
 
-### Aims
-- Build a **baseline push profile** for longitudinal tracking  
-- Identify **left–right asymmetries**  
-- Understand how your pushing changes under **higher resistance**
-""")
+# # =========================================================
+# # Track Session Section
+# # =========================================================
+# st.subheader("Track Session")
+
+# if trackstart_path:
+#     st.image(str(trackstart_path), width=400)
+# else:
+#     st.warning(
+#         "Track start image not found.\n"
+#         "Checked for: track_start.png / track_start.jpg / track_start.jpeg\n"
+#         f"in {IMAGES_DIR}"
+#     )
+# # =========================================================
+# # TRACK SESSION
+# # =========================================================
+
+# st.markdown("""
+# To establish your sprint baseline, you will complete **four 60 m maximum-effort sprints**.  
+# Multiple repetitions give a clear picture of your **pushing pattern, consistency, and performance variability**.
+
+# 📹 **Data capture**
+# - Camera 1: **0–10 m (acceleration phase)**
+# - Camera 2: **35–45 m (high-speed phase)**
+
+# All movement data is collected from the **left side** due to camera positioning.
+
+# This same setup can be repeated after training blocks to **track changes in your sprint performance over time**.
+# """)
+
+
+# # =========================================================
+# # Lab Session Section
+# # =========================================================
+# st.subheader("Lab Session")
+
+# if wcerg_path:
+#     st.image(str(wcerg_path), width=400)
+# else:
+#     st.warning(
+#         "Wheelchair ergometer image not found.\n"
+#         "Checked for: WC_ergometer.png / WC_ergometer.jpg / WC_ergometer.jpeg\n"
+#         f"in {IMAGES_DIR}"
+#     )
+
+# # =========================================================
+# # LAB SESSION
+# # =========================================================
+
+# st.markdown("""
+# To understand how you apply force to the wheels, testing is completed using the  
+# **Lode Esseda ergometer**.
+
+# This allows us to measure how each side contributes independently and identify  
+# any **left–right differences in your pushing pattern**.
+
+# After a warm-up and familiarisation, you will complete **two 30-second efforts**:
+# - Baseline resistance (similar to track)
+# - Higher resistance (increased demand)
+
+# ### Aims
+# - Build a **baseline push profile** for longitudinal tracking  
+# - Identify **left–right asymmetries**  
+# - Understand how your pushing changes under **higher resistance**
+# """)
