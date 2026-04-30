@@ -52,7 +52,13 @@ else:
         f"in {IMAGES_DIR}"
     )
 
-st.title("Wheelchair Racing Performance Testing Report")
+st.title("Performance Monitoring Protocols")
+st.write(
+    """
+    To build a picture of your baseline wheelchair propulsion at the start of the season both on-track sprint testing and 
+    lab based instrumented roller testing will be used.
+    """
+    )
 # =========================================================
 # Track Session Section
 # =========================================================
@@ -97,12 +103,14 @@ else:
     )
 
 st.write(
-    "Testing on the Lode Esseda ergometer allows us to look at how each side contributes to the push "
-    "independently. It measures how much turning force you apply through the wheels during each push."
-    "After a warm‑up and time to get comfortable on the ergometer, you will complete two separate "
-    "30‑second pushing efforts. The first uses a resistance similar to what you experience on the "
-    "track, and the second uses a higher resistance."
-    "This helps us: (1) build a clear baseline profile that we can track over time, "
-    "(2) identify potential left‑right asymmetries, and "
-    "(3) understand how your pushing changes when the external demands are increased"
+    """
+    To establish how you apply fore through the wheels to generate movement we will use the Lode Esseda ergometer in the lab. 
+    This allows us to look at how each side independently and explore if there are any differences between 
+    your left and right side contributions to the push. After a warm‑up and time to get comfortable on the ergometer, you will complete two 
+    separate 30 second pushing efforts. The first uses a resistance similar to what you experience on the track, and 
+    the second uses a higher resistance. This helps us to \n
+    (1) Build a clear baseline profile that we can track over time \n
+    (2) Identify potential left‑right asymmetries \n
+    (3) understand how your pushing changes when the external demands are increased
+    """
 )

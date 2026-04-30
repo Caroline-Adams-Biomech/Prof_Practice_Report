@@ -12,7 +12,7 @@ import streamlit as st
 # PAGE CONFIG  
 # =========================================================
 st.set_page_config(
-    page_title="Wheelchair Racing Testing Report",
+    page_title="Wheelchair Racing\ Performance Monitoring Report",
     layout="wide"   # forces left-aligned layout
 )
 
@@ -32,7 +32,6 @@ else:
 # =========================================================
 # TITLE AND SUBTITLE
 # =========================================================
-st.title("Wheelchair Racing Performance Testing Reports")
 st.subheader("Athlete Feedback")
 
 # =========================================================
@@ -46,8 +45,8 @@ st.markdown("---")
 st.write(
     """
     This report provides feedback and highlights performance opportunities 
-    for wheelchair racing athletes based on track and laboratory testing. 
-    This report presents your baseline values and we will continue to test 
+    for wheelchair racing athletes based on track and laboratory performance monitroing. 
+    This report presents your baseline values, a snapshot in time of where you are now and we will continue to test 
     thorughout the sesason to monitor change.
     """
 )

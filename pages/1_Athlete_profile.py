@@ -19,7 +19,7 @@ else:
     st.error(f"Logo not found at: {logo_path}")
 
 # --- Page title & subtitle
-st.title("Wheelchair Racing Performance Testing Report")
+st.title("Athlete Profile")
 #st.subheader("Athlete Feedback") Update for each page
 
 # =========================================================
@@ -28,13 +28,13 @@ st.title("Wheelchair Racing Performance Testing Report")
 base_path = Path(__file__).resolve().parents[1]
 profile_path = base_path / "images" / "athlete profile.png"
 
-st.set_page_config(
-    page_title="Athlete Profile",
-    layout="wide"
-)
+# st.set_page_config(
+#     page_title="Athlete Profile",
+#     layout="wide"
+# )
 
 # --- Title
-st.subheader("Athlete Profile")
+# st.subheader("Athlete Profile")
 # --- Athlete profile image
 if profile_path.exists():
     st.image(str(profile_path), width=800,)

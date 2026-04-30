@@ -100,10 +100,12 @@ TEXT_PAD = 0.22
 # =========================================================
 # TITLE
 # =========================================================
-st.title("60m Push Profile")
+st.title("Fastest 60m Push Profile")
 st.write(
     """
-    This page shows push metrics from your fastest 60m repetition and Rep 3 your 3rd fastest Rep if selected. Based on the camera setup the metrics provided are for the initial acceleration (0–10 m) and the higher speed phase (35–45 m).
+    This page shows push metrics from your fastest 60m rep. Based on the camera setup the metrics provided 
+    are for the initial acceleration (0–10 m) and the higher speed phase (35–45 m). To compare your best rep to your third slowest 
+    rep for comparison this can also be toggled on.    
     """
 )
 # =========================================================
@@ -160,8 +162,8 @@ GLOBAL_TIME_MAX = (
 st.subheader("Cycle Speed")
 st.write(
     """
-    This shows how fast you are moving during each cycle (push + rolling).Comparing the two phases (0-10m and 35-35m) highlights how you build your speed at the start
-    and then once you've built up speed, mantain this over each cycle at the later stages of the sprint.
+    This shows how fast you are moving during each cycle (push + rolling).Comparing the two phases (0-10m and 35-45m) highlights how you build your speed at the start
+    and then once you've built up speed, maintain this over each cycle at the later stages of the sprint.
     """
 )
 col1, col2 = st.columns(2)
@@ -188,7 +190,11 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 
         fig.update_layout(
             title=f"Average Cycle Speed ({band} m)",
-            xaxis_title="Cycle",
+            xaxis=dict(
+                title="Cycle",
+                dtick=1,
+                tickmode="linear"
+            ),
             yaxis_title="Speed (m/s)",
             yaxis=dict(range=[0, GLOBAL_SPEED_MAX]),
             template="simple_white",
@@ -211,15 +217,21 @@ st.markdown("### Cycle Length Breakdown")
 with st.popover("What is cycle length?"):
     st.markdown("#### 🔂 Cycle Length")
 
-    st.write(
-        """
-        The distance travelled during each cycle.
-        One **cycle** consists of:
-            - the 👊***push phase*** (hands in contact with the push rim)
-            - the🌀***rolling phase*** (hands off the rim while the chair freewheels)
-        """
-)
-      
+with st.popover("What is cycle length?"):
+    st.markdown("#### 🔂 Cycle Length")
+
+    st.markdown("""
+    The distance travelled during each cycle.
+
+    One **cycle** consists of:
+
+    - 👊 **Push phase**  
+      <span style="color:#1f8f3a;">Hands in contact with the push rim (force applied)</span>
+
+    - 🌀 **Rolling phase**  
+      <span style="color:#1f6fae;">Hands off the rim while the chair freewheels</span>
+    """, unsafe_allow_html=True)
+  
 
     if cycle_path.exists():
         st.image(
@@ -236,7 +248,7 @@ with st.popover("What is cycle length?"):
         """
         **Why cycle length matters**\n\n
         Cycle length reflects how effectively force application and rolling recovery are combined. 
-        Changes can indicate technique adaptations/timing, fatigu or equipment efficiencies.
+        Changes can indicate technique adaptations/timing, fatigue or equipment efficiencies.
         """
         )  
 # ======================================================
@@ -275,13 +287,16 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
             fig.add_bar(
                 x=x, y=push["value"], width=0.32,
                 marker_color=BAR_COLOURS["push_length"][rep],
-                showlegend=False
+                name=f"Push ({REP_LABELS[rep]})",
+                legendgroup=f"{rep}_push"
+
             )
 
             fig.add_bar(
                 x=x, y=roll["value"], base=push["value"], width=0.32,
                 marker_color=BAR_COLOURS["rolling_length"][rep],
-                showlegend=False
+                name=f"Rolling ({REP_LABELS[rep]})",
+                legendgroup=f"{rep}_roll"
             )
 
             fig.add_scatter(
@@ -292,13 +307,17 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 showlegend=False,
             )
 
+
+            # --- Total line
             fig.add_scatter(
-                x=x, y=total + TEXT_PAD,
-                mode="text",
-                text=[f"{v:.2f}" for v in total],
-                textfont=dict(size=TEXT_SIZE, color=REP_COLOURS[rep]),
-                showlegend=False,
+                x=x, y=total,
+                mode="lines+markers",
+                name=f"Total ({REP_LABELS[rep]})",
+                line=dict(color=REP_COLOURS[rep], width=2),
+                marker=dict(size=7),
             )
+
+            
             fig.update_layout(
                 title=f"Cycle Length ({band} m)",
                 barmode="stack",
@@ -307,10 +326,11 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                     tickvals=[0, 1, 2, 3],           # ✅ labels only up to 3.0
                     ticktext=["0", "1", "2", "3"]
                 ),
-                xaxis=dict(
-                    tickmode="array",
-                    tickvals=cycles
-                ),
+            xaxis=dict(
+                title="Cycle",
+                dtick=1,
+                tickmode="linear"
+            ),
                 height=420,
                 template="simple_white",
 )
@@ -318,7 +338,11 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
 
 
         st.plotly_chart(fig, use_container_width=True)
-
+# 
+st.caption(
+    "Zoom : Click and drag to draw a box around the area of interest. Reset: Double click anywhere on the plot to zoom back out."
+   
+)
 # =========================================================
 # SECTION 3 — PUSH ANGLE
 # =========================================================
@@ -385,8 +409,13 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
             )
 
             fig.update_layout(
-                title=f"Push Angle ({band} m)",
-                xaxis_title="Cycle",
+                            title=f"Push Angle ({band} m)",
+            xaxis=dict(
+                title="Cycle",
+                dtick=1,
+                tickmode="linear",
+                tickformat="d"
+            ),
                 yaxis_title="Angle (degrees)",
                 yaxis=dict(range=[135, 225]),
                 template="simple_white",
@@ -394,7 +423,11 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
 
 
         st.plotly_chart(fig, use_container_width=True)
-
+# 
+st.caption(
+    "Zoom : Click and drag to draw a box around the area of interest. Reset: Double click anywhere on the plot to zoom back out."
+   
+)
 # =========================================================
 # SECTION 4 — PUSH & ROLLING TIME
 # =========================================================
@@ -402,7 +435,7 @@ st.subheader("Push and Rolling Time")
 st.write(
     """
     This shows how time is split between pushing and rolling in each cycle. 
-    The Rolling time is constant acorss the entire sprint rep, whereas Push time is initially 
+    The Rolling time is constant across the entire sprint rep, whereas Push time is initially 
     high as you build momentum and get the chair rolling, then at 25m there is a transition where 
     Push time becomes shorter than Rolling time.
     """
@@ -443,3 +476,8 @@ for col, band in zip([col1, col2], DISTANCE_BANDS):
         )
 
         st.plotly_chart(fig, use_container_width=True)
+# 
+st.caption(
+    "Zoom : Click and drag to draw a box around the area of interest. Reset: Double click anywhere on the plot to zoom back out."
+   
+)

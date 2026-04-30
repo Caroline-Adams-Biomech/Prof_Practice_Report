@@ -15,7 +15,7 @@ import plotly.graph_objects as go
 # PAGE CONFIG 
 # =========================================================
 st.set_page_config(
-    page_title="Lab testing Torque Profile",
+    page_title="Torque Push Profile",
     layout="wide"
 )
 
@@ -72,14 +72,19 @@ if logo.exists():
 st.title("Lab testing Torque Profile")
 
 st.markdown(
-    """
-    This page shows the torque profiles that were measured in the lab using the instrumented ergometer. 
-    From the two different 30 second push trials you did (baseline and higher resistance) the pushes were 
-    analysed between 15-25 seconds once you had overcome the initial and were pushing consistently. The average torque 
-    profile for each side is shown by the solid line, the faint shaded line represents the standard deviation (SD) 
-    which is a metric to show how spread the data is from the average, were narrower bands show a greater consistency 
-    between pushes. Angular impulse asymmetry describes how unevenly the total rotational effort is shared between 
-    the left and right sides during each push. 
+    """    
+    This page shows the torque profiles measured in the lab using the instrumented ergometer.
+    
+    From the two 30-second push trials you completed (baseline and higher resistance), pushes were 
+    analysed between 15–25 seconds, once the initial inertia had been overcome and a consistent 
+    pushing pattern was established.
+    
+    The solid line represents the average torque profile for each side. The faint shaded region shows the 
+    standard deviation (SD), which indicates how much variability there is between pushes — narrower bands 
+    reflect greater consistency.
+    
+    Angular impulse asymmetry describes how evenly the total rotational effort is distributed between 
+    the left and right sides during each push.
     
     Use the toggle to explore how your **symmetry and technique change under increased resistance.**
     """
@@ -189,11 +194,7 @@ def load_trial(file):
 BL, BR, BLp, BRp = load_trial(DATA / "30Sec_baseline.xlsx")
 RL, RR, RLp, RRp = load_trial(DATA / "30Sec_resisted.xlsx")
 
-# =========================================================
-# DISPLAY OPTIONS (matches other pages)
-# =========================================================
-st.markdown("### Display options")
-show_resisted = st.toggle("Show resisted trial", value=False)
+
 
 # =========================================================
 # =========================================================
@@ -241,6 +242,11 @@ col_l, col_r = st.columns([3, 2])
 
 with col_l:
     st.subheader("Torque vs Time profile")
+    # =========================================================
+    # DISPLAY OPTIONS (matches other pages)
+    # =========================================================
+
+    show_resisted = st.toggle("Show resisted trial", value=False)
 
     with st.popover("What is torque?"):
         st.write(
@@ -252,9 +258,7 @@ with col_l:
         st.write(
             """
             Angular impulse asymmetry shows whether one arm contributes more
-            **total work per push**.
-
-            It reflects not just how hard you push, but **how long**
+            **total work per push**. It reflects not just how **hard** you push, but **how long**
             and **when** force is applied during the push.
             """
         )
@@ -319,9 +323,9 @@ plot_container_end()
 # =========================================================
 st.markdown(
     """
-    At baseline, propulsion shows **clear left‑dominance** and asymmetry. There is a clear difference in the shape of the 
+    At baseline, propulsion shows **clear left‑dominance** and asymmetry. There is a difference in the shape of the 
     of the torque over time profile, with a higher peak torque for the left side and a shorter push time.
-    Under resisted conditions, symmetry improves substantially, with peak torque and push time very similar suggesting
+    Under resisted conditions, symmetry improves, with peak torque and push time very similar suggesting
     modified technique and more balanced force application.
     """
 )
