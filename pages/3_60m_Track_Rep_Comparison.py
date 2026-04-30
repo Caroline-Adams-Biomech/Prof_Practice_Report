@@ -14,13 +14,8 @@ import math
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="60m Rep Comparison",
     layout="wide"
 )
-# =========================================================
-# DIVIDER
-# =========================================================
-st.markdown("---")
 
 # =========================================================
 #PLot width settings
@@ -125,33 +120,25 @@ if logo_path.exists():
 else:
     st.error(f"Logo not found at: {logo_path}")
 
-st.title("Track Testing 60m reps")
+st.title("Track Testing :60m Rep Comparison")
+# =========================================================
+# DIVIDER
+# =========================================================
+st.markdown("---")
+
 
 st.markdown(
     """
-This page compares the four 60m sprint repetitions you completed, focusing on key  
-performance metrics across 10 m splits.
-
-When looking at these graphs, we are interested in the <span style="background-color:#f0f2f6; padding:2px 6px; border-radius:4px; font-weight:600;">shape of the profiles</span>  
-rather than individual values. The shape represents your individual  
-<span style="background-color:#f0f2f6; padding:2px 6px; border-radius:4px; font-weight:600;">push signature</span>.
-
-Exact numerical values for each metric and rep are provided in the tables at the bottom of the page for detailed reference.
+    <p style="font-size:18px;">
+    This page compares the four 60m sprint repetitions you completed, focusing on key
+    performance metrics across 10&nbsp;m splits.<br><br>
+    When looking at these graphs, we are interested in the <strong>shape of the profiles</strong>
+    rather than individual values. The shape represents your individual <strong>push signature</strong>.
+    \nExact numerical values for each metric and rep are provided in the tables at the bottom of the page for detailed reference.
+    </p>
     """,
     unsafe_allow_html=True
 )
-# st.markdown(
-#     """
-#     <p style="font-size:18px;">
-#     This page compares the four 60m sprint repetitions you completed, focusing on key
-#     performance metrics across 10&nbsp;m splits.<br><br>
-#     When looking at these graphs, we are interested in the <strong>shape of the profiles</strong>
-#     rather than individual values. The shape represents your individual <strong>push signature</strong>.
-#     \nExact numerical values for each metric and rep are provided in the tables at the bottom of the page for detailed reference.
-#     </p>
-#     """,
-#     unsafe_allow_html=True
-# )
 
 # =========================================================
 # METRIC DEFINITIONS
@@ -369,6 +356,9 @@ for trial in display_trials:
 # =========================================================
 # DIFFERENCE CALLOUTS (COLOURED)
 # =========================================================
+# =========================================================
+# DIFFERENCE CALLOUTS (COLOURED)
+# =========================================================
 if compare_to_best:
     best_df = plot_df[plot_df["Trial"] == best_trial].sort_values("Distance (m)")
     comp_df = plot_df[plot_df["Trial"] == comparison_trial].sort_values("Distance (m)")
@@ -381,22 +371,31 @@ if compare_to_best:
 
     merged["diff"] = merged["Value_comp"] - merged["Value_best"]
 
-    # ✅ Define which direction is "better"
     lower_is_better = selected_metric == "Interval Time (s)"
 
-    for _, row in merged.iterrows():
+    # ✅ ✅ LOOP MUST BE INDENTED UNDER IF
+    for i, row in merged.iterrows():
         diff = row["diff"]
 
-        # ✅ Colour logic
         if abs(diff) < 1e-6:
-            color = "#7f7f7f"  # grey
+            color = "#7f7f7f"
         else:
             if lower_is_better:
-                # lower is better → negative = good
                 color = "#2ca02c" if diff < 0 else "#d62728"
             else:
-                # higher is better → positive = good
                 color = "#2ca02c" if diff > 0 else "#d62728"
+
+        yshift = 12 if i % 2 == 0 else -18
+
+        fig.add_annotation(
+            x=row["Distance (m)"],
+            y=row["Value_comp"],
+            text=f"{diff:+.2f}",
+            showarrow=False,
+            yshift=yshift,
+            font=dict(size=12, color="white"),
+            bgcolor=color,
+        )
 
 # =========================================================
 # ATHLETE-FOCUSED INSIGHTS
@@ -433,28 +432,6 @@ if compare_to_best:
     else:
         st.warning("🔁 Stay smooth through the middle — keep your rhythm consistent and controlled.")
 
-for i, row in merged.iterrows():
-    diff = row["diff"]
-
-    if abs(diff) < 1e-6:
-        color = "#7f7f7f"
-    else:
-        if lower_is_better:
-            color = "#2ca02c" if diff < 0 else "#d62728"
-        else:
-            color = "#2ca02c" if diff > 0 else "#d62728"
-
-    yshift = 12 if i % 2 == 0 else -18
-
-    fig.add_annotation(
-        x=row["Distance (m)"],
-        y=row["Value_comp"],
-        text=f"{diff:+.2f}",
-        showarrow=False,
-        yshift=yshift,
-        font=dict(size=12, color="white"),
-        bgcolor=color,
-    )
 
 fig.update_layout(
     template="simple_white",
@@ -494,10 +471,6 @@ fig.update_layout(
         borderwidth=0
     ),
 )
-
-plot_container_start(1150)
-st.plotly_chart(fig, use_container_width=True)
-plot_container_end()
 
 plot_container_start(1150)
 st.plotly_chart(fig, use_container_width=True)
