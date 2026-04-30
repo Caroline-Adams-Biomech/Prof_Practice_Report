@@ -68,10 +68,10 @@ with col1:
     st.success("📊 Track Testing\n\nView sprint performance across reps")
 
 with col2:
-    st.info("🧪 Lab Testing\n\nExplore push mechanics and symmetry")
+    st.success("🔎 Lab Testing\n\nExplore push mechanics and symmetry")
 
 with col3:
-    st.warning("🎯 Summary\n\nKey findings and coaching priorities")
+    st.success("🎯 Summary\n\nKey findings and coaching priorities")
 
 st.markdown("<br>", unsafe_allow_html=True)
 

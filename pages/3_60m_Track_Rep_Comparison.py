@@ -456,6 +456,7 @@ st.caption(
 )
 
 
+
 # =========================================================
 # ALL TRIALS OVERVIEW TABLES
 # =========================================================
@@ -471,7 +472,6 @@ desired_order = [
 
 for trial in trial_names:
     with st.expander(trial):
-
         tdf = df[df["Trial"] == trial].copy()
 
         # ✅ Rename BEFORE pivot
@@ -483,90 +483,17 @@ for trial in trial_names:
         # ✅ Pivot
         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
 
-        # ✅ Remove 0 column (-10–0)
+        # ✅ Remove incorrect 0 m column (removes -10–0)
         table = table.loc[:, table.columns != 0]
 
-        # ✅ Sort columns
+        # ✅ Ensure columns are ordered numerically
         table = table.sort_index(axis=1)
 
-        # ✅ Format column labels
+        # ✅ Format column headers into split ranges
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
-        # ✅ Reorder rows
+        # ✅ Reorder rows safely
         table = table.reindex([m for m in desired_order if m in table.index])
 
-        # =========================================================
-        # ✅ CUSTOM HIGHLIGHTING (ONLY REP 1, ONLY 0–10m)
-        # =========================================================
-        def highlight_start(data):
-
-            styled = pd.DataFrame("", index=data.index, columns=data.columns)
-
-            # ✅ Only apply to best rep (60m_1)
-            if trial == "60m_1":
-                for metric in data.index:
-
-                    # ✅ Column must be 0–10 m
-                    if "0–10 m" in data.columns:
-
-                        col = "0–10 m"
-
-                        # ✅ Highlight key performance indicators for strong start
-                        if metric in [
-                            "Average Speed (m/s)",
-                            "Average Cycle Length (m)",
-                            "Average Cycle Frequency (CPS)"
-                        ]:
-                            styled.loc[metric, col] = "background-color: #b7f7c2"
-
-                        # ✅ Also highlight fast interval time (lower is better)
-                        if metric == "Interval Time (s)":
-                            styled.loc[metric, col] = "background-color: #b7f7c2"
-
-            return styled
-
-        # ✅ Apply styling + 1 dp formatting
-        styled_table = table.round(1).style.apply(highlight_start, axis=None)
-
         # ✅ Display
-        st.dataframe(styled_table, use_container_width=True)
-# # =========================================================
-# # ALL TRIALS OVERVIEW TABLES
-# # =========================================================
-# st.subheader("All trials overview")
-
-# desired_order = [
-#     "Cumulative Time (s)",
-#     "Interval Time (s)",
-#     "Average Speed (m/s)",
-#     "Average Cycle Length (m)",
-#     "Average Cycle Frequency (CPS)",
-# ]
-
-# for trial in trial_names:
-#     with st.expander(trial):
-#         tdf = df[df["Trial"] == trial].copy()
-
-#         # ✅ Rename BEFORE pivot
-#         tdf["Metric"] = tdf["Metric"].replace({
-#             "Average Velocity (m/s)": "Average Speed (m/s)",
-#             "Average Cycle Frequency (Hz)": "Average Cycle Frequency (CPS)",
-#         })
-
-#         # ✅ Pivot
-#         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
-
-#         # ✅ Remove incorrect 0 m column (removes -10–0)
-#         table = table.loc[:, table.columns != 0]
-
-#         # ✅ Ensure columns are ordered numerically
-#         table = table.sort_index(axis=1)
-
-#         # ✅ Format column headers into split ranges
-#         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
-
-#         # ✅ Reorder rows safely
-#         table = table.reindex([m for m in desired_order if m in table.index])
-
-#         # ✅ Display
-#         st.dataframe(table.round(2), use_container_width=True)
+        st.dataframe(table.round(2), use_container_width=True)
