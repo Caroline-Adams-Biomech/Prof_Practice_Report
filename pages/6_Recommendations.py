@@ -10,7 +10,7 @@ import pandas as pd
 import plotly.express as px
 
 
-st.title("🟦 Performance Monitoring Summary")
+st.title("Performance Monitoring Summary")
 
 # =========================================================
 # BASELINE CONTEXT

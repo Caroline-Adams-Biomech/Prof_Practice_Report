@@ -63,8 +63,6 @@ st.markdown("---")
 # =========================================================
 st.markdown("### 📊 Test Session")
 
-st.markdown("### 📊 Test Session")
-
 st.markdown("""
 - 📅 **Date:** 22 March 2026  
 - 📍 **Location:** Loughborough Indoor Track & PHC Lab  
