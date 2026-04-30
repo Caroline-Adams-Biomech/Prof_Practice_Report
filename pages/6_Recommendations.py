@@ -11,10 +11,6 @@ import plotly.express as px
 
 
 st.title("🟦 Performance Monitoring Summary")
-# =========================================================
-# DIVIDER
-# =========================================================
-st.markdown("---")
 
 # =========================================================
 # BASELINE CONTEXT
@@ -63,10 +59,11 @@ Avoid shortening stroke late in the cycle
 """)
 st.info("""
 **3️⃣ Investigate asymmetry**  
-Work with Physio & S&C to assess:  
-- strength  
-- range of motion  
-- technique / setup
+Work with Physio, Chair Fitter and S&C to assess:  
+- Strength  
+- Range of motion  
+- Technique / Setup
+Based on the multi-dispplinary team assessment we can tailor next steps moving forwards.
 """)
 
 st.markdown("---")
@@ -74,7 +71,7 @@ st.markdown("---")
 # =========================================================
 # TESTING RECOMMENDATIONS
 # =========================================================
-st.markdown("### 🧪 Testing Recommendations")
+st.markdown("### 💡Recommendations")
 
 st.markdown("""
 - 📅 **Re-test every 6–8 weeks** to track progression  

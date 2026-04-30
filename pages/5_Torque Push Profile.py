@@ -78,22 +78,21 @@ st.markdown("---")
 
 st.markdown(
     """    
-    This page shows the torque profiles measured in the lab using the instrumented ergometer.
-    
-    From the two 30-second push trials you completed (baseline and higher resistance), pushes were 
-    analysed between 15–25 seconds, once the initial inertia had been overcome and a consistent 
-    pushing pattern was established.
-    
-    The solid line represents the average torque profile for each side. The faint shaded region shows the 
-    standard deviation (SD), which indicates how much variability there is between pushes — narrower bands 
-    reflect greater consistency.
-    
-    Angular impulse asymmetry describes how evenly the total rotational effort is distributed between 
-    the left and right sides during each push.
-    
+    This page presents your **torque profiles** measured push trials (baseline and higher resistance), analysis focuses on the 15–25 second window — once initial inertia has been overcome and a consistent pushing rhythm has been established.    This page presents your **torque profiles** measured in the lab using the instrumented ergometer.
+
+    **What you are seeing:**
+    - The **solid line** shows the average torque profile for each side  
+    - The **shaded region (SD)** shows how consistent your pushes are — narrower bands reflect greater control and repeatability  
+
+    **What this tells us:**
+    - Your **consistency of force application** across pushes  
+    - How evenly effort is distributed between sides (**angular impulse asymmetry**)  
+    - Whether any **imbalances or inefficiencies** are present  
+
     Use the toggle to explore how your **symmetry and technique change under increased resistance.**
     """
 )
+
 
 # =========================================================
 # PARAMETERS

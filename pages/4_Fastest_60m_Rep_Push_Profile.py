@@ -113,6 +113,20 @@ st.write(
     rep for comparison this can also be toggled on.    
     """
 )
+
+st.markdown("### 🧠 Key Performance Insight")
+
+st.info(
+    """
+    Your speed is driven by how effectively you convert each push into forward movement. 
+
+    Across your best rep, you build speed through increasing push length while maintaining a consistent rolling phase — 
+    an efficient pattern that supports speed development and maintenance.
+
+    Focus on producing strong, complete pushes early, then maintaining smooth rhythm and control as speed increases.
+    """
+)
+
 # =========================================================
 # REP SELECTION
 # =========================================================
@@ -170,7 +184,11 @@ st.write(
     This shows how fast you are moving during each cycle (push + rolling).Comparing the two phases (0-10m and 35-45m) highlights how you build your speed at the start
     and then once you've built up speed, maintain this over each cycle at the later stages of the sprint.
     """
+    )
+st.success(
+    "⚡ Speed builds strongly early, then stabilises — aim to maintain smooth, consistent pushes once at top speed."
 )
+
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
@@ -264,6 +282,10 @@ st.write(
     The rolling length is pretty consistent across the whole rep whilst your first pushes are the shortest this steadily increases, 
     and at 35-45m has reached a plateau, indicating like cycle speed a maintanence phase has been reached.
     """
+)
+
+st.success(
+    "🔂 Push length increases through the start and stabilises later — this is an effective pattern for building speed."
 )
 col_left, col_right = st.columns(2)
 
@@ -388,6 +410,13 @@ st.write(
     """
     )
 
+st.info(
+    "👊📐 Push angle stabilises after the first few cycles — consistent force application is key to maintaining efficiency."
+)
+st.warning(
+    "👊 📐Push angle decreases later in the effort — focus on maintaining full force application."
+)
+
 col1, col2 = st.columns(2)
 
 for col, band in zip([col1, col2], DISTANCE_BANDS):
@@ -437,10 +466,13 @@ st.subheader("Push and Rolling Time")
 st.write(
     """
     This shows how time is split between pushing and rolling in each cycle. 
-    The Rolling time is constant across the entire sprint rep, whereas Push time is initially 
+    The rolling time is relatively constant across the entire sprint , whereas push time is initially 
     high as you build momentum and get the chair rolling, then at 25m there is a transition where 
-    Push time becomes shorter than Rolling time.
+    push time becomes shorter than rolling time.
     """
+)
+st.success(
+    "⏱️ You transition from longer pushes to efficient rolling — a good balance for sustained speed."
 )
 col1, col2 = st.columns(2)
 

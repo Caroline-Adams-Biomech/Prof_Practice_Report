@@ -507,9 +507,7 @@ for trial in trial_names:
         # ✅ Pivot
         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
 
-        # ✅ Fix operator
-        table = table.loc[:, table.columns > 10]
-
+      
         # ✅ Format column headers
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
