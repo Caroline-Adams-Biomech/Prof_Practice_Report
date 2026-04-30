@@ -58,23 +58,35 @@ st.title("Performance Monitroing Protocols")
 # DIVIDER
 # =========================================================
 st.markdown("---")
-
-st.markdown("""
-This protocol combines **track sprint testing** and **lab-based ergometer testing**  
-to establish your baseline propulsion and monitor performance across the season.
-""")
-
+# =========================================================
+# TEST SESSION (COMPACT SUMMARY)
+# =========================================================
 st.markdown("### 📊 Test Session")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Testing Date", "22 March 2026")
-    st.metric("Location", "Loughborough Indoor Track & PHC Lab")
+    st.markdown("**📅 Date**  \n22 March 2026")
 
 with col2:
-    st.metric("Track Testing", "4 × 60 m max effort")
-    st.metric("Lab Testing", "2 × 30 s efforts (Baseline & Increased Resistance")
+    st.markdown("**📍 Location**  \nLoughborough Indoor Track & PHC Lab")
+
+with col3:
+    st.markdown("**🎯 Purpose**  \nBaseline & identify improvements")
+
+st.markdown("<br>", unsafe_allow_html=True)  # spacing
+
+col4, col5 = st.columns(2)
+
+with col4:
+    st.markdown("**🏁 Track**  \n4 × 60 m max effort")
+
+with col5:
+    st.markdown("**🔎 Lab**  \n2 × 30 s efforts (baseline + high resistance)")
+
+
+    
+    
 
 st.info("**Purpose:** Baseline pre-season & identify improvement opportunities")
 
@@ -133,68 +145,3 @@ with col2:
     """)
 
 
-# # =========================================================
-# # Track Session Section
-# # =========================================================
-# st.subheader("Track Session")
-
-# if trackstart_path:
-#     st.image(str(trackstart_path), width=400)
-# else:
-#     st.warning(
-#         "Track start image not found.\n"
-#         "Checked for: track_start.png / track_start.jpg / track_start.jpeg\n"
-#         f"in {IMAGES_DIR}"
-#     )
-# # =========================================================
-# # TRACK SESSION
-# # =========================================================
-
-# st.markdown("""
-# To establish your sprint baseline, you will complete **four 60 m maximum-effort sprints**.  
-# Multiple repetitions give a clear picture of your **pushing pattern, consistency, and performance variability**.
-
-# 📹 **Data capture**
-# - Camera 1: **0–10 m (acceleration phase)**
-# - Camera 2: **35–45 m (high-speed phase)**
-
-# All movement data is collected from the **left side** due to camera positioning.
-
-# This same setup can be repeated after training blocks to **track changes in your sprint performance over time**.
-# """)
-
-
-# # =========================================================
-# # Lab Session Section
-# # =========================================================
-# st.subheader("Lab Session")
-
-# if wcerg_path:
-#     st.image(str(wcerg_path), width=400)
-# else:
-#     st.warning(
-#         "Wheelchair ergometer image not found.\n"
-#         "Checked for: WC_ergometer.png / WC_ergometer.jpg / WC_ergometer.jpeg\n"
-#         f"in {IMAGES_DIR}"
-#     )
-
-# # =========================================================
-# # LAB SESSION
-# # =========================================================
-
-# st.markdown("""
-# To understand how you apply force to the wheels, testing is completed using the  
-# **Lode Esseda ergometer**.
-
-# This allows us to measure how each side contributes independently and identify  
-# any **left–right differences in your pushing pattern**.
-
-# After a warm-up and familiarisation, you will complete **two 30-second efforts**:
-# - Baseline resistance (similar to track)
-# - Higher resistance (increased demand)
-
-# ### Aims
-# - Build a **baseline push profile** for longitudinal tracking  
-# - Identify **left–right asymmetries**  
-# - Understand how your pushing changes under **higher resistance**
-# """)
