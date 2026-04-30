@@ -14,7 +14,7 @@ import math
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="60m Track Rep Comparison",
+    page_title="60m Rep Comparison",
     layout="wide"
 )
 # =========================================================

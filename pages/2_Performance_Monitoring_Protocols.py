@@ -52,13 +52,11 @@ else:
         f"in {IMAGES_DIR}"
     )
 
-st.title("Performance Monitoring Protocols")
-st.write(
-    """
-    To build a picture of your baseline wheelchair propulsion at the start of the season both on-track sprint testing and 
-    lab based instrumented roller testing will be used.
-    """
-    )
+st.markdown("""
+This protocol combines **track sprint testing** and **lab-based ergometer testing**  
+to establish a clear baseline of your propulsion and monitor performance across the season.
+""")
+
 # =========================================================
 # Track Session Section
 # =========================================================
@@ -72,16 +70,23 @@ else:
         "Checked for: track_start.png / track_start.jpg / track_start.jpeg\n"
         f"in {IMAGES_DIR}"
     )
+# =========================================================
+# TRACK SESSION
+# =========================================================
 
-st.write(
-    "To establish your sprint baseline at the start of the season, you will complete four "
-    "60 m maximum‑effort sprints. Completing multiple repetitions helps build a clear picture "
-    "of how you push, how consistent your technique is, and whether differences between efforts "
-    "are meaningful rather than just one‑off variations. Two cameras are used during the test. One captures the early acceleration phase over the "
-    "first 0–10 m, another focuses on your pushing pattern between 35–45 m when speed is higher."
-    "Because the cameras are positioned on one side only, all movement data relates to the left "
-    "side of your body. This same setup can be repeated after training blocks later in the season to see monitor changes on your sprint performance."
-)
+st.markdown("""
+To establish your sprint baseline, you will complete **four 60 m maximum-effort sprints**.  
+Multiple repetitions give a clear picture of your **pushing pattern, consistency, and performance variability**.
+
+📹 **Data capture**
+- Camera 1: **0–10 m (acceleration phase)**
+- Camera 2: **35–45 m (high-speed phase)**
+
+All movement data is collected from the **left side** due to camera positioning.
+
+This same setup can be repeated after training blocks to **track changes in your sprint performance over time**.
+""")
+
 if test_path:
     st.image(str(test_path), width=800)
 else:
@@ -102,15 +107,23 @@ else:
         f"in {IMAGES_DIR}"
     )
 
-st.write(
-    """
-    To establish how you apply fore through the wheels to generate movement we will use the Lode Esseda ergometer in the lab. 
-    This allows us to look at how each side independently and explore if there are any differences between 
-    your left and right side contributions to the push. After a warm‑up and time to get comfortable on the ergometer, you will complete two 
-    separate 30 second pushing efforts. The first uses a resistance similar to what you experience on the track, and 
-    the second uses a higher resistance. This helps us to \n
-    (1) Build a clear baseline profile that we can track over time \n
-    (2) Identify potential left‑right asymmetries \n
-    (3) understand how your pushing changes when the external demands are increased
-    """
-)
+# =========================================================
+# LAB SESSION
+# =========================================================
+
+st.markdown("""
+To understand how you apply force to the wheels, testing is completed using the  
+**Lode Esseda ergometer**.
+
+This allows us to measure how each side contributes independently and identify  
+any **left–right differences in your pushing pattern**.
+
+After a warm-up and familiarisation, you will complete **two 30-second efforts**:
+- Baseline resistance (similar to track)
+- Higher resistance (increased demand)
+
+### Aims
+- Build a **baseline push profile** for longitudinal tracking  
+- Identify **left–right asymmetries**  
+- Understand how your pushing changes under **higher resistance**
+""")
