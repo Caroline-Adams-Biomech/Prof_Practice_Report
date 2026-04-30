@@ -63,7 +63,12 @@ st.markdown("""
 This protocol combines **track sprint testing** and **lab-based ergometer testing**  
 to establish a clear baseline of your propulsion and monitor performance across the season.
 """)
-
+if test_path:
+    st.image(str(test_path), width=800)
+else:
+    st.warning(
+        "Track session test overview image not found}"
+    )
 # =========================================================
 # Track Session Section
 # =========================================================
@@ -94,12 +99,7 @@ All movement data is collected from the **left side** due to camera positioning.
 This same setup can be repeated after training blocks to **track changes in your sprint performance over time**.
 """)
 
-if test_path:
-    st.image(str(test_path), width=800)
-else:
-    st.warning(
-        "Track session test overview image not found}"
-    )
+
 # =========================================================
 # Lab Session Section
 # =========================================================

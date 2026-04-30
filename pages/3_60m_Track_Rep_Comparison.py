@@ -120,7 +120,7 @@ if logo_path.exists():
 else:
     st.error(f"Logo not found at: {logo_path}")
 
-st.title("Track Testing :60m Rep Comparison")
+st.title("Track Testing : 60m Rep Comparison")
 # =========================================================
 # DIVIDER
 # =========================================================
@@ -498,21 +498,22 @@ for trial in trial_names:
     with st.expander(trial):
         tdf = df[df["Trial"] == trial].copy()
 
-        # ✅ Rename metrics for display
+        # ✅ Rename BEFORE pivot
         tdf["Metric"] = tdf["Metric"].replace({
             "Average Velocity (m/s)": "Average Speed (m/s)",
             "Average Cycle Frequency (Hz)": "Average Cycle Frequency (CPS)",
         })
-
+        
+        # ✅ Pivot
         table = tdf.pivot(index="Metric", columns="Distance (m)", values="Value")
 
-        # Remove first split if needed (keeping your logic)
+        # ✅ Fix operator
         table = table.loc[:, table.columns > 10]
 
-        # Format column headers
+        # ✅ Format column headers
         table.columns = [f"{int(c-10)}–{int(c)} m" for c in table.columns]
 
-        # ✅ Reorder metrics (only keep ones present)
+        # ✅ Reorder rows
         table = table.reindex([m for m in desired_order if m in table.index])
 
         st.dataframe(table.round(2), use_container_width=True)
