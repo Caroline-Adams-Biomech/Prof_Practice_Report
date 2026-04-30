@@ -65,13 +65,13 @@ st.markdown("### 📂 Explore your report")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.success("📊 Track Testing\n\nView sprint performance across reps")
+    st.info("📊 Track Testing\n\nView sprint performance across reps")
 
 with col2:
-    st.success("🔎 Lab Testing\n\nExplore push mechanics and symmetry")
+    st.info("🔎 Lab Testing\n\nExplore push mechanics and symmetry")
 
 with col3:
-    st.success("🎯 Summary\n\nKey findings and coaching priorities")
+    st.info("🎯 Summary\n\nKey findings and coaching priorities")
 
 st.markdown("<br>", unsafe_allow_html=True)
 

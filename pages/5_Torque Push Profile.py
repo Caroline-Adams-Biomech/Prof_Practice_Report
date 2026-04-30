@@ -279,7 +279,14 @@ with col_r:
         """,
         unsafe_allow_html=True
     )
-
+st.markdown(
+    """
+    At baseline, propulsion shows **clear left‑dominance** and asymmetry. There is a difference in the shape of the 
+    of the torque over time profile, with a higher peak torque for the left side and a shorter push time.
+    Under resisted conditions, symmetry improves, with peak torque and push time very similar suggesting
+    modified technique and more balanced force application.
+    """
+)
 # =========================================================
 # PLOT (STYLE‑MATCHED)
 # =========================================================
@@ -325,14 +332,7 @@ plot_container_end()
 # =========================================================
 # INTERPRETATION
 # =========================================================
-st.markdown(
-    """
-    At baseline, propulsion shows **clear left‑dominance** and asymmetry. There is a difference in the shape of the 
-    of the torque over time profile, with a higher peak torque for the left side and a shorter push time.
-    Under resisted conditions, symmetry improves, with peak torque and push time very similar suggesting
-    modified technique and more balanced force application.
-    """
-)
+
 # st.markdown("### 🔎 Asymmetry check (debug)")
 
 # st.write("**Baseline:**")

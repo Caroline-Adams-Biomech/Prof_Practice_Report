@@ -131,11 +131,10 @@ st.markdown(
     """
     <p style="font-size:18px;">
     This page compares the four 60m sprint repetitions you completed, focusing on key
-    performance metrics across 10&nbsp;m splits.<br><br>
-    When looking at these graphs, we are interested in the <strong>shape of the profiles</strong>
-    rather than individual values. The shape represents your individual <strong>push signature</strong>.
+    performance metrics across 10&nbsp;m splits.When looking at these graphs, we are interested in the <strong>shape of the profiles</strong>
+    rather than specifc values. The shape represents your individual <strong>push signature</strong>.
     \nExact numerical values for each metric and rep are provided in the tables at the bottom of the page for detailed reference.
-    </p>
+   
     """,
     unsafe_allow_html=True
 )
