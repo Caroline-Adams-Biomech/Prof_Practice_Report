@@ -494,4 +494,3 @@ for trial in trial_names:
 
         # ✅ Display
         st.dataframe(table.round(2), use_container_width=True)
-``
