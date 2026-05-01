@@ -103,31 +103,44 @@ st.markdown("""
 # =========================================================
 # PDF Report Builder
 # =========================================================
-import plotly.graph_objects as go
-
-# Example placeholder figures (replace later)
-fig1 = go.Figure()
-fig1.add_scatter(y=[1, 3, 2], mode="lines", name="Example")
-
-fig2 = go.Figure()
-fig2.add_bar(y=[2, 4, 1])
-
-figures = [fig1, fig2]
-insights = {
-    "summary": """
-    Fastest rep was decided in the first 10 m.
-    Performance is driven by strong early acceleration and maintained rhythm.
-    """
-}
-
+# =========================================================
+# PDF Export (SUMMARY ONLY TEST)
+# =========================================================
 st.markdown("---")
 st.subheader("📄 Export Report")
-if st.button("📄 Generate Report"):
 
-    pdf_path = create_full_report(
-        figures=figures,
-        insights=insights
-    )
+# ✅ Build summary content manually (matches page)
+summary_content = [
+
+    "<b>Performance Monitoring Summary</b>",
+
+    "This session provides a baseline snapshot of your push profile. "
+    "To track meaningful changes, repeat testing every 6–8 weeks.",
+
+    "<b>Key Performance Insight</b>",
+
+    "Your speed is driven by effective pushing, not just cycle frequency. "
+    "You generate speed through a large push range and increasing cycle length.",
+
+    "✅ Fastest rep decided in the first 10 m — 0.04 s quicker.",
+
+    "<b>Opportunities</b>",
+
+    "1. Maximise the first 10 m — focus on explosive high-frequency start.",
+    "2. Maintain full push length — avoid shortening stroke late in the cycle.",
+    "3. Investigate asymmetry across strength, range of motion, and setup.",
+
+    "<b>Recommendations</b>",
+
+    "Re-test every 6–8 weeks.",
+    "Extend testing beyond 60 m.",
+    "Ensure full recovery between reps."
+]
+
+
+if st.button("📄 Generate Summary PDF"):
+
+    pdf_path = create_full_report(summary_content=summary_content)
 
     with open(pdf_path, "rb") as f:
         pdf_data = f.read()
@@ -135,6 +148,6 @@ if st.button("📄 Generate Report"):
     st.download_button(
         label="⬇️ Download PDF",
         data=pdf_data,
-        file_name="performance_report.pdf",
+        file_name="performance_summary.pdf",
         mime="application/pdf"
     )
