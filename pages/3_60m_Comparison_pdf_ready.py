@@ -7,118 +7,84 @@ from pathlib import Path
 
 def render(pdf_mode=False):
 
-    # =========================================================
-    # PATHS
-    # =========================================================
+    # -----------------------------------------------------
+    # Paths
+    # -----------------------------------------------------
     base_path = Path(__file__).resolve().parents[1]
-    logo_path = base_path / "images" / "Logo.png"
 
-    # =========================================================
-    # HEADER
-    # =========================================================
-    if logo_path.exists():
-        st.image(str(logo_path), width=400)
+    # -----------------------------------------------------
+    # Title
+    # -----------------------------------------------------
+    st.title("Track Testing: 60m Comparison")
+    st.markdown("---")
 
-    st.title("Track Testing : 60m Rep Comparison")
-    st.markdown("<hr>", unsafe_allow_html=True)
-
-    st.markdown("""
-    This page compares the four 60m sprint repetitions across key metrics.
-    """)
-
-    # =========================================================
-    # METRIC DEFINITIONS
-    # =========================================================
-    st.subheader("Metric definitions")
+    # -----------------------------------------------------
+    # Metric definitions
+    # -----------------------------------------------------
+    st.subheader("Metric Definitions")
 
     if pdf_mode:
-        st.markdown("**⏱️ Interval Time:** Time taken per 10 m split")
-        st.markdown("**💨 Speed:** Cycle length × frequency")
-        st.markdown("**📏 Cycle Length:** Distance per push")
-        st.markdown("**🔁 Frequency:** Cycles per second")
+        st.write("⏱️ Interval Time = time per split")
+        st.write("💨 Speed = distance / time")
     else:
         with st.popover("⏱️ Interval Time"):
-            st.write("Time taken per 10 m split")
+            st.write("Time per split")
+        with st.popover("💨 Speed"):
+            st.write("Speed = distance / time")
 
-        with st.popover("💨 Average Speed"):
-            st.write("Speed = cycle length × frequency")
-
-        with st.popover("📏 Cycle Length"):
-            st.write("Distance per push cycle")
-
-        with st.popover("🔁 Cycle Frequency"):
-            st.write("Cycles per second")
-
-    # =========================================================
-    # LOAD DATA
-    # =========================================================
+    # -----------------------------------------------------
+    # Load data
+    # -----------------------------------------------------
     @st.cache_data
     def load_data():
         return pd.read_excel(base_path / "data" / "60m_spatial_temporal.xlsx")
 
     df = load_data()
-    trial_names = sorted(df["Trial"].dropna().unique())
+    trials = sorted(df["Trial"].dropna().unique())
 
-    # =========================================================
-    # INPUTS
-    # =========================================================
+    # -----------------------------------------------------
+    # Inputs
+    # -----------------------------------------------------
     if pdf_mode:
-        selected_trials = trial_names
+        selected_trials = trials
     else:
-        selected_trials = st.multiselect(
-            "Trials",
-            trial_names,
-            default=trial_names[:1]
-        )
+        selected_trials = st.multiselect("Trials", trials, default=trials[:1])
 
-    if not selected_trials:
-        st.warning("Please select at least one trial")
+    if len(selected_trials) == 0:
+        st.warning("Select at least one trial")
         return
 
-    # =========================================================
-    # FILTER DATA
-    # =========================================================
-    plot_df = df[df["Trial"].isin(selected_trials)]
-
-    # =========================================================
-    # PLOT
-    # =========================================================
+    # -----------------------------------------------------
+    # Plot
+    # -----------------------------------------------------
     fig = go.Figure()
 
-    for trial in selected_trials:
-        d = plot_df[plot_df["Trial"] == trial]
+    for t in selected_trials:
+        d = df[df["Trial"] == t]
+        fig.add_trace(go.Scatter(
+            x=d["Distance (m)"],
+            y=d["Value"],
+            mode="lines+markers",
+            name=t
+        ))
 
-        fig.add_trace(
-            go.Scatter(
-                x=d["Distance (m)"],
-                y=d["Value"],
-                mode="lines+markers",
-                name=trial
-            )
-        )
-
-    # =========================================================
-    # SHOW PLOT
-    # =========================================================
+    # -----------------------------------------------------
+    # Display
+    # -----------------------------------------------------
     if pdf_mode:
-        img = fig.to_image(format="png")
-        st.image(img)
+        st.image(fig.to_image(format="png"))
     else:
         st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("<hr>", unsafe_allow_html=True)
-
-    # =========================================================
-    # TABLES
-    # =========================================================
-    st.subheader("All trials overview")
-
-    for trial in trial_names:
-        with st.expander(trial):
-            tdf = df[df["Trial"] == trial]
-            st.dataframe(tdf)
+    # -----------------------------------------------------
+    # Table
+    # -----------------------------------------------------
+    st.subheader("Data")
+    st.dataframe(df)
 
 
+# ✅ THIS MAKES NORMAL PAGE WORK
 if __name__ == "__main__":
     st.set_page_config(layout="wide")
     render(pdf_mode=False)
+``
