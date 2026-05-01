@@ -9,6 +9,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
+from utils.pdf_report import create_full_report
+
+
+
 # =========================================================
 # PAGE CONFIG 
 # =========================================================
@@ -102,3 +106,36 @@ st.markdown("""
 - 📏 **Extend distance beyond 60 m** to capture true max velocity  
 - ⏱ **Ensure full recovery between reps** to reduce fatigue effects  
 """)
+# =========================================================
+# PDF Report Builder
+# =========================================================
+import plotly.graph_objects as go
+
+# Example placeholder figures (replace later)
+fig1 = go.Figure()
+fig1.add_scatter(y=[1, 3, 2], mode="lines", name="Example")
+
+fig2 = go.Figure()
+fig2.add_bar(y=[2, 4, 1])
+
+figures = [fig1, fig2]
+insights = {
+    "summary": """
+    Fastest rep was decided in the first 10 m.
+    Performance is driven by strong early acceleration and maintained rhythm.
+    """
+}
+if st.button("📄 Download Full Report"):
+
+    pdf_path = create_full_report(
+        figures=figures,
+        insights=insights
+    )
+
+    with open(pdf_path, "rb") as f:
+        st.download_button(
+            label="⬇️ Download PDF",
+            data=f,
+            file_name="performance_report.pdf",
+            mime="application/pdf"
+        )
