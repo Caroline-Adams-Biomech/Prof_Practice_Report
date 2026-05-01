@@ -1,97 +1,83 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri May  1 13:18:32 2026
-
-@author: Caroline Adams
-"""
-
-# -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from pathlib import Path
 
-def render(pdf_mode=False):
 
-    # =========================================================
-    # TEXT FORMATTING
-    # =========================================================
-    st.markdown("""
-    <style>
-    .stApp { font-size: 19px; line-height: 1.55; }
-    h1 { font-size: 42px; }
-    h2 { font-size: 30px; }
-    </style>
-    """, unsafe_allow_html=True)
+def render(pdf_mode=False):
 
     # =========================================================
     # PATHS
     # =========================================================
     base_path = Path(__file__).resolve().parents[1]
     logo_path = base_path / "images" / "Logo.png"
-    cycle_path = base_path / "images" / "cycle_definitions_image.png"
 
+    # =========================================================
+    # HEADER
+    # =========================================================
     if logo_path.exists():
         st.image(str(logo_path), width=400)
 
     st.title("Track Testing : 60m Rep Comparison")
-    st.markdown("---")
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     st.markdown("""
-    This page compares the four 60m sprint repetitions...
+    This page compares the four 60m sprint repetitions across key metrics.
     """)
 
     # =========================================================
     # METRIC DEFINITIONS
     # =========================================================
-    st.write("### Metric definitions")
+    st.subheader("Metric definitions")
 
-    # ✅ POPUP → STATIC TEXT SWITCH
     if pdf_mode:
-        st.subheader("⏱️ Interval Time")
-        st.write("Time taken across each 10m split")
-
-        st.subheader("💨 Average Speed")
-        st.write("Speed = cycle length × frequency")
-
-        st.subheader("📏 Cycle Length")
-        st.write("Distance covered per push cycle")
-
-        st.subheader("🔁 Cycle Frequency")
-        st.write("Pushes per second")
+        st.markdown("**⏱️ Interval Time:** Time taken per 10 m split")
+        st.markdown("**💨 Speed:** Cycle length × frequency")
+        st.markdown("**📏 Cycle Length:** Distance per push")
+        st.markdown("**🔁 Frequency:** Cycles per second")
     else:
         with st.popover("⏱️ Interval Time"):
-            st.write("Time taken across each 10m split")
+            st.write("Time taken per 10 m split")
 
         with st.popover("💨 Average Speed"):
             st.write("Speed = cycle length × frequency")
 
         with st.popover("📏 Cycle Length"):
-            st.write("Distance covered per push cycle")
+            st.write("Distance per push cycle")
 
         with st.popover("🔁 Cycle Frequency"):
-            st.write("Pushes per second")
+            st.write("Cycles per second")
 
     # =========================================================
     # LOAD DATA
     # =========================================================
     @st.cache_data
-    def load():
+    def load_data():
         return pd.read_excel(base_path / "data" / "60m_spatial_temporal.xlsx")
 
-    df = load()
+    df = load_data()
     trial_names = sorted(df["Trial"].dropna().unique())
 
     # =========================================================
-    # SELECTORS (disabled in PDF)
+    # INPUTS
     # =========================================================
     if pdf_mode:
-        selected_metric = "Average Speed (m/s)"
         selected_trials = trial_names
     else:
-        selected_metric = st.selectbox("Metric", df["Metric"].unique())
-        selected_trials = st.multiselect("Trials", trial_names, default=trial_names[:1])
+        selected_trials = st.multiselect(
+            "Trials",
+            trial_names,
+            default=trial_names[:1]
+        )
 
+    if not selected_trials:
+        st.warning("Please select at least one trial")
+        return
+
+    # =========================================================
+    # FILTER DATA
+    # =========================================================
     plot_df = df[df["Trial"].isin(selected_trials)]
 
     # =========================================================
@@ -101,23 +87,38 @@ def render(pdf_mode=False):
 
     for trial in selected_trials:
         d = plot_df[plot_df["Trial"] == trial]
-        fig.add_scatter(x=d["Distance (m)"], y=d["Value"], name=trial)
 
-    # ✅ PLOT SWITCH
+        fig.add_trace(
+            go.Scatter(
+                x=d["Distance (m)"],
+                y=d["Value"],
+                mode="lines+markers",
+                name=trial
+            )
+        )
+
+    # =========================================================
+    # SHOW PLOT
+    # =========================================================
     if pdf_mode:
-        st.image(fig.to_image(format="png"))
+        img = fig.to_image(format="png")
+        st.image(img)
     else:
         st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("---")
+    st.markdown("<hr>", unsafe_allow_html=True)
 
+    # =========================================================
+    # TABLES
+    # =========================================================
     st.subheader("All trials overview")
+
     for trial in trial_names:
         with st.expander(trial):
-            st.dataframe(df[df["Trial"] == trial])
+            tdf = df[df["Trial"] == trial]
+            st.dataframe(tdf)
 
 
-# ✅ REQUIRED
 if __name__ == "__main__":
+    st.set_page_config(layout="wide")
     render(pdf_mode=False)
-``

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May  1 13:14:13 2026
-
-@author: Caroline Adams
-"""
-
 # =========================================================
 # Athlete Profile Page
 # =========================================================
@@ -14,7 +7,6 @@ import streamlit as st
 def render(pdf_mode=False):
 
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
     profile_path = PROJECT_ROOT / "images" / "athlete_profile.png"
 
     st.title("Athlete Profile")
@@ -26,6 +18,7 @@ def render(pdf_mode=False):
         st.warning(f"Athlete profile image not found at: {profile_path}")
 
 
-# ✅ Required to run page normally
 if __name__ == "__main__":
+    st.set_page_config(layout="wide")
     render(pdf_mode=False)
+``

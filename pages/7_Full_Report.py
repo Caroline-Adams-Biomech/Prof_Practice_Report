@@ -6,7 +6,7 @@ from pages.3_60m_Comparison import render as render_track
 st.set_page_config(layout="wide")
 
 # =========================================================
-# PRINT CSS
+# PRINT STYLING
 # =========================================================
 st.markdown("""
 <style>
@@ -27,7 +27,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# PAGE TITLE
+# TITLE
 # =========================================================
 st.title("Full Performance Report")
 
@@ -41,6 +41,6 @@ render_profile(pdf_mode=True)
 st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
 
 # =========================================================
-# 60M TRACK
+# TRACK COMPARISON
 # =========================================================
 render_track(pdf_mode=True)
