@@ -52,7 +52,7 @@ else:
         f"in {IMAGES_DIR}"
     )
 # --- Page title & subtitle
-st.title("Performance Monitroing Protocols")
+st.title("Performance Monitoring Protocols")
 
 # =========================================================
 # DIVIDER
