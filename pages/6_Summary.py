@@ -110,37 +110,44 @@ st.markdown("---")
 st.subheader("📄 Export Report")
 
 # ✅ Build summary content manually (matches page)
-summary_content = [
 
-    "<b>Performance Monitoring Summary</b>",
 
-    "This session provides a baseline snapshot of your push profile. "
-    "To track meaningful changes, repeat testing every 6–8 weeks.",
+summary_blocks = [
 
-    "<b>Key Performance Insight</b>",
+    {"type": "text", "content": "This session provides a baseline snapshot of your push profile. Repeat testing every 6–8 weeks to monitor progression toward LA 2028."},
 
-    "Your speed is driven by effective pushing, not just cycle frequency. "
-    "You generate speed through a large push range and increasing cycle length.",
+    {"type": "divider"},
 
-    "✅ Fastest rep decided in the first 10 m — 0.04 s quicker.",
+    {"type": "heading", "content": "Key Performance Insight"},
 
-    "<b>Opportunities</b>",
+    {"type": "text", "content": "Your speed is driven by effective pushing, not just cycle frequency."},
 
-    "1. Maximise the first 10 m — focus on explosive high-frequency start.",
-    "2. Maintain full push length — avoid shortening stroke late in the cycle.",
-    "3. Investigate asymmetry across strength, range of motion, and setup.",
+    {"type": "success", "content": "✅ Fastest rep decided in the first 10 m — 0.04 s quicker, driven by higher frequency."},
 
-    "<b>Recommendations</b>",
+    {"type": "divider"},
 
-    "Re-test every 6–8 weeks.",
-    "Extend testing beyond 60 m.",
-    "Ensure full recovery between reps."
+    {"type": "heading", "content": "Opportunities"},
+
+    {"type": "info", "content": "1️⃣ Maximise the first 10 m — focus on explosive high-frequency start."},
+
+    {"type": "info", "content": "2️⃣ Maintain full push length — avoid shortening late in the cycle."},
+
+    {"type": "info", "content": "3️⃣ Investigate asymmetry across strength, range of motion and setup."},
+
+    {"type": "divider"},
+
+    {"type": "heading", "content": "Recommendations"},
+
+    {"type": "text", "content": "• Re-test every 6–8 weeks"},
+    {"type": "text", "content": "• Extend testing beyond 60 m"},
+    {"type": "text", "content": "• Ensure full recovery between reps"},
 ]
+
 
 
 if st.button("📄 Generate Summary PDF"):
 
-    pdf_path = create_full_report(summary_content=summary_content)
+    pdf_path = create_full_report(summary_blocks)
 
     with open(pdf_path, "rb") as f:
         pdf_data = f.read()
