@@ -8,4 +8,4 @@ altair
 openpyxl
 scipy
 reportlab
-kaleido
+kaleido==0.2.1

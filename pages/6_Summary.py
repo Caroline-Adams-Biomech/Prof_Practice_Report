@@ -21,12 +21,6 @@ st.set_page_config(
     layout="wide"
 )
 # =========================================================
-# PAGE CONFIG  
-# =========================================================
-st.set_page_config(
-    page_title="Wheelchair Racing Performance Monitoring Report",
-    layout="wide"
-)
 
 # =========================================================
 # LOGO
@@ -125,7 +119,10 @@ insights = {
     Performance is driven by strong early acceleration and maintained rhythm.
     """
 }
-if st.button("📄 Download Full Report"):
+
+st.markdown("---")
+st.subheader("📄 Export Report")
+if st.button("📄 Generate Report"):
 
     pdf_path = create_full_report(
         figures=figures,
@@ -133,9 +130,11 @@ if st.button("📄 Download Full Report"):
     )
 
     with open(pdf_path, "rb") as f:
-        st.download_button(
-            label="⬇️ Download PDF",
-            data=f,
-            file_name="performance_report.pdf",
-            mime="application/pdf"
-        )
+        pdf_data = f.read()
+
+    st.download_button(
+        label="⬇️ Download PDF",
+        data=pdf_data,
+        file_name="performance_report.pdf",
+        mime="application/pdf"
+    )
