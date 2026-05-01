@@ -86,16 +86,6 @@ if logo_path.exists():
 # =========================================================
 st.title("Performance Monitoring Summary")
 
-# =========================================================
-# EXPORT INSTRUCTIONS (REPLACES PDF BUTTON)
-# =========================================================
-st.info("""
-📄 **Export this report as a PDF**
-
-1. Press **Ctrl + P** (Windows) or **Cmd + P** (Mac)  
-2. Set Destination = **Save as PDF**  
-3. Enable **Background graphics ✅**  
-""")
 
 # =========================================================
 # BASELINE CONTEXT

@@ -10,6 +10,15 @@ Created on Tue Apr 21 18:35:20 2026
 from pathlib import Path
 import streamlit as st
 
+
+# ✅ Base path (always do this once)
+BASE_PATH = Path(__file__).resolve().parents[1]
+
+# ✅ Paths
+logo_path = BASE_PATH / "images" / "Logo.png"
+profile_path = BASE_PATH / "images" / "athlete_profile.png"  # ✅ adjust filename if needed
+
+
 logo_path = Path(__file__).resolve().parents[1] / "images" / "Logo.png"
 
 # --- Logo centred at top
