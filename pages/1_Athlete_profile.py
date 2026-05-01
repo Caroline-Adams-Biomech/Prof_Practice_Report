@@ -26,22 +26,7 @@ st.title("Athlete Profile")
 # =========================================================
 st.markdown("---")
 
-#st.subheader("Athlete Feedback") Update for each page
 
-# =========================================================
-
-# paths for images
-base_path = Path(__file__).resolve().parents[1]
-profile_path = base_path / "images" / "athlete profile.png"
-
-# st.set_page_config(
-#     page_title="Athlete Profile",
-#     layout="wide"
-# )
-
-# --- Title
-# st.subheader("Athlete Profile")
-# --- Athlete profile image
 if profile_path.exists():
     st.image(str(profile_path), width=800,)
 else:

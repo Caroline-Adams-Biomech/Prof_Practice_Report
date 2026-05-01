@@ -8,8 +8,8 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 import plotly.graph_objects as go
-import math
 
+def render(pdf_mode=False):
 # =========================================================
 # PAGE CONFIG
 # =========================================================
@@ -143,10 +143,17 @@ st.markdown(
 # METRIC DEFINITIONS
 # =========================================================
 st.write("### Metric definitions")
-
-with st.popover("⏱️ Interval Time (s)"):
-    st.subheader("⏱️ Interval Time (seconds)")
+if pdf_mode:
+    st.subheader("⏱️ Interval Time (s)")
     st.write("Time taken to travel from the start to the end of each 10 m split.")
+else:
+    with st.popover("⏱️ Interval Time (s)"):
+        st.subheader("⏱️ Interval Time (seconds)")
+        st.write("Time taken to travel from the start to the end of each 10 m split.")
+``
+# with st.popover("⏱️ Interval Time (s)"):
+#     st.subheader("⏱️ Interval Time (seconds)")
+#     st.write("Time taken to travel from the start to the end of each 10 m split.")
 
 with st.popover("💨 Average Speed (m/s)"):
     st.subheader("💨 Average Speed (m/s)")
@@ -445,7 +452,12 @@ fig.update_layout(
 )
 
 plot_container_start(1150)
-st.plotly_chart(fig, use_container_width=True)
+# st.plotly_chart(fig, use_container_width=True)
+if pdf_mode:
+    img = fig.to_image(format="png")
+    st.image(img)
+else:
+    st.plotly_chart(fig, use_container_width=True)
 plot_container_end()
 
 # 
@@ -496,3 +508,6 @@ for trial in trial_names:
 
         # ✅ Display
         st.dataframe(table.round(2), use_container_width=True)
+
+if __name__ == "__main__":
+    render(pdf_mode=False)
