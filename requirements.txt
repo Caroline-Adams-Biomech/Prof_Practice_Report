@@ -7,3 +7,5 @@ matplotlib
 altair
 openpyxl
 scipy
+reportlab
+kaleido
