@@ -24,55 +24,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* =========================================================
-GLOBAL PRINT SETTINGS
-========================================================= */
-@media print {
 
-    header, footer, .stToolbar, .stDeployButton {
-        display: none !important;
-    }
-
-    .block-container {
-        padding-top: 0px !important;
-        padding-bottom: 0px !important;
-    }
-
-    body {
-        font-size: 14px !important;
-        line-height: 1.5;
-    }
-
-    .stAlert {
-        page-break-inside: avoid !important;
-    }
-
-    h1, h2, h3 {
-        page-break-after: avoid;
-    }
-
-    .element-container {
-        margin-bottom: 15px !important;
-    }
-}
-
-/* CLEAN LAYOUT */
-.block-container {
-    max-width: 900px;
-    margin: auto;
-}
-
-hr {
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-.no-break {
-    page-break-inside: avoid;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 # =========================================================
 # LOGO
@@ -90,10 +42,12 @@ st.title("Performance Monitoring Summary")
 # =========================================================
 # BASELINE CONTEXT
 # =========================================================
-st.markdown("""
-This session provides a **baseline snapshot** of your push profile.  
-To track meaningful changes, we recommend **repeat testing every 6–8 weeks** to monitor progression across the season and build toward **LA 2028**.
-""")
+st.markdown(
+    """
+    This session provides a **baseline snapshot** of your push profile.  
+    To track meaningful changes, we recommend **repeat testing every 6–8 weeks** to monitor progression across the season and build toward **LA 2028**.
+    """
+    )
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
