@@ -93,18 +93,17 @@ Work with Physio, Chair Fitter and S&C to assess:
 # TESTING RECOMMENDATIONS
 # =========================================================
 st.markdown("---")
-st.subheader("📄 Export Report")
-
 if st.button("📄 Generate Summary PDF"):
 
-    pdf_path = create_full_report()
+    url = "http://https://prof-practice-report-wheelchair-propulsion.streamlit.app/Summary"  # adjust if needed
+
+    pdf_path = create_full_report(url=url)
 
     with open(pdf_path, "rb") as f:
         pdf_data = f.read()
 
     st.download_button(
-        label="⬇️ Download PDF",
-        data=pdf_data,
-        file_name="performance_summary.pdf",
-        mime="application/pdf"
+        "⬇️ Download PDF",
+        pdf_data,
+        file_name="performance_summary.pdf"
     )

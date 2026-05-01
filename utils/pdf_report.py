@@ -5,13 +5,23 @@ Created on Fri May  1 12:26:27 2026
 @author: Caroline Adams
 """
 
-from weasyprint import HTML
-from pathlib import Path
+from playwright.sync_api import sync_playwright
 
-def create_full_report(output_path="report.pdf"):
+def create_full_report(url, output_path="report.pdf"):
 
-    html_path = Path(__file__).resolve().parent / "summary_template.html"
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
 
-    HTML(str(html_path)).write_pdf(output_path)
+        # Open your Streamlit page
+        page.goto(url)
+
+        # Wait for content to load
+        page.wait_for_timeout(2000)
+
+        # Save as PDF
+        page.pdf(path=output_path, format="A4")
+
+        browser.close()
 
     return output_path
