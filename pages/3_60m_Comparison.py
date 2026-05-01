@@ -9,47 +9,33 @@ import pandas as pd
 from pathlib import Path
 import plotly.graph_objects as go
 import math
+st.markdown("""
+<style>
+@media print {
 
+    html, body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .main {
+        overflow: visible !important;
+    }
+
+    .block-container {
+        height: auto !important;
+    }
+
+}
+</style>
+""", unsafe_allow_html=True)
 # =========================================================
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
     layout="wide"
 )
-st.markdown("""
-<style>
-@media print {
 
-    /* Hide Streamlit UI */
-    header, footer, .stToolbar {
-        display: none !important;
-    }
-
-    /* Reduce margins */
-    .block-container {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-
-    /* Prevent splitting */
-    .stAlert, .element-container, .stPlotlyChart {
-        page-break-inside: avoid !important;
-    }
-
-    /* Improve readability */
-    body {
-        font-size: 14px !important;
-        line-height: 1.4;
-    }
-}
-
-/* Make page more report-like */
-.block-container {
-    max-width: 900px;
-    margin: auto;
-}
-</style>
-""", unsafe_allow_html=True)
 # =========================================================
 #PLot width settings
 # =========================================================
