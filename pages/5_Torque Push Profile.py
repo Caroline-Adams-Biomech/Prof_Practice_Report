@@ -250,7 +250,15 @@ with col_l:
     # DISPLAY OPTIONS (matches other pages)
     # =========================================================
 
+    
     show_resisted = st.toggle("Show resisted trial", value=False)
+
+    col_t1, col_t2 = st.columns(2)
+    with col_t1:
+        show_left = st.toggle("Show Left side", value=True)
+    with col_t2:
+        show_right = st.toggle("Show Right side", value=True)
+
 
     with st.popover("What is torque?"):
         st.write(
@@ -309,12 +317,54 @@ def add_profile(t, m, sd, col, fill, name, dash=None):
         showlegend=False
     )
 
-t, m, sd = mean_sd(BLw); add_profile(t, m, sd, "red", "rgba(211,160,160,0.35)", "Baseline Left")
-t, m, sd = mean_sd(BRw); add_profile(t, m, sd, "blue","rgba(158,197,255,0.35)", "Baseline Right")
+#-------------------------
+# BASELINE
+# -------------------------
+if show_left:
+    t, m, sd = mean_sd(BLw)
+    if t is not None:
+        add_profile(
+            t, m, sd,
+            "red",
+            "rgba(211,160,160,0.35)",
+            "Baseline Left"
+        )
 
+if show_right:
+    t, m, sd = mean_sd(BRw)
+    if t is not None:
+        add_profile(
+            t, m, sd,
+            "blue",
+            "rgba(158,197,255,0.35)",
+            "Baseline Right"
+        )
+
+# -------------------------
+# RESISTED
+# -------------------------
 if show_resisted:
-    t, m, sd = mean_sd(RLw); add_profile(t, m, sd, "black","rgba(217,217,217,0.35)", "Resisted Left","dash")
-    t, m, sd = mean_sd(RRw); add_profile(t, m, sd, "green","rgba(168,230,163,0.35)", "Resisted Right","dash")
+    if show_left:
+        t, m, sd = mean_sd(RLw)
+        if t is not None:
+            add_profile(
+                t, m, sd,
+                "black",
+                "rgba(217,217,217,0.35)",
+                "Resisted Left",
+                "dash"
+            )
+
+    if show_right:
+        t, m, sd = mean_sd(RRw)
+        if t is not None:
+            add_profile(
+                t, m, sd,
+                "green",
+                "rgba(168,230,163,0.35)",
+                "Resisted Right",
+                "dash"
+            )
 
 fig.update_layout(
     template="simple_white",
