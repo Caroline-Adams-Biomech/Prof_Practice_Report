@@ -319,9 +319,12 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 marker_color=BAR_COLOURS["rolling_length"][rep],
                 name=f"Rolling ({REP_LABELS[rep]})",
                 legendgroup=f"{rep}_roll",
+                
+                customdata=roll["value"],   # ✅ preserve true rolling values
                 hovertemplate=
-                    "Rolling Length: %{y:.2f} m<br>" +
+                    "Rolling Length: %{customdata:.2f} m<br>" +
                     "<extra></extra>"
+
             )
 
             fig.add_scatter(
