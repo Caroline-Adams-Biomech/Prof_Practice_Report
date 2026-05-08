@@ -318,7 +318,10 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 x=x, y=roll["value"], base=push["value"], width=0.32,
                 marker_color=BAR_COLOURS["rolling_length"][rep],
                 name=f"Rolling ({REP_LABELS[rep]})",
-                legendgroup=f"{rep}_roll"
+                legendgroup=f"{rep}_roll",
+                hovertemplate=
+                    "Rolling Length: %{y:.2f} m<br>" +
+                    "<extra></extra>"
             )
 
             fig.add_scatter(
@@ -337,6 +340,9 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
                 name=f"Total ({REP_LABELS[rep]})",
                 line=dict(color=REP_COLOURS[rep], width=2),
                 marker=dict(size=7),
+                hovertemplate=
+                    "Total Cycle Length: %{y:.2f} m<br>" +
+                    "<extra></extra>"
             )
 
             
