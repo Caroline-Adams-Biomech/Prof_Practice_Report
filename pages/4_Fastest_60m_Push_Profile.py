@@ -306,12 +306,13 @@ for col, band in zip([col_left, col_right], DISTANCE_BANDS):
             total = push["value"].values + roll["value"].values
 
             fig.add_bar(
-                x=x, y=push["value"], width=0.32,
+                x=x, 
+                y=push["value"], width=0.32,
                 marker_color=BAR_COLOURS["push_length"][rep],
                 name=f"Push ({REP_LABELS[rep]})",
-                legendgroup=f"{rep}_push"
-
-            )
+                legendgroup=f"{rep}_push",
+                hovertemplate="Push Length: %{y:.2f} m<br>" +"<extra></extra>"
+             )
 
             fig.add_bar(
                 x=x, y=roll["value"], base=push["value"], width=0.32,
